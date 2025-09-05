@@ -1,9 +1,8 @@
 <template>
-  <q-page class="q-pa-none">
+  <q-page class="page">
     <HeroComponent />
-
-
-    <VenuesMarquee :height="'560px'" :speed="52" />
+    <div class="gap"></div>
+    <VenuesMarquee :height="'440px'" :speed="56" />
   </q-page>
 </template>
 
@@ -11,3 +10,8 @@
 import HeroComponent from 'components/HeroComponent.vue'
 import VenuesMarquee from 'components/VenuesMarquee.vue'
 </script>
+
+<style>
+.page{ padding:0; }
+.gap{ height:clamp(24px, 10vh, 120px); }
+</style>
