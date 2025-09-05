@@ -125,18 +125,27 @@ onBeforeUnmount(() => {
   overflow: hidden;
 }
 
-/* Wrapper video (iframe) a pieno schermo */
+/* Wrapper: pieno schermo e taglia l’eccesso */
 .hero__video{
   position: absolute; inset: 0;
   width: 100%; height: 100%;
-  pointer-events: none; /* non cliccabile */
+  overflow: hidden;
+  pointer-events: none;
 }
+
+/* IFRAME “object-fit: cover” */
 .hero__iframe{
-  position: absolute; inset: 0;
-  width: 100%; height: 100%;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  /* Caso base: riempi in larghezza mantenendo 16:9 */
+  width: 100vw;
+  height: 56.25vw;    /* 100vw * 9/16 */
+  /* Garantisci copertura anche in altezza */
+  min-width: 177.78vh; /* 100vh * 16/9 */
+  min-height: 100vh;
+  transform: translate(-50%, -50%);
   border: 0;
-  /* Mantiene il crop tipo "cover" sfruttando l'iframe pieno */
-  transform: scale(1.001); /* evita hairline gaps */
 }
 
 /* Poster fallback */
@@ -145,29 +154,21 @@ onBeforeUnmount(() => {
   background-size: cover; background-position: center;
 }
 
-/* Overlay per contrasto testo */
+/* Overlay e contenuti come già li avevi */
 .hero__overlay{
   position: absolute; inset: 0;
   background: linear-gradient(180deg, rgba(0,0,0,.22) 0%, rgba(0,0,0,.08) 35%, rgba(0,0,0,.28) 100%);
   mix-blend-mode: multiply;
   pointer-events: none;
 }
-
-/* Contenuto */
 .hero__content{
   position: absolute; left: 0; right: 0; bottom: 14vh;
   z-index: 2; width: min(1100px, 92vw); margin: 0 auto;
   color: #fff; text-align: left; padding: 0 16px;
 }
-.title{
-  font-size: clamp(40px, 6.8vw, 84px);
-  line-height: 1.02; letter-spacing: -0.02em; font-weight: 800;
-  text-shadow: 0 6px 28px rgba(0,0,0,.35); margin: 0;
-}
-.subtitle{
-  margin-top: .6rem; font-size: clamp(16px, 2.2vw, 22px); max-width: 72ch;
-  opacity: .95; text-shadow: 0 3px 18px rgba(0,0,0,.32);
-}
+.title{ font-size: clamp(40px, 6.8vw, 84px); line-height: 1.02; letter-spacing: -0.02em; font-weight: 800; text-shadow: 0 6px 28px rgba(0,0,0,.35); margin: 0; }
+.subtitle{ margin-top: .6rem; font-size: clamp(16px, 2.2vw, 22px); max-width: 72ch; opacity: .95; text-shadow: 0 3px 18px rgba(0,0,0,.32); }
+
 
 /* Micro-entrance per il copy */
 .anim{ opacity:0; transform: translateY(8px); }
