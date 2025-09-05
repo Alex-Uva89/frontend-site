@@ -34,7 +34,6 @@ import VenueCard from './VenueCard.vue'
 const props = defineProps({
   items: { type: Array, default: () => defaultVenues },
   speed: { type: Number, default: 48 },          // secondi per un ciclo completo
-  height: { type: String, default: '760px' },     // altezza card fissa
   pauseOnHover: { type: Boolean, default: true }  // pausa su hover
 })
 

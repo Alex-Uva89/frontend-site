@@ -31,7 +31,7 @@
 <script setup>
 defineProps({
   venue: { type: Object, required: true },
-  height: { type: String, default: '720px' }
+  height: { type: String, default: '820px' }
 })
 </script>
 
