@@ -16,7 +16,9 @@
         <div class="foot__venues">
           <div v-for="v in venuesList" :key="v.id" class="foot__col">
             <div class="foot__colHint">{{ (v.address || 'Lecce').toUpperCase() }}</div>
-            <a :href="v.href || ('/venues/' + v.id)" class="foot__item">{{ v.name.toUpperCase() }}</a>
+            <router-link :to="{ name: 'locale', params: { id: v.id } }" class="foot__item">
+              {{ v.name.toUpperCase() }}
+            </router-link>
           </div>
         </div>
       </section>
@@ -89,6 +91,8 @@ const year = new Date().getFullYear()
   color: var(--sepia);
   border-top: 1.5px solid var(--sepia);
   padding: 18px 0 0;           /* mobile-first */
+  margin-top: 24px;
+  border-top: .1px solid rgba(165, 42, 42, 0.267);
 }
 
 /* TOP */

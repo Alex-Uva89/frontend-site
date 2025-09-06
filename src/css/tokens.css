@@ -1,0 +1,20 @@
+:root{
+  /* Terra del Salento */
+  --stone-50:  #f6f1e7; /* avorio caldo - testi su scuro */
+  --stone-100: #efe6d3; /* pietra leccese */
+  --sand-200:  #e4d8c1;
+  --clay-400:  #c97e63; /* terracotta */
+  --clay-500:  #b86e56;
+  --sage-300:  #a6b08a;
+  --sage-400:  #8ea073;
+  --olive-700: #566345; /* oliva profondo */
+  --olive-800: #3f4b33;
+  --sepia-900: #2a2019; /* seppia quasi nero */
+
+  /* Neutri di supporto */
+  --ink:       #1e1b16;
+  --white-08:  rgba(255,255,255,.08);
+  --white-12:  rgba(255,255,255,.12);
+  --white-18:  rgba(255,255,255,.18);
+  --white-28:  rgba(255,255,255,.28);
+}

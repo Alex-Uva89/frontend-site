@@ -1,123 +1,233 @@
 <template>
   <q-layout view="lHh Lpr lFf">
-    <Navbar
+    <!-- NAVBAR: apre la drawer -->
+    <NavbarComponent
       booking-url="https://prenota.example"
       instagram-url="https://instagram.com/mammaelvira"
       facebook-url="https://facebook.com/mammaelvira"
       @menu="drawer = true"
     />
 
+    <!-- DRAWER semplice: foto da store come sfondo -->
     <q-drawer
       v-model="drawer"
-      side="left"
+      side="right"
       overlay
-      elevated
       :width="drawerWidth"
-      :content-class="['drawer','drawer--emotional', drawer ? 'is-open' : '']"
+      :content-class="'simple-drawer'"
     >
-      <q-scroll-area class="fit">
-        <div class="wrap">
-          <div class="head anim" style="--d:40ms">
-            <q-btn flat round dense icon="close" :aria-label="$t('nav.close')" @click="drawer=false" />
-          </div>
+      <!-- sfondo -->
+      <div class="sd-bg" :style="{ backgroundImage: 'url(' + bgImage + ')' }"></div>
+      <div class="sd-veil"></div>
 
-          <div class="hero anim" style="--d:120ms">
-            <h2>{{ $t('drawer.heroTitle') }}</h2>
-            <p>{{ $t('drawer.heroText') }}</p>
-          </div>
+      <!-- contenuti -->
+      <div class="sd-content">
+        <button class="sd-close" @click="drawer=false" aria-label="Chiudi">✕</button>
 
-          <q-separator dark spaced class="anim" style="--d:180ms" />
+        <nav class="sd-nav" aria-label="Navigazione">
+          <template v-for="(link, i) in navLinks" :key="i">
+            <!-- Interno (router) -->
+            <RouterLink
+              v-if="link.to"
+              class="sd-link"
+              :to="link.to"
+              @click="drawer=false"
+            >
+              {{ link.label }}
+            </RouterLink>
 
-          <div class="links">
-            <q-item clickable to="/" v-ripple class="link anim" style="--d:220ms"><q-item-section>{{ $t('drawer.home') }}</q-item-section></q-item>
-            <q-item clickable to="/venues" v-ripple class="link anim" style="--d:260ms"><q-item-section>{{ $t('drawer.venues') }}</q-item-section></q-item>
-            <q-item clickable to="/story" v-ripple class="link anim" style="--d:300ms"><q-item-section>{{ $t('drawer.story') }}</q-item-section></q-item>
-            <q-item clickable to="/producers" v-ripple class="link anim" style="--d:340ms"><q-item-section>{{ $t('drawer.producers') }}</q-item-section></q-item>
-            <q-item clickable to="/jobs" v-ripple class="link anim" style="--d:380ms"><q-item-section>{{ $t('drawer.jobs') }}</q-item-section></q-item>
-            <q-item clickable to="/contact" v-ripple class="link anim" style="--d:420ms"><q-item-section>{{ $t('drawer.contact') }}</q-item-section></q-item>
-          </div>
-
-          <div class="ctas">
-            <q-btn unelevated class="cta primary anim" style="--d:480ms" :label="$t('drawer.book')" href="https://prenota.example" target="_blank" @click="drawer=false" />
-            <q-btn outline class="cta ghost anim" style="--d:520ms" :label="$t('drawer.private')" to="/events" @click="drawer=false" />
-          </div>
-
-          <div class="social anim" style="--d:560ms">
-            <a href="https://instagram.com/mammaelvira" target="_blank" aria-label="Instagram" class="chip">
-              <svg width="18" height="18" viewBox="0 0 24 24"><path fill="currentColor" d="M7 2h10a5 5 0 0 1 5 5v10a5 5 0 0 1-5 5H7a5 5 0 0 1-5-5V7a5 5 0 0 1 5-5Z"/></svg>
+            <!-- Esterno -->
+            <a
+              v-else-if="link.href"
+              class="sd-link"
+              :href="link.href"
+              target="_blank"
+              rel="noopener"
+              @click="drawer=false"
+            >
+              {{ link.label }}
             </a>
-            <a href="https://facebook.com/mammaelvira" target="_blank" aria-label="Facebook" class="chip">
-              <svg width="18" height="18" viewBox="0 0 24 24"><path fill="currentColor" d="M13 10h3l-.5 3H13v9h-3v-9H8v-3h2V8.5A4.5 4.5 0 0 1 14.5 4H17v3h-2.5A1.5 1.5 0 0 0 13 8.5V10Z"/></svg>
-            </a>
-            <q-btn flat dense no-caps class="lang" @click="toggle">{{ $t('nav.langNext') }}</q-btn>
-          </div>
+          </template>
+        </nav>
 
-          <div class="note anim" style="--d:600ms">{{ $t('drawer.tagline') }}</div>
+        <!-- CTA sticky dal negozio -->
+        <div class="sd-cta" role="group" aria-label="Azioni rapide">
+          <a
+            v-if="bookingCta?.href"
+            class="sd-cta-btn sd-cta-primary"
+            :href="bookingCta.href"
+            target="_blank"
+            rel="noopener"
+            @click="drawer=false"
+          >
+            {{ bookingCta.label }}
+          </a>
+          <RouterLink
+            v-if="privateCta?.to"
+            class="sd-cta-btn sd-cta-ghost"
+            :to="privateCta.to"
+            @click="drawer=false"
+          >
+            {{ privateCta.label }}
+          </RouterLink>
+          <a
+            v-else-if="privateCta?.href"
+            class="sd-cta-btn sd-cta-ghost"
+            :href="privateCta.href"
+            target="_blank"
+            rel="noopener"
+            @click="drawer=false"
+          >
+            {{ privateCta.label }}
+          </a>
         </div>
-      </q-scroll-area>
+      </div>
     </q-drawer>
 
-    <q-page-container><router-view /></q-page-container>
-
-    <SiteFooter />
+    <q-page-container style="padding-top: 0;">
+      <router-view />
+    </q-page-container>
   </q-layout>
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
-import { useI18n } from 'vue-i18n'
-import { useLang } from 'src/composables/useLang'
-import Navbar from 'components/NavbarComponent.vue'
-import SiteFooter from 'src/components/SiteFooter.vue'
+import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
+import { useDrawerStore } from 'src/stores/drawerStore'
+import NavbarComponent from 'components/NavbarComponent.vue'
 
 const drawer = ref(false)
-const { toggle } = useLang()
-useI18n()
+const drawerWidth = ref(window.innerWidth)
+function onResize(){ drawerWidth.value = window.innerWidth }
+onMounted(()=> window.addEventListener('resize', onResize, { passive: true }))
+onBeforeUnmount(()=> window.removeEventListener('resize', onResize))
 
-const drawerWidth = computed(() => window.innerWidth < 768 ? window.innerWidth : 420)
+/* Store Pinia */
+const drawerStore = useDrawerStore()
+const bgImage    = computed(() => drawerStore.image || '')
+const navLinks   = computed(() => Array.isArray(drawerStore.links) && drawerStore.links.length ? drawerStore.links : [])
+const bookingCta = computed(() => drawerStore.ctas?.booking || null)
+const privateCta = computed(() => drawerStore.ctas?.private || null)
 </script>
 
-<style>
-.q-page-container{ padding-top:0 !important; }
+<style scoped>
+/* Drawer semplice: foto + velo + link grandi bianchi */
 
-.drawer--emotional{
-  color:#fff;
-  background:
-    radial-gradient(120% 100% at 10% 0%, rgba(201,126,99,.55), rgba(109,122,79,.35) 40%, rgba(0,0,0,.55) 100%),
-    linear-gradient(160deg, rgba(0,0,0,.25), rgba(0,0,0,.55));
-  backdrop-filter: blur(6px);
-  position:relative; overflow:hidden;
-}
-.drawer--emotional::before{ content:''; position:absolute; inset:-50% -20%; background:conic-gradient(from 0deg, rgba(255,255,255,.05), transparent 20%, rgba(255,255,255,.05) 40%, transparent 60%, rgba(255,255,255,.05) 80%, transparent); animation:spin 16s linear infinite; }
-.drawer--emotional::after{ content:''; position:absolute; inset:0; background-image: radial-gradient(rgba(255,255,255,.06) 1px, transparent 1px); background-size:3px 3px; opacity:.55; }
-@keyframes spin{ to{ transform: rotate(360deg) } }
-@media (prefers-reduced-motion: reduce){ .drawer--emotional::before{ animation:none } }
-
-.wrap{ padding:16px 14px 22px; position:relative; z-index:1; }
-.head{ display:flex; justify-content:flex-end; }
-.hero{ padding:10px 4px 6px; }
-.hero h2{ margin:0 0 4px; font-size:24px; line-height:1.1; }
-.hero p{ margin:0; opacity:.95; max-width:36ch; }
-.links{ margin:12px 0 8px; }
-.link{ border-radius:12px; margin:2px 0; color:#fff; }
-.link:hover{ background:rgba(255,255,255,.08) }
-.ctas{ display:grid; gap:10px; margin:12px 0 14px; }
-.cta{ text-transform:none; font-weight:800; letter-spacing:.02em; }
-.primary{ background:#fff; color:#111; }
-.ghost{ border-color:rgba(255,255,255,.9); color:#fff; }
-.social{ display:flex; align-items:center; gap:8px; }
-.chip{ width:36px; height:36px; display:grid; place-items:center; color:#fff; border:1px solid rgba(255,255,255,.4); border-radius:50%; }
-.lang{ color:#fff; font-weight:700; letter-spacing:.06em; }
-.note{ opacity:.75; font-size:12px; margin-top:8px; }
-
-/* tablet+ */
-@media (min-width:768px){
-  .wrap{ padding:18px 16px 24px; }
-  .hero h2{ font-size:32px; }
+.simple-drawer{
+  position: relative;
+  padding: 0;
+  overflow: hidden;
+  background: #000; /* fallback sotto la foto */
 }
 
-/* micro entrance */
-.anim{ opacity:0; transform:translateY(8px); }
-.drawer.is-open .anim{ opacity:1; transform:none; transition:opacity .5s ease, transform .5s ease; transition-delay:var(--d,0ms); }
-@media (prefers-reduced-motion: reduce){ .anim,.drawer.is-open .anim{ opacity:1!important; transform:none!important; transition:none!important; } }
+/* sfondo a pieno, cover */
+.sd-bg{
+  position: absolute; inset: 0;
+  background-size: cover;
+  background-position: center;
+}
+
+/* velo scuro per leggere bene il bianco */
+.sd-veil{
+  position: absolute; inset: 0;
+  background: rgba(0,0,0,.45);
+}
+
+/* contenuti */
+.sd-content{
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(12px, 2vh, 20px);
+  padding: clamp(16px, 3vw, 32px);
+  color: #fff;
+  min-height: 100%;
+}
+
+/* chiudi in alto a destra */
+.sd-close{
+  align-self: flex-end;
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: #fff;
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+/* nav con link grandi (da store) */
+.sd-nav{
+  display: flex;
+  flex-direction: column;
+  gap: clamp(10px, 1.8vh, 18px);
+  margin-top: clamp(8px, 2vh, 24px);
+}
+
+.sd-link{
+  color: #fff;
+  text-decoration: none;
+  font-weight: 800;
+  letter-spacing: -.01em;
+  line-height: 1.05;
+  font-size: clamp(1rem, 6vw, 96px);
+  /* underline semplice all’hover/focus */
+  background-image: linear-gradient(currentColor, currentColor);
+  background-repeat: no-repeat;
+  background-position: 0 100%;
+  background-size: 0% 2px;
+  transition: background-size .25s ease;
+}
+.sd-link:hover,
+.sd-link:focus-visible{ background-size: 100% 2px; }
+.sd-link:focus-visible{
+  outline: 2px solid rgba(255,255,255,.9);
+  outline-offset: 4px;
+  border-radius: 4px;
+}
+
+/* CTA sticky in basso (da store) */
+.sd-cta{
+  margin-top: auto;
+  position: sticky;
+  bottom: 0;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+  padding-top: 12px;
+  padding-bottom: calc(12px + env(safe-area-inset-bottom));
+  background: linear-gradient(to top, rgba(0,0,0,.32), rgba(0,0,0,0));
+}
+
+.sd-cta-btn{
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  font-weight: 800;
+  letter-spacing: .02em;
+  border-radius: 12px;
+  padding: 12px 16px;
+  font-size: clamp(16px, 1.6vw, 18px);
+  cursor: pointer;
+  transition: transform .06s ease, opacity .2s ease;
+}
+.sd-cta-btn:active{ transform: translateY(1px); }
+
+.sd-cta-primary{
+  color: #fff;
+  background: #c97e63;   /* clay-400 */
+}
+.sd-cta-primary:hover{ opacity: .96; }
+
+.sd-cta-ghost{
+  color: #fff;
+  border: 1px solid rgba(255,255,255,.22);
+  background: rgba(255,255,255,.04);
+}
+
+/* da tablet: affiancati */
+@media (min-width: 700px){
+  .sd-cta{ grid-template-columns: 1fr 1fr; }
+}
 </style>

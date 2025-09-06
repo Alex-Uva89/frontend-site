@@ -1,4 +1,8 @@
 // app global css in SCSS form
+// src/main.js
+@import 'src/css/tokens.css';
+
+
 :root{
   --divider-color: #3b1d12;   /* sepia */
   --divider-gap: 8px;         /* distanza tra le due linee */

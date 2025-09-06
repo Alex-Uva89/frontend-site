@@ -7,11 +7,6 @@
         {{ nextLabel }}
       </q-btn>
 
-      <!-- Centro: brand -->
-      <router-link to="/" class="nav__brand">
-        {{ $t('brand') }}
-      </router-link>
-
       <!-- DX: menu -->
       <q-btn
         flat round dense icon="menu"
@@ -19,6 +14,12 @@
         :aria-label="$t('nav.menu')"
         @click="$emit('menu')"
       />
+
+      <!-- Centro: brand -->
+      <router-link to="/" class="nav__brand">
+        {{ $t('brand') }}
+      </router-link>
+
 
       <!-- Desktop-only: cluster destro con CTA + social + lingua -->
       <div class="nav__right">
@@ -74,6 +75,7 @@ const { nextLabel, toggle } = useLang()
   padding: 0 12px;
   background: transparent;
   display: flex; align-items: center; justify-content: space-between;
+  border-bottom: .1px solid rgba(255, 255, 255, 0.185);
 }
 
 /* Brand centrato REALMENTE */
