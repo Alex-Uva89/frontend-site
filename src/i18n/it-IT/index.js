@@ -25,5 +25,40 @@ export default {
   hero: {
     title: 'La qualità del Salento, senza compromessi',
     subtitle: 'Ingredienti scelti, artigianalità, ospitalità contemporanea.'
+  },
+  actionsSection: {
+    title: 'Cosa puoi fare',
+    book: {
+      title: 'Si accettano prenotazioni!',
+      lead: '<em>Amici belli</em>, tutti i nostri ristoranti accettano prenotazioni. Per grandi tavolate, primi appuntamenti o rimpatriate — passate a trovarci!',
+      cta: 'Prenotare',
+      imgAlt: 'Tavolata che brinda'
+    },
+    menu: {
+      title: 'Conosci i nostri menù',
+      lead: 'Ingredienti selezionati, artigianalità radicale, stagionalità. Scopri piatti e carte dei vini dei nostri locali.',
+      cta: 'Vedi menù',
+      imgAlt: 'Piatti e calici'
+    },
+    events: {
+      title: 'Eventi & serate speciali',
+      lead: 'Dalle degustazioni ai compleanni: ispirazioni, proposte e format per i vostri momenti da ricordare.',
+      cta: 'Scopri gli eventi',
+      imgAlt: 'Tavolo conviviale durante un evento'
+    }
+  },
+  newsletter: {
+    title: 'Iscriviti alla newsletter',
+    lead: 'Novità, menu stagionali, eventi speciali — una sola email al mese, promesso.',
+    email: 'La tua email',
+    emailErr: 'Inserisci una email valida',
+    giftQ: 'Vuoi un regalo di compleanno?',
+    birthdate: 'Data di nascita',
+    birthErr: 'Data non valida',
+    giftNote: 'Useremo la data solo per inviarti un piccolo pensiero nel tuo mese di compleanno.',
+    consent: 'Acconsento al trattamento dei dati per finalità di comunicazione',
+    privacy: 'Privacy',
+    submit: 'Invia'
   }
+
 }

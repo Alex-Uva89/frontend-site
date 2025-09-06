@@ -19,7 +19,7 @@
 </template>
 
 <script setup>
-defineProps({ venue:{type:Object,required:true}, height:{type:String,default:'440px'} })
+defineProps({ venue:{type:Object,required:true}, height:{type:String,default:'740px'} })
 </script>
 
 <style scoped>

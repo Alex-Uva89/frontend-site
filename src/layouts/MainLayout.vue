@@ -58,6 +58,8 @@
     </q-drawer>
 
     <q-page-container><router-view /></q-page-container>
+
+    <SiteFooter />
   </q-layout>
 </template>
 
@@ -66,6 +68,7 @@ import { ref, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useLang } from 'src/composables/useLang'
 import Navbar from 'components/NavbarComponent.vue'
+import SiteFooter from 'src/components/SiteFooter.vue'
 
 const drawer = ref(false)
 const { toggle } = useLang()
