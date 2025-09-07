@@ -87,6 +87,8 @@
     <q-page-container style="padding-top: 0;">
       <router-view />
     </q-page-container>
+
+    <SiteFooter />
   </q-layout>
 </template>
 
@@ -94,6 +96,7 @@
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import { useDrawerStore } from 'src/stores/drawerStore'
 import NavbarComponent from 'components/NavbarComponent.vue'
+import SiteFooter from 'src/components/SiteFooter.vue'
 
 const drawer = ref(false)
 const drawerWidth = ref(window.innerWidth)
