@@ -10,7 +10,11 @@ const routes = [
       { path: 'venues', name: 'venues', component: () => import('pages/ListVenuePage.vue') },
 
       // pagina singolo locale
-      { path: 'locale/:id', name: 'locale', component: () => import('pages/VenuePage.vue') }
+      { path: 'locale/:id', name: 'locale', component: () => import('pages/VenuePage.vue') },
+
+      // pagina la nostra storia
+      { path: '/story', component: () => import('pages/OurStory.vue') }
+
     ],
   },
 
