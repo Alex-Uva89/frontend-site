@@ -299,6 +299,7 @@ function vibrate(ms){ if (window.navigator?.vibrate) window.navigator.vibrate(ms
   background: var(--stone-100, #efe6d3);
   min-height: 100dvh;
   color: var(--sepia-900, #2a2019);
+  padding-top: 80px;
 }
 .wrap{ width: min(92vw, 1200px); margin: 14px auto 28px; }
 .head{ margin: 6px 0 10px; }
