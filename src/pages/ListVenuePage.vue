@@ -9,9 +9,9 @@
         </p>
       </header>
 
-      <!-- Controls (mobile-first) -->
+      <!-- Controls (MOBILE-FIRST) -->
       <div class="controls">
-        <!-- Filtri scrollabili orizzontali -->
+        <!-- Filtri orizzontali, sticky -->
         <div class="chips" role="tablist" aria-label="Filtra per tipologia">
           <button
             class="chip" role="tab"
@@ -27,7 +27,7 @@
           >{{ k }}</button>
         </div>
 
-        <!-- Azioni: stile mappa + geolocate -->
+        <!-- Azioni compatte -->
         <div class="actions">
           <q-select
             v-model="currentStyle"
@@ -42,14 +42,15 @@
         </div>
       </div>
 
-      <!-- MAP shell (non-hero) -->
+      <!-- MAP shell -->
       <section class="map-shell">
         <div ref="mapEl" class="map"></div>
-        <!-- tinta + effetto sogno -->
+
+        <!-- tinta + bordo “sogno” -->
         <div class="tint" aria-hidden="true"></div>
         <div class="dream-mask" aria-hidden="true"></div>
 
-        <!-- legenda compatta -->
+        <!-- legenda -->
         <div class="legend">
           <details>
             <summary>{{ $t('venues.list','Elenco') }}</summary>
@@ -63,13 +64,13 @@
 
         <!-- Scheda info (bottom sheet su mobile) -->
         <transition name="sheet">
-          <aside v-if="selected" class="info" :class="{ mobile: isMobile }">
+          <aside v-if="selected" class="info" :class="{ mobile: isMobile }" role="dialog" aria-modal="false">
             <button class="info__close" @click="selected=null" aria-label="Chiudi">✕</button>
             <div class="info__media" :style="{ backgroundImage:`url(${selected.image})` }" />
             <div class="info__body">
               <h3 class="info__title">{{ selected.name }}</h3>
               <p class="info__addr">{{ selected.address }}</p>
-              <div class="info__status" :class="{ open: isOpenNow(selected) }">
+              <div class="info__status" :class="{ open: isOpenNow(selected) }" aria-live="polite">
                 {{ isOpenNow(selected) ? $t('open.now','Aperto ora') : $t('closed.now','Chiuso') }}
               </div>
               <div class="info__cta">
@@ -98,7 +99,9 @@ import 'maplibre-gl/dist/maplibre-gl.css'
 const router = useRouter()
 const mapEl = ref(null)
 let map = null
-let markers = []
+let markers = []            // [{ id, marker, el }]
+const resizeW = ref(window.innerWidth)
+const isMobile = computed(() => resizeW.value < 768)
 
 /* ========= Data ========= */
 const all = computed(() =>
@@ -111,17 +114,17 @@ const venuesFiltered = computed(() =>
 )
 function setKind(k){ activeKind.value = k }
 
-/* ========= Stato / UI ========= */
-const isMobile = computed(() => window.innerWidth < 768)
+/* ========= Selezione ========= */
 const selectedId = ref(null)
-const selected = computed(() => all.value.find(v => v.id === selectedId.value))
+const selected = computed(() => all.value.find(v => v.id === selectedId.value) || null)
 
 function goToVenue (id){ router.push({ name: 'locale', params: { id } }) }
 function focusVenue (id){
   const v = all.value.find(x => x.id === id); if(!v) return
   selectedId.value = id
   vibrate(12)
-  map?.easeTo({ center: [v.coords.lng, v.coords.lat], zoom: Math.max(map.getZoom(), 15.2), duration: 600 })
+  map?.easeTo({ center: [v.coords.lng, v.coords.lat], zoom: Math.max(map.getZoom(), 15.2), duration: 450 })
+  updateMarkerStates()
 }
 
 /* ========= Orari ========= */
@@ -146,7 +149,6 @@ const mapStylesOptions = [
   { label: 'OSM Standard', value: 'osm' },
   { label: 'OSM HOT',      value: 'osmHot' },
   { label: 'Carto Light',  value: 'cartoLight' },
-  // Esempio VECTOR (serve key): { label:'MapTiler Streets', value:'maptiler' }
 ]
 const currentStyle = ref('osm')
 
@@ -165,32 +167,30 @@ function rasterStyle (tiles, attribution, bg = '#e4d8c1'){
 function styleFor(id){
   switch(id){
     case 'osm':
-      return rasterStyle(
-        ['https://tile.openstreetmap.org/{z}/{x}/{y}.png'],
-        '© OpenStreetMap contributors'
-      )
+      return rasterStyle(['https://tile.openstreetmap.org/{z}/{x}/{y}.png'], '© OpenStreetMap')
     case 'osmHot':
       return rasterStyle(
-        ['https://a.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png',
-         'https://b.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png',
-         'https://c.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png'],
-        '© OpenStreetMap contributors, HOT'
+        ['https://a.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png','https://b.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png','https://c.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png'],
+        '© OpenStreetMap, HOT'
       )
     case 'cartoLight':
       return rasterStyle(
-        ['https://a.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png',
-         'https://b.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png',
-         'https://c.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png',
-         'https://d.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png'],
+        ['https://a.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png','https://b.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png','https://c.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png','https://d.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png'],
         '© CARTO, © OpenStreetMap'
       )
-    // case 'maptiler': return 'https://api.maptiler.com/maps/streets/style.json?key=YOUR_KEY' // vettoriale
-    default: return styleFor('osmHot')
+    default: return rasterStyle(['https://tile.openstreetmap.org/{z}/{x}/{y}.png'], '© OpenStreetMap')
   }
 }
 
 /* ========= Map init ========= */
+function onResize(){
+  resizeW.value = window.innerWidth
+  if (map) map.resize()
+}
+
 onMounted(() => {
+  window.addEventListener('resize', onResize, { passive: true })
+
   map = new maplibregl.Map({
     container: mapEl.value,
     style: styleFor(currentStyle.value),
@@ -203,73 +203,92 @@ onMounted(() => {
   map.on('load', () => { addMarkers(); fitToVenues() })
 })
 
-onBeforeUnmount(() => { markers.forEach(m => m.remove()); map && map.remove() })
+onBeforeUnmount(() => {
+  window.removeEventListener('resize', onResize)
+  markers.forEach(m => m.marker.remove())
+  if (map) map.remove()
+})
 
 /* Cambia stile mappa al volo */
 watch(currentStyle, (id) => {
   if (!map) return
   map.setStyle(styleFor(id))
-  // I Marker DOM sopravvivono al cambio stile, ma rifittiamo
   map.once('styledata', () => fitToVenues())
 })
 
-/* ========= Marker handling (filtri FIX) ========= */
-function clearMarkers(){ markers.forEach(m => m.remove()); markers = [] }
+/* ========= Markers ========= */
+function clearMarkers(){
+  markers.forEach(m => m.marker.remove())
+  markers = []
+}
 
 function addMarkers(){
   clearMarkers()
   venuesFiltered.value.forEach(v => {
     const el = document.createElement('button')
-    el.className = 'pin2'; el.type='button'; el.setAttribute('aria-label', v.name)
+    el.className = 'pin2'
+    el.type='button'
+    el.setAttribute('aria-label', v.name)
     el.innerHTML = `
       <span class="glow"></span>
       <span class="ring"></span>
       <span class="core"></span>
       <span class="label">${v.name}</span>
     `
-    el.style.padding = '10px 15px'
-    el.style.borderRadius = '10px'
     el.addEventListener('click', () => focusVenue(v.id))
     el.addEventListener('mouseenter', () => el.classList.add('hover'))
     el.addEventListener('mouseleave', () => el.classList.remove('hover'))
+
     const mk = new maplibregl.Marker({ element: el, anchor: 'bottom' })
-      .setLngLat([v.coords.lng, v.coords.lat]).addTo(map)
-    markers.push(mk)
+      .setLngLat([v.coords.lng, v.coords.lat])
+      .addTo(map)
+
+    markers.push({ id: v.id, marker: mk, el })
+  })
+  updateMarkerStates()
+}
+
+function updateMarkerStates(){
+  markers.forEach(m => {
+    if (m.id === selectedId.value) m.el.classList.add('active')
+    else m.el.classList.remove('active')
   })
 }
 
 function fitToVenues () {
   if (!venuesFiltered.value.length) return
 
-  // calcola il bounds dei locali filtrati
   const b = new maplibregl.LngLatBounds()
   venuesFiltered.value.forEach(v => b.extend([v.coords.lng, v.coords.lat]))
 
-  // adatta la vista
+  // Adatta vista
   map.fitBounds(b, {
-    padding: { top: 60, right: 60, bottom: 60, left: 60 },
+    padding: isMobile.value ? { top: 40, right: 24, bottom: 200, left: 24 } : { top: 60, right: 60, bottom: 60, left: 60 },
     maxZoom: 16,
-    duration: 550
+    duration: 450
   })
 
-  // crea un bounds "ingrandito" manualmente (equivalente del .pad(0.35))
+  // Bounds “padded” manuale (equivalente .pad)
   const padRatio = 0.35
   const sw = b.getSouthWest()
   const ne = b.getNorthEast()
-  const lngSpan = ne.lng - sw.lng || 0.01   // fallback se un solo punto
-  const latSpan = ne.lat - sw.lat || 0.01
+  const lngSpan = (ne.lng - sw.lng) || 0.01
+  const latSpan = (ne.lat - sw.lat) || 0.01
 
   const padded = new maplibregl.LngLatBounds(
     [sw.lng - lngSpan * padRatio, sw.lat - latSpan * padRatio],
     [ne.lng + lngSpan * padRatio, ne.lat + latSpan * padRatio]
   )
-
-  // limita lo spostamento alla “zona” dei locali
   map.setMaxBounds(padded)
+
+  // Se rimane un solo locale, centra con zoom piacevole
+  if (venuesFiltered.value.length === 1) {
+    const v = venuesFiltered.value[0]
+    map.easeTo({ center: [v.coords.lng, v.coords.lat], zoom: 15.5, duration: 300 })
+  }
 }
 
-
-/* Re-render quando cambia filtro o dataset */
+/* Aggiorna quando cambiano filtro/dataset */
 watch([activeKind, all], () => {
   if (!map) return
   addMarkers()
@@ -282,7 +301,7 @@ function locateMe(){
   navigator.geolocation.getCurrentPosition(
     ({coords}) => {
       vibrate(8)
-      map?.easeTo({ center: [coords.longitude, coords.latitude], zoom: 15.5, duration: 600 })
+      map?.easeTo({ center: [coords.longitude, coords.latitude], zoom: 15.5, duration: 450 })
     },
     () => {},
     { enableHighAccuracy: true, maximumAge: 20_000, timeout: 10_000 }
@@ -299,25 +318,37 @@ function vibrate(ms){ if (window.navigator?.vibrate) window.navigator.vibrate(ms
   background: var(--stone-100, #efe6d3);
   min-height: 100dvh;
   color: var(--sepia-900, #2a2019);
-  padding-top: 80px;
+  padding-top: max(64px, env(safe-area-inset-top)); /* spazio sotto navbar */
 }
-.wrap{ width: min(92vw, 1200px); margin: 14px auto 28px; }
-.head{ margin: 6px 0 10px; }
-.title{ margin:0; font-size: clamp(20px,5.4vw,32px); letter-spacing:-.01em; }
-.subtitle{ margin:4px 0 0; opacity:.76; font-size: clamp(12px,3.2vw,16px); }
+.wrap{ width: min(94vw, 1100px); margin: 10px auto 24px; }
+.head{ margin: 4px 0 8px; }
+.title{ margin:0; font-size: clamp(20px,5.2vw,30px); letter-spacing:-.01em; }
+.subtitle{ margin:4px 0 0; opacity:.76; font-size: clamp(12px,3.2vw,15px); }
 
-/* Controls – mobile-first */
-.controls{ display:grid; gap:10px; margin: 8px 0 12px; }
+/* Controls – MOBILE FIRST */
+.controls{
+  position: sticky; top: calc(max(56px, env(safe-area-inset-top)) + 6px);
+  z-index: 5;
+  display:grid; gap:10px; margin: 8px 0 12px;
+}
 .chips{
-  display:flex; gap:8px; overflow:auto; padding-bottom:2px; -webkit-overflow-scrolling:touch;
-  scrollbar-width:none;
+  display:flex; gap:8px; overflow:auto; padding:2px 2px 6px; flex-wrap: wrap;
+  -webkit-overflow-scrolling:touch; scrollbar-width:none; scroll-snap-type: x proximity;
+  background: rgba(255,255,255,.35); border:1px solid rgba(42,32,25,.12); border-radius: 14px;
 }
 .chips::-webkit-scrollbar{ display:none }
 .chip{
-  all:unset; cursor:pointer; padding:8px 12px; border-radius:999px;
+  all:unset; cursor:pointer; padding:10px 14px; border-radius:999px;
   border:1px solid rgba(42,32,25,.16); background:#f6f1e7;
-  color:#2a2019; font-weight:800; letter-spacing:.02em; font-size:14px;
-  white-space:nowrap;
+  color:#2a2019; font-weight:800; letter-spacing:.02em; font-size:14px; line-height:1; min-height:44px;
+  white-space:nowrap; scroll-snap-align: start;
+  width: fit-content;
+  padding: 0px 5px;
+  min-width: 60px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
 }
 .chip.active{
   background: rgba(142,160,115,.18); border-color: rgba(42,32,25,.26);
@@ -326,10 +357,9 @@ function vibrate(ms){ if (window.navigator?.vibrate) window.navigator.vibrate(ms
 .styleSelect{ min-width: 160px; }
 .btn.ghost{ border-color: rgba(42,32,25,.3); color:#2a2019; }
 
-
 /* Desktop controls */
 @media (min-width: 768px){
-  .controls{ grid-template-columns: 1fr auto; align-items:center; }
+  .controls{ grid-template-columns: 1fr auto; align-items:center; top: calc(max(64px, env(safe-area-inset-top)) + 8px); }
 }
 
 /* ===== Map Shell non-hero ===== */
@@ -353,50 +383,51 @@ function vibrate(ms){ if (window.navigator?.vibrate) window.navigator.vibrate(ms
 
 /* bordi “sogno” */
 .dream-mask{
-  position:absolute; inset:-2% -2%; z-index:2; pointer-events:none;
+  position:absolute; inset:-3% -3%; z-index:2; pointer-events:none;
   -webkit-mask-image:
-    radial-gradient(120% 95% at 50% 50%, #000 60%, rgba(0,0,0,0) 100%);
+    radial-gradient(140% 110% at 50% 52%, #000 58%, rgba(0,0,0,0) 100%);
           mask-image:
-    radial-gradient(120% 95% at 50% 50%, #000 60%, rgba(0,0,0,0) 100%);
+    radial-gradient(140% 110% at 50% 52%, #000 58%, rgba(0,0,0,0) 100%);
   background:
-    radial-gradient(120% 95% at 50% 50%, rgba(239,230,211,.0) 55%, rgba(239,230,211,.72) 100%);
+    radial-gradient(120% 95% at 50% 50%, rgba(239,230,211,0) 55%, rgba(239,230,211,.68) 100%);
 }
 
 /* ===== Pin super visibili ===== */
 .pin2{
   all: unset; position: relative; display:grid; place-items:center; cursor:pointer;
-  transform-origin: bottom center;
+  transform-origin: bottom center; min-width:44px; min-height:44px;
 }
 .pin2 .core{
-  width: 18px; height: 18px; border-radius: 50%;
+  width: 22px; height: 22px; border-radius: 50%;
   background: var(--clay-400, #c97e63);
-  border: 3px solid #fff;       /* bordo bianco per contrasto su map dark */
-  outline: 2px solid #2a2019;   /* contorno scuro per map light */
+  border: 3px solid #fff;
+  outline: 2px solid #2a2019;
   position: relative; z-index: 2;
-  box-shadow: 0 4px 18px rgba(201,126,99,.65);
+  box-shadow: 0 6px 20px rgba(201,126,99,.65);
 }
 .pin2 .ring{
-  position:absolute; bottom:-2px; width: 40px; height: 40px; border-radius:50%;
+  position:absolute; bottom:-1px; width: 52px; height: 52px; border-radius:50%;
   border: 2px solid rgba(201,126,99,.65);
-  animation: pulse 2.4s ease-out infinite;
+  animation: pulse 2.2s ease-out infinite;
 }
 .pin2 .glow{
-  position:absolute; width: 56px; height: 56px; border-radius:50%;
-  background: radial-gradient(circle, rgba(201,126,99,.55), rgba(201,126,99,0) 72%);
-  filter: blur(8px); transform: translateY(2px);
+  position:absolute; width: 68px; height: 68px; border-radius:50%;
+  background: radial-gradient(circle, rgba(201,126,99,.6), rgba(201,126,99,0) 72%);
+  filter: blur(8px); transform: translateY(3px);
 }
 .pin2 .label{
-  position:absolute; top:-46px; left:50%; transform: translateX(-50%);
+  position:absolute; top:-50px; left:50%; transform: translateX(-50%);
   white-space:nowrap; font-size:12px; font-weight:900; letter-spacing:.02em;
   color: var(--sepia-900);
   background: rgba(246,241,231,.98);
   border:1px solid rgba(42,32,25,.18);
-  padding: 5px 9px; border-radius: 10px;
+  padding: 6px 10px; border-radius: 10px;
   box-shadow: 0 6px 22px rgba(0,0,0,.18);
   opacity: 0; transition: opacity .18s ease, transform .18s ease;
 }
 .pin2.hover .label,
-.pin2:focus-visible .label{ opacity:1; transform: translate(-50%,-2px) }
+.pin2:focus-visible .label,
+.pin2.active .label{ opacity:1; transform: translate(-50%,-2px) }
 
 .pin2:hover{ transform: translateY(-2px) scale(1.03) }
 @keyframes pulse{
@@ -415,19 +446,19 @@ function vibrate(ms){ if (window.navigator?.vibrate) window.navigator.vibrate(ms
   box-shadow: 0 18px 60px rgba(0,0,0,.18);
 }
 .info.mobile{
-  left: 12px; right: 12px; top: auto; bottom: 12px; width: auto; border-radius: 14px;
+  left: 12px; right: 12px; top: auto; bottom: 12px; width: auto;
 }
 .info__close{
   position:absolute; top:6px; right:6px; z-index:2;
-  all:unset; cursor:pointer; width:32px; height:32px; border-radius:8px;
+  all:unset; cursor:pointer; width:36px; height:36px; border-radius:9px;
   display:grid; place-items:center; color: var(--sepia-900);
-  background: rgba(255,255,255,.7); border: 1px solid rgba(42,32,25,.14);
+  background: rgba(255,255,255,.78); border: 1px solid rgba(42,32,25,.14);
 }
 .info__media{ width:100%; height: 160px; background-size:cover; background-position:center; }
 .info__body{ padding: 10px 12px 12px; }
 .info__title{ margin:0; font-size:18px; line-height:1.15; }
 .info__addr{ margin:.2rem 0 .4rem; opacity:.75; font-size:13px; }
-.info__status{ display:inline-block; padding:4px 8px; border-radius:999px; font-size:12px; border:1px solid rgba(42,32,25,.14); }
+.info__status{ display:inline-block; padding:6px 10px; border-radius:999px; font-size:12px; border:1px solid rgba(42,32,25,.14); }
 .info__status.open{ background: rgba(142,160,115,.22); }
 .info__cta{ margin-top:8px; display:flex; gap:8px; flex-wrap:wrap; }
 .btn.primary{ background:#c97e63; color:#f6f1e7; }
@@ -451,4 +482,9 @@ function vibrate(ms){ if (window.navigator?.vibrate) window.navigator.vibrate(ms
 .legend li+li{ margin-top:6px }
 .legend button{ all:unset; cursor:pointer; border-bottom:1px solid transparent }
 .legend button:hover{ border-bottom-color: currentColor }
+
+/* Accessibilità / motion */
+@media (prefers-reduced-motion: reduce){
+  .pin2 .ring{ animation: none }
+}
 </style>
