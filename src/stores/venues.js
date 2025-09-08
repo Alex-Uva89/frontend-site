@@ -6,6 +6,7 @@ export const venues = [
     address: 'Lecce',
     image: 'https://picsum.photos/seed/osteria/800/600',
     bookingUrl: 'https://prenota.example/osteria',
+    coords: { lng: 18.17162, lat: 40.35241 },
     menuUrl: '#',
     gallery: [
       { src: 'https://picsum.photos/seed/osteria-1/1920/1080', alt: 'Osteria • Sala 1' },
@@ -47,6 +48,7 @@ export const venues = [
     address: 'Lecce',
     image: 'https://picsum.photos/seed/ristorante/800/600',
     bookingUrl: 'https://prenota.example/ristorante',
+    coords: { lng: 18.17040, lat: 40.35302 },
     menuUrl: '#',
     gallery: [
       { src: 'https://picsum.photos/seed/ristorante-1/1920/1080', alt: 'Ristorante • Sala 1' },
@@ -88,6 +90,7 @@ export const venues = [
     address: 'Lecce',
     image: 'https://picsum.photos/seed/pizzeria/800/600',
     bookingUrl: 'https://prenota.example/pizzeria',
+    coords: { lng: 18.17238, lat: 40.35202 },
     menuUrl: '#',
     gallery: [
       { src: 'https://picsum.photos/seed/pizzeria-1/1920/1080', alt: 'Pizzeria • Forno' },
@@ -129,6 +132,7 @@ export const venues = [
     address: 'Lecce',
     image: 'https://picsum.photos/seed/enoteca/800/600',
     bookingUrl: 'https://prenota.example/enoteca',
+    coords: { lng: 18.16908, lat: 40.35386 },
     menuUrl: '#',
     gallery: [
       { src: 'https://picsum.photos/seed/enoteca-1/1920/1080', alt: 'Enoteca • Scaffali' },
@@ -170,6 +174,7 @@ export const venues = [
     address: 'Lecce',
     image: 'https://picsum.photos/seed/bnb/800/600',
     bookingUrl: 'https://prenota.example/bnb',
+    coords: { lng: 18.17305, lat: 40.35166 },
     menuUrl: '#',
     gallery: [
       { src: 'https://picsum.photos/seed/bnb-1/1920/1080', alt: 'B&B • Camera 1' },
