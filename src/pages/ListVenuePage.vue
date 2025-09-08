@@ -9,9 +9,9 @@
         </p>
       </header>
 
-      <!-- Controls (MOBILE-FIRST) -->
+      <!-- Controls (mobile-first) -->
       <div class="controls">
-        <!-- Filtri orizzontali, sticky -->
+        <!-- Filtri tipologia -->
         <div class="chips" role="tablist" aria-label="Filtra per tipologia">
           <button
             class="chip" role="tab"
@@ -27,8 +27,29 @@
           >{{ k }}</button>
         </div>
 
-        <!-- Azioni compatte -->
+        <!-- Azioni + toggle vista -->
         <div class="actions">
+          <div class="viewTabs" role="tablist" aria-label="Vista">
+            <button
+              class="viewTab" role="tab" :aria-selected="viewMode==='map'"
+              :class="{ active: viewMode==='map' }"
+              @click="setView('map')"
+            >{{ $t('map','Mappa') }}</button>
+
+            <button
+              class="viewTab" role="tab" :aria-selected="viewMode==='list'"
+              :class="{ active: viewMode==='list' }"
+              @click="setView('list')"
+            >{{ $t('list','Lista') }}</button>
+
+            <button
+              v-if="isDesktop"
+              class="viewTab" role="tab" :aria-selected="viewMode==='split'"
+              :class="{ active: viewMode==='split' }"
+              @click="setView('split')"
+            >{{ $t('split','Affianca') }}</button>
+          </div>
+
           <q-select
             v-model="currentStyle"
             :options="mapStylesOptions"
@@ -36,88 +57,150 @@
             class="styleSelect"
             :aria-label="$t('map.style','Stile mappa')"
           />
+
           <q-btn dense outline no-caps class="btn ghost"
-                 icon="my_location" :label="$t('near.me','Vicino a me')"
+                 icon="my_location" :label="userLoc ? $t('near.recenter','Riposiziona') : $t('near.me','Vicino a me')"
                  @click="locateMe" />
         </div>
       </div>
 
-      <!-- MAP shell -->
-      <section class="map-shell">
-        <div ref="mapEl" class="map"></div>
+      <!-- VISTE -->
+      <section
+        class="views"
+        :class="{
+          'is-map': viewMode==='map',
+          'is-list': viewMode==='list',
+          'is-split': viewMode==='split'
+        }"
+      >
+        <!-- MAPPA -->
+        <div class="map-shell" :class="{ hidden: viewMode==='list' }">
+          <div ref="mapEl" class="map"></div>
 
-        <!-- tinta + bordo “sogno” -->
-        <div class="tint" aria-hidden="true"></div>
-        <div class="dream-mask" aria-hidden="true"></div>
+          <!-- tinta + bordo “sogno” -->
+          <div class="tint" aria-hidden="true"></div>
+          <div class="dream-mask" aria-hidden="true"></div>
 
-        <!-- legenda -->
-        <div class="legend">
-          <details>
-            <summary>{{ $t('venues.list','Elenco') }}</summary>
-            <ul>
-              <li v-for="v in venuesFiltered" :key="v.id">
-                <button @click="focusVenue(v.id)">{{ v.name }}</button>
-              </li>
-            </ul>
-          </details>
+          <!-- legenda -->
+          <div class="legend">
+            <details>
+              <summary>{{ $t('venues.list','Elenco') }}</summary>
+              <ul>
+                <li v-for="v in venuesFiltered" :key="v.id">
+                  <button @click="focusVenue(v.id)">{{ v.name }}</button>
+                </li>
+              </ul>
+            </details>
+          </div>
+
+          <!-- Scheda info (bottom sheet su mobile) -->
+          <transition name="sheet">
+            <aside v-if="selected" class="info" :class="{ mobile: !isDesktop }" role="dialog" aria-modal="false">
+              <button class="info__close" @click="selected=null" aria-label="Chiudi">✕</button>
+              <div class="info__media" :style="{ backgroundImage:`url(${selected.image})` }" />
+              <div class="info__body">
+                <h3 class="info__title">{{ selected.name }}</h3>
+                <p class="info__addr">{{ selected.address }}</p>
+                <div class="info__status" :class="{ open: isOpenNow(selected) }" aria-live="polite">
+                  {{ isOpenNow(selected) ? $t('open.now','Aperto ora') : $t('closed.now','Chiuso') }}
+                </div>
+                <div class="info__cta">
+                  <q-btn no-caps unelevated class="btn primary"
+                         :label="$t('book','Prenota')" :href="selected.bookingUrl" target="_blank" />
+                  <q-btn no-caps outline class="btn ghost"
+                         :label="$t('menu','Menu')" :href="selected.menuUrl" />
+                  <q-btn no-caps flat class="btn link"
+                         :label="$t('details','Dettagli')" @click="goToVenue(selected.id)" />
+                </div>
+              </div>
+            </aside>
+          </transition>
         </div>
 
-        <!-- Scheda info (bottom sheet su mobile) -->
-        <transition name="sheet">
-          <aside v-if="selected" class="info" :class="{ mobile: isMobile }" role="dialog" aria-modal="false">
-            <button class="info__close" @click="selected=null" aria-label="Chiudi">✕</button>
-            <div class="info__media" :style="{ backgroundImage:`url(${selected.image})` }" />
-            <div class="info__body">
-              <h3 class="info__title">{{ selected.name }}</h3>
-              <p class="info__addr">{{ selected.address }}</p>
-              <div class="info__status" :class="{ open: isOpenNow(selected) }" aria-live="polite">
-                {{ isOpenNow(selected) ? $t('open.now','Aperto ora') : $t('closed.now','Chiuso') }}
-              </div>
-              <div class="info__cta">
-                <q-btn no-caps unelevated class="btn primary"
-                       :label="$t('book','Prenota')" :href="selected.bookingUrl" target="_blank" />
-                <q-btn no-caps outline class="btn ghost"
-                       :label="$t('menu','Menu')" :href="selected.menuUrl" />
-                <q-btn no-caps flat class="btn link"
-                       :label="$t('details','Dettagli')" @click="goToVenue(selected.id)" />
-              </div>
-            </div>
-          </aside>
-        </transition>
+        <!-- LISTA -->
+        <div class="list-shell" :class="{ hidden: viewMode==='map' }" role="region" :aria-label="$t('list','Lista')">
+          <ul class="vlist">
+            <li v-for="v in venuesListed" :key="v.id">
+              <article class="vcard">
+                <button class="vcard__media" @click="onCardClick(v)">
+                  <img :src="v.image" :alt="v.name" loading="lazy">
+                  <span class="vcard__kind">{{ v.kind }}</span>
+                  <span class="vcard__badge" :class="{ open: isOpenNow(v) }">
+                    {{ isOpenNow(v) ? $t('open.now','Aperto ora') : $t('closed.now','Chiuso') }}
+                  </span>
+                </button>
+                <div class="vcard__body">
+                  <h3 class="vcard__title">{{ v.name }}</h3>
+                  <p class="vcard__meta">
+                    <span>{{ v.address }}</span>
+                    <template v-if="typeof v.distanceKm === 'number'">
+                      · <span>{{ v.distanceKm.toFixed(1) }} km</span>
+                    </template>
+                  </p>
+                  <div class="vcard__cta">
+                    <q-btn no-caps unelevated class="btn primary"
+                          :label="$t('book','Prenota')" :href="v.bookingUrl" target="_blank" />
+                    <q-btn no-caps outline class="btn ghost"
+                          :label="$t('menu','Menu')" :href="v.menuUrl" />
+                    <q-btn no-caps flat class="btn link"
+                          :label="$t('details','Dettagli')" @click="goToVenue(v.id)" />
+                  </div>
+                </div>
+              </article>
+            </li>
+          </ul>
+        </div>
       </section>
     </div>
   </q-page>
 </template>
 
 <script setup>
-import { ref, onMounted, onBeforeUnmount, computed, watch } from 'vue'
+import { ref, onMounted, onBeforeUnmount, computed, watch, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import { venues as data } from 'src/stores/venues.js'
 import maplibregl from 'maplibre-gl'
 import 'maplibre-gl/dist/maplibre-gl.css'
 
+/* ===== Router ===== */
 const router = useRouter()
-const mapEl = ref(null)
-let map = null
-let markers = []            // [{ id, marker, el }]
-const resizeW = ref(window.innerWidth)
-const isMobile = computed(() => resizeW.value < 768)
 
-/* ========= Data ========= */
+/* ===== Responsive ===== */
+const resizeW = ref(window.innerWidth)
+const isDesktop = computed(() => resizeW.value >= 1024)
+function onResize(){
+  resizeW.value = window.innerWidth
+  if (map) map.resize()
+  // Se si passa a desktop e vista era map/list, possiamo proporre split
+  if (isDesktop.value && viewMode.value === 'map') viewMode.value = 'split'
+  if (!isDesktop.value && viewMode.value === 'split') viewMode.value = 'map'
+}
+
+/* ===== View mode ===== */
+const viewMode = ref(window.innerWidth >= 1024 ? 'split' : 'map')
+function setView(m){
+  viewMode.value = m
+  // quando la mappa (ri)diventa visibile, rifit e resize
+  nextTick(() => { if (map) { map.resize(); fitToVenues() } })
+}
+
+/* ===== Data & filters ===== */
 const all = computed(() =>
   data.filter(v => v.coords && Number.isFinite(v.coords.lng) && Number.isFinite(v.coords.lat))
 )
 const kinds = computed(() => Array.from(new Set(all.value.map(v => v.kind))).sort())
 const activeKind = ref(null)
+function setKind(k){
+  activeKind.value = k
+  selectedId.value = null
+}
 const venuesFiltered = computed(() =>
   activeKind.value ? all.value.filter(v => v.kind === activeKind.value) : all.value
 )
-function setKind(k){ activeKind.value = k }
 
-/* ========= Selezione ========= */
+/* ===== Selection ===== */
 const selectedId = ref(null)
 const selected = computed(() => all.value.find(v => v.id === selectedId.value) || null)
-
 function goToVenue (id){ router.push({ name: 'locale', params: { id } }) }
 function focusVenue (id){
   const v = all.value.find(x => x.id === id); if(!v) return
@@ -126,8 +209,14 @@ function focusVenue (id){
   map?.easeTo({ center: [v.coords.lng, v.coords.lat], zoom: Math.max(map.getZoom(), 15.2), duration: 450 })
   updateMarkerStates()
 }
+function onCardClick(v){
+  // Su mobile: passa alla mappa e centra; su desktop: centra solo
+  selectedId.value = v.id
+  if (!isDesktop.value && viewMode.value !== 'map') viewMode.value = 'map'
+  nextTick(() => focusVenue(v.id))
+}
 
-/* ========= Orari ========= */
+/* ===== Open hours ===== */
 function isOpenNow (v){
   try{
     const now = new Date()
@@ -144,7 +233,51 @@ function isOpenNow (v){
   }catch{ return false }
 }
 
-/* ========= Map Styles ========= */
+/* ===== Geolocate & distance ===== */
+const userLoc = ref(null) // { lng, lat }
+function locateMe(){
+  if (!navigator.geolocation) return
+  navigator.geolocation.getCurrentPosition(
+    ({coords}) => {
+      userLoc.value = { lng: coords.longitude, lat: coords.latitude }
+      vibrate(8)
+      map?.easeTo({ center: [coords.longitude, coords.latitude], zoom: 15.5, duration: 450 })
+    },
+    () => {},
+    { enableHighAccuracy: true, maximumAge: 20_000, timeout: 10_000 }
+  )
+}
+function haversineKm(a, b){
+  const R = 6371
+  const toRad = (d) => d * Math.PI/180
+  const dLat = toRad(b.lat - a.lat)
+  const dLng = toRad(b.lng - a.lng)
+  const lat1 = toRad(a.lat), lat2 = toRad(b.lat)
+  const h = Math.sin(dLat/2)**2 + Math.cos(lat1)*Math.cos(lat2)*Math.sin(dLng/2)**2
+  return 2*R*Math.asin(Math.sqrt(h))
+}
+
+/* Lista arricchita: aperti prima, poi distanza (se nota), altrimenti nome */
+const venuesListed = computed(() => {
+  const base = venuesFiltered.value.map(v => ({
+    ...v,
+    distanceKm: userLoc.value ? haversineKm(userLoc.value, v.coords) : null
+  }))
+  return base.sort((a,b) => {
+    const ao = isOpenNow(a), bo = isOpenNow(b)
+    if (ao !== bo) return ao ? -1 : 1
+    if (a.distanceKm != null && b.distanceKm != null) return a.distanceKm - b.distanceKm
+    if (a.distanceKm != null) return -1
+    if (b.distanceKm != null) return 1
+    return a.name.localeCompare(b.name)
+  })
+})
+
+/* ===== Maplibre ===== */
+const mapEl = ref(null)
+let map = null
+let markers = [] // [{ id, marker, el }]
+
 const mapStylesOptions = [
   { label: 'OSM Standard', value: 'osm' },
   { label: 'OSM HOT',      value: 'osmHot' },
@@ -182,12 +315,7 @@ function styleFor(id){
   }
 }
 
-/* ========= Map init ========= */
-function onResize(){
-  resizeW.value = window.innerWidth
-  if (map) map.resize()
-}
-
+/* Init mappa */
 onMounted(() => {
   window.addEventListener('resize', onResize, { passive: true })
 
@@ -202,26 +330,23 @@ onMounted(() => {
   map.addControl(new maplibregl.NavigationControl({ showCompass:false }), 'bottom-right')
   map.on('load', () => { addMarkers(); fitToVenues() })
 })
-
 onBeforeUnmount(() => {
   window.removeEventListener('resize', onResize)
   markers.forEach(m => m.marker.remove())
   if (map) map.remove()
 })
 
-/* Cambia stile mappa al volo */
 watch(currentStyle, (id) => {
   if (!map) return
   map.setStyle(styleFor(id))
   map.once('styledata', () => fitToVenues())
 })
 
-/* ========= Markers ========= */
+/* Markers */
 function clearMarkers(){
   markers.forEach(m => m.marker.remove())
   markers = []
 }
-
 function addMarkers(){
   clearMarkers()
   venuesFiltered.value.forEach(v => {
@@ -247,7 +372,6 @@ function addMarkers(){
   })
   updateMarkerStates()
 }
-
 function updateMarkerStates(){
   markers.forEach(m => {
     if (m.id === selectedId.value) m.el.classList.add('active')
@@ -255,77 +379,60 @@ function updateMarkerStates(){
   })
 }
 
+/* Fit bounds (senza .pad nativo) */
 function fitToVenues () {
-  if (!venuesFiltered.value.length) return
+  if (!venuesFiltered.value.length || !map) return
 
   const b = new maplibregl.LngLatBounds()
   venuesFiltered.value.forEach(v => b.extend([v.coords.lng, v.coords.lat]))
 
-  // Adatta vista
   map.fitBounds(b, {
-    padding: isMobile.value ? { top: 40, right: 24, bottom: 200, left: 24 } : { top: 60, right: 60, bottom: 60, left: 60 },
+    padding: !isDesktop.value
+      ? { top: 40, right: 24, bottom: 200, left: 24 }
+      : viewMode.value==='split'
+        ? { top: 50, right: 320, bottom: 50, left: 50 } // lascia spazio alla lista affiancata
+        : { top: 60, right: 60, bottom: 60, left: 60 },
     maxZoom: 16,
     duration: 450
   })
 
-  // Bounds “padded” manuale (equivalente .pad)
+  // paddato manuale
   const padRatio = 0.35
   const sw = b.getSouthWest()
   const ne = b.getNorthEast()
   const lngSpan = (ne.lng - sw.lng) || 0.01
   const latSpan = (ne.lat - sw.lat) || 0.01
-
   const padded = new maplibregl.LngLatBounds(
     [sw.lng - lngSpan * padRatio, sw.lat - latSpan * padRatio],
     [ne.lng + lngSpan * padRatio, ne.lat + latSpan * padRatio]
   )
   map.setMaxBounds(padded)
 
-  // Se rimane un solo locale, centra con zoom piacevole
   if (venuesFiltered.value.length === 1) {
     const v = venuesFiltered.value[0]
     map.easeTo({ center: [v.coords.lng, v.coords.lat], zoom: 15.5, duration: 300 })
   }
 }
 
-/* Aggiorna quando cambiano filtro/dataset */
-watch([activeKind, all], () => {
-  if (!map) return
-  addMarkers()
-  fitToVenues()
-})
+/* Re-render on changes */
+watch([activeKind, all], () => { if (!map) return; addMarkers(); fitToVenues() })
 
-/* ========= Geolocate ========= */
-function locateMe(){
-  if (!navigator.geolocation) return
-  navigator.geolocation.getCurrentPosition(
-    ({coords}) => {
-      vibrate(8)
-      map?.easeTo({ center: [coords.longitude, coords.latitude], zoom: 15.5, duration: 450 })
-    },
-    () => {},
-    { enableHighAccuracy: true, maximumAge: 20_000, timeout: 10_000 }
-  )
-}
-
-/* ========= Haptics ========= */
+/* Haptics */
 function vibrate(ms){ if (window.navigator?.vibrate) window.navigator.vibrate(ms) }
 </script>
 
 <style scoped>
-/* ===== Layout ===== */
+/* ===== Layout base ===== */
 .map-experience{
   background: var(--stone-100, #efe6d3);
   min-height: 100dvh;
   color: var(--sepia-900, #2a2019);
-  padding-top: max(84px, env(safe-area-inset-top)); /* spazio sotto navbar */
+  padding-top: max(84px, env(safe-area-inset-top));
 }
-.wrap{ width: min(94vw, 1100px); margin: 10px auto 24px; }
-.head{ margin: 4px 0 8px; }
-.title{ margin:0; font-size: clamp(20px,5.2vw,30px); letter-spacing:-.01em; }
+.wrap{ width: min(94vw, 1200px); margin: 10px auto 24px; }
 .subtitle{ margin:4px 0 0; opacity:.76; font-size: clamp(12px,3.2vw,15px); }
 
-/* Controls – MOBILE FIRST */
+/* ===== Controls ===== */
 .controls{
   position: sticky; top: calc(max(56px, env(safe-area-inset-top)) + 6px);
   z-index: 5;
@@ -333,66 +440,62 @@ function vibrate(ms){ if (window.navigator?.vibrate) window.navigator.vibrate(ms
 }
 .chips{
   display:flex; gap:8px; overflow:auto; padding:2px 2px 6px; flex-wrap: wrap;
-  -webkit-overflow-scrolling:touch; scrollbar-width:none; scroll-snap-type: x proximity;
+  -webkit-overflow-scrolling:touch; scrollbar-width:none;
   background: rgba(255,255,255,.35); border:1px solid rgba(42,32,25,.12); border-radius: 14px;
 }
 .chips::-webkit-scrollbar{ display:none }
 .chip{
   all:unset; cursor:pointer; padding:10px 14px; border-radius:999px;
   border:1px solid rgba(42,32,25,.16); background:#f6f1e7;
-  color:#2a2019; font-weight:800; letter-spacing:.02em; font-size:14px; line-height:1; min-height:44px;
-  white-space:nowrap; scroll-snap-align: start;
-  width: fit-content;
-  padding: 0px 5px;
-  min-width: 60px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  color:#2a2019; font-weight:800; letter-spacing:.02em; font-size:14px; line-height:1; min-height:40px;
+  white-space:nowrap;
+}
+.chip.active{ background: rgba(142,160,115,.18); border-color: rgba(42,32,25,.26); }
 
-}
-.chip.active{
-  background: rgba(142,160,115,.18); border-color: rgba(42,32,25,.26);
-}
-.actions{ display:flex; gap:8px; align-items:center; }
+.actions{ display:flex; gap:8px; align-items:center; flex-wrap: wrap; }
 .styleSelect{ min-width: 160px; }
 .btn.ghost{ border-color: rgba(42,32,25,.3); color:#2a2019; }
 
-/* Desktop controls */
-@media (min-width: 768px){
-  .controls{ grid-template-columns: 1fr auto; align-items:center; top: calc(max(64px, env(safe-area-inset-top)) + 8px); }
+/* Toggle vista */
+.viewTabs{ display:flex; gap:6px; padding:4px; border:1px solid rgba(42,32,25,.12); border-radius:12px; background:#fff }
+.viewTab{
+  all:unset; cursor:pointer; padding:8px 12px; border-radius:10px; font-weight:800;
+}
+.viewTab.active{ background: #2a2019; color:#f6f1e7 }
+
+/* ===== Vista: contenitori ===== */
+.views{ display:block }
+.views.is-split{
+  display:grid; grid-template-columns: 1fr min(480px, 42%); gap: 14px;
 }
 
-/* ===== Map Shell non-hero ===== */
+/* ===== MAP ===== */
 .map-shell{
   position: relative;
   width: 100%;
-  height: clamp(420px, 62vh, 720px);
+  height: clamp(420px, 60vh, 720px);
   border-radius: 22px;
   overflow: hidden;
   background: var(--stone-100, #efe6d3);
 }
+.map-shell.hidden{ display: none }
 .map{ position:absolute; inset:0; z-index:0; }
 
-/* tinta soft */
+/* tinta + sogno */
 .tint{
   position:absolute; inset:0; z-index:1; pointer-events:none;
   background:
     radial-gradient(120% 90% at 12% 0%, rgba(201,126,99,.10), transparent 60%),
     radial-gradient(120% 100% at 88% 24%, rgba(142,160,115,.10), transparent 62%);
 }
-
-/* bordi “sogno” */
 .dream-mask{
   position:absolute; inset:-3% -3%; z-index:2; pointer-events:none;
-  -webkit-mask-image:
-    radial-gradient(140% 110% at 50% 52%, #000 58%, rgba(0,0,0,0) 100%);
-          mask-image:
-    radial-gradient(140% 110% at 50% 52%, #000 58%, rgba(0,0,0,0) 100%);
-  background:
-    radial-gradient(120% 95% at 50% 50%, rgba(239,230,211,0) 55%, rgba(239,230,211,.68) 100%);
+  -webkit-mask-image: radial-gradient(140% 110% at 50% 52%, #000 58%, rgba(0,0,0,0) 100%);
+          mask-image: radial-gradient(140% 110% at 50% 52%, #000 58%, rgba(0,0,0,0) 100%);
+  background: radial-gradient(120% 95% at 50% 50%, rgba(239,230,211,0) 55%, rgba(239,230,211,.68) 100%);
 }
 
-/* ===== Pin super visibili ===== */
+/* Pin */
 .pin2{
   all: unset; position: relative; display:grid; place-items:center; cursor:pointer;
   transform-origin: bottom center; min-width:44px; min-height:44px;
@@ -428,7 +531,6 @@ function vibrate(ms){ if (window.navigator?.vibrate) window.navigator.vibrate(ms
 .pin2.hover .label,
 .pin2:focus-visible .label,
 .pin2.active .label{ opacity:1; transform: translate(-50%,-2px) }
-
 .pin2:hover{ transform: translateY(-2px) scale(1.03) }
 @keyframes pulse{
   0%{ transform: scale(.55); opacity:.95 }
@@ -436,7 +538,7 @@ function vibrate(ms){ if (window.navigator?.vibrate) window.navigator.vibrate(ms
   100%{ transform: scale(1.22); opacity:0 }
 }
 
-/* ===== Info Card / Bottom Sheet ===== */
+/* Info card */
 .info{
   position:absolute; right: 12px; top: 12px; z-index: 3;
   width: min(92vw, 380px);
@@ -445,9 +547,7 @@ function vibrate(ms){ if (window.navigator?.vibrate) window.navigator.vibrate(ms
   overflow: hidden; backdrop-filter: blur(6px);
   box-shadow: 0 18px 60px rgba(0,0,0,.18);
 }
-.info.mobile{
-  left: 12px; right: 12px; top: auto; bottom: 12px; width: auto;
-}
+.info.mobile{ left: 12px; right: 12px; top: auto; bottom: 12px; width: auto; }
 .info__close{
   position:absolute; top:6px; right:6px; z-index:2;
   all:unset; cursor:pointer; width:36px; height:36px; border-radius:9px;
@@ -465,10 +565,6 @@ function vibrate(ms){ if (window.navigator?.vibrate) window.navigator.vibrate(ms
 .btn.ghost{ border-color: rgba(42,32,25,.2); color:#2a2019; }
 .btn.link{ color:#2a2019; }
 
-/* Transizioni */
-.sheet-enter-active,.sheet-leave-active{ transition: opacity .22s ease, transform .22s ease }
-.sheet-enter-from,.sheet-leave-to{ opacity:0; transform: translateY(6px) }
-
 /* Legend */
 .legend{
   position:absolute; left: 12px; bottom: 12px; z-index: 3;
@@ -483,8 +579,51 @@ function vibrate(ms){ if (window.navigator?.vibrate) window.navigator.vibrate(ms
 .legend button{ all:unset; cursor:pointer; border-bottom:1px solid transparent }
 .legend button:hover{ border-bottom-color: currentColor }
 
-/* Accessibilità / motion */
+/* ===== LIST ===== */
+.list-shell{ width:100% }
+.list-shell.hidden{ display:none }
+.vlist{
+  list-style:none; margin:0; padding:0;
+  display:grid; gap:12px;
+}
+.views.is-split .vlist{ max-height: clamp(420px, 60vh, 720px); overflow:auto; padding-right: 6px; }
+.vcard{
+  display:grid; grid-template-columns: 140px 1fr; gap:10px;
+  background:#fff; border:1px solid rgba(42,32,25,.12); border-radius:14px; overflow:hidden;
+}
+.vcard__media{
+  all:unset; cursor:pointer; position:relative; display:block;
+  width:100%; height:100%;
+}
+.vcard__media img{
+  display:block; width:100%; height:100%; object-fit:cover; min-height:120px;
+}
+.vcard__kind{
+  position:absolute; left:8px; top:8px; font-size:11px; font-weight:800;
+  background: rgba(246,241,231,.95); color:#2a2019; border:1px solid rgba(42,32,25,.16);
+  padding:3px 6px; border-radius:999px;
+}
+.vcard__badge{
+  position:absolute; right:8px; top:8px; font-size:11px; font-weight:800;
+  background: rgba(42,32,25,.75); color:#fff; border:1px solid rgba(255,255,255,.25);
+  padding:3px 6px; border-radius:999px;
+}
+.vcard__badge.open{ background: rgba(142,160,115,.9); color:#1b2316 }
+.vcard__body{ padding:10px 12px; display:flex; flex-direction:column; gap:6px; }
+.vcard__title{ margin:0; font-size:16px; line-height:1.2 }
+.vcard__meta{ margin:0; opacity:.75; font-size:13px }
+.vcard__cta{ display:flex; gap:8px; flex-wrap:wrap; }
+
+@media (max-width: 767px){
+  .vcard{ grid-template-columns: 1fr; }
+}
+
+/* Motion safe */
 @media (prefers-reduced-motion: reduce){
   .pin2 .ring{ animation: none }
 }
+
+/* Transizioni */
+.sheet-enter-active,.sheet-leave-active{ transition: opacity .22s ease, transform .22s ease }
+.sheet-enter-from,.sheet-leave-to{ opacity:0; transform: translateY(6px) }
 </style>
