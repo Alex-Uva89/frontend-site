@@ -9,7 +9,7 @@
         </p>
       </header>
 
-      <!-- Controls (mobile-first) -->
+      <!-- Controls (NON sticky) -->
       <div class="controls">
         <!-- Filtri tipologia -->
         <div class="chips" role="tablist" aria-label="Filtra per tipologia">
@@ -59,8 +59,9 @@
           />
 
           <q-btn dense outline no-caps class="btn ghost"
-                 icon="my_location" :label="userLoc ? $t('near.recenter','Riposiziona') : $t('near.me','Vicino a me')"
-                 @click="locateMe" />
+            icon="my_location"
+            :label="userLoc ? $t('near.recenter','Riposiziona') : $t('near.me','Vicino a me')"
+            @click="locateMe" />
         </div>
       </div>
 
@@ -93,7 +94,7 @@
             </details>
           </div>
 
-          <!-- Scheda info (bottom sheet su mobile) -->
+          <!-- Scheda info -->
           <transition name="sheet">
             <aside v-if="selected" class="info" :class="{ mobile: !isDesktop }" role="dialog" aria-modal="false">
               <button class="info__close" @click="selected=null" aria-label="Chiudi">✕</button>
@@ -106,11 +107,11 @@
                 </div>
                 <div class="info__cta">
                   <q-btn no-caps unelevated class="btn primary"
-                         :label="$t('book','Prenota')" :href="selected.bookingUrl" target="_blank" />
+                    :label="$t('book','Prenota')" :href="selected.bookingUrl" target="_blank" />
                   <q-btn no-caps outline class="btn ghost"
-                         :label="$t('menu','Menu')" :href="selected.menuUrl" />
+                    :label="$t('menu','Menu')" :href="selected.menuUrl" />
                   <q-btn no-caps flat class="btn link"
-                         :label="$t('details','Dettagli')" @click="goToVenue(selected.id)" />
+                    :label="$t('details','Dettagli')" @click="goToVenue(selected.id)" />
                 </div>
               </div>
             </aside>
@@ -139,11 +140,11 @@
                   </p>
                   <div class="vcard__cta">
                     <q-btn no-caps unelevated class="btn primary"
-                          :label="$t('book','Prenota')" :href="v.bookingUrl" target="_blank" />
+                      :label="$t('book','Prenota')" :href="v.bookingUrl" target="_blank" />
                     <q-btn no-caps outline class="btn ghost"
-                          :label="$t('menu','Menu')" :href="v.menuUrl" />
+                      :label="$t('menu','Menu')" :href="v.menuUrl" />
                     <q-btn no-caps flat class="btn link"
-                          :label="$t('details','Dettagli')" @click="goToVenue(v.id)" />
+                      :label="$t('details','Dettagli')" @click="goToVenue(v.id)" />
                   </div>
                 </div>
               </article>
@@ -162,7 +163,6 @@ import { venues as data } from 'src/stores/venues.js'
 import maplibregl from 'maplibre-gl'
 import 'maplibre-gl/dist/maplibre-gl.css'
 
-/* ===== Router ===== */
 const router = useRouter()
 
 /* ===== Responsive ===== */
@@ -171,7 +171,6 @@ const isDesktop = computed(() => resizeW.value >= 1024)
 function onResize(){
   resizeW.value = window.innerWidth
   if (map) map.resize()
-  // Se si passa a desktop e vista era map/list, possiamo proporre split
   if (isDesktop.value && viewMode.value === 'map') viewMode.value = 'split'
   if (!isDesktop.value && viewMode.value === 'split') viewMode.value = 'map'
 }
@@ -180,7 +179,6 @@ function onResize(){
 const viewMode = ref(window.innerWidth >= 1024 ? 'split' : 'map')
 function setView(m){
   viewMode.value = m
-  // quando la mappa (ri)diventa visibile, rifit e resize
   nextTick(() => { if (map) { map.resize(); fitToVenues() } })
 }
 
@@ -210,7 +208,6 @@ function focusVenue (id){
   updateMarkerStates()
 }
 function onCardClick(v){
-  // Su mobile: passa alla mappa e centra; su desktop: centra solo
   selectedId.value = v.id
   if (!isDesktop.value && viewMode.value !== 'map') viewMode.value = 'map'
   nextTick(() => focusVenue(v.id))
@@ -234,7 +231,7 @@ function isOpenNow (v){
 }
 
 /* ===== Geolocate & distance ===== */
-const userLoc = ref(null) // { lng, lat }
+const userLoc = ref(null)
 function locateMe(){
   if (!navigator.geolocation) return
   navigator.geolocation.getCurrentPosition(
@@ -256,8 +253,6 @@ function haversineKm(a, b){
   const h = Math.sin(dLat/2)**2 + Math.cos(lat1)*Math.cos(lat2)*Math.sin(dLng/2)**2
   return 2*R*Math.asin(Math.sqrt(h))
 }
-
-/* Lista arricchita: aperti prima, poi distanza (se nota), altrimenti nome */
 const venuesListed = computed(() => {
   const base = venuesFiltered.value.map(v => ({
     ...v,
@@ -379,7 +374,7 @@ function updateMarkerStates(){
   })
 }
 
-/* Fit bounds (senza .pad nativo) */
+/* Fit bounds */
 function fitToVenues () {
   if (!venuesFiltered.value.length || !map) return
 
@@ -388,15 +383,15 @@ function fitToVenues () {
 
   map.fitBounds(b, {
     padding: !isDesktop.value
-      ? { top: 40, right: 24, bottom: 200, left: 24 }
+      ? { top: 40, right: 24, bottom: 40, left: 24 }     // niente spazio extra per sticky
       : viewMode.value==='split'
-        ? { top: 50, right: 320, bottom: 50, left: 50 } // lascia spazio alla lista affiancata
+        ? { top: 50, right: 320, bottom: 50, left: 50 }
         : { top: 60, right: 60, bottom: 60, left: 60 },
     maxZoom: 16,
     duration: 450
   })
 
-  // paddato manuale
+  // bounds “padded” manuale
   const padRatio = 0.35
   const sw = b.getSouthWest()
   const ne = b.getNorthEast()
@@ -432,16 +427,18 @@ function vibrate(ms){ if (window.navigator?.vibrate) window.navigator.vibrate(ms
 .wrap{ width: min(94vw, 1200px); margin: 10px auto 24px; }
 .subtitle{ margin:4px 0 0; opacity:.76; font-size: clamp(12px,3.2vw,15px); }
 
-/* ===== Controls ===== */
+/* ===== Controls (NON sticky) ===== */
 .controls{
-  position: sticky; top: calc(max(56px, env(safe-area-inset-top)) + 6px);
-  z-index: 5;
-  display:grid; gap:10px; margin: 8px 0 12px;
+  display:grid;
+  gap:12px;
+  margin: 14px 0 16px; /* spazio naturale sopra la mappa */
 }
 .chips{
   display:flex; gap:8px; overflow:auto; padding:2px 2px 6px; flex-wrap: wrap;
   -webkit-overflow-scrolling:touch; scrollbar-width:none;
-  background: rgba(255,255,255,.35); border:1px solid rgba(42,32,25,.12); border-radius: 14px;
+  background: rgba(255,255,255,.35);
+  border:1px solid rgba(42,32,25,.12);
+  border-radius: 14px;
 }
 .chips::-webkit-scrollbar{ display:none }
 .chip{
