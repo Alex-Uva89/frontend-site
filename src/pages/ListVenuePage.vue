@@ -3,7 +3,7 @@
     <div class="wrap">
       <!-- Header -->
       <header class="head">
-        <h1 class="title">{{ $t('venues.title','I nostri locali') }}</h1>
+        <h1 class="text-h2">{{ $t('venues.title','I nostri locali') }}</h1>
         <p class="subtitle">
           {{ $t('venues.subtitle','Tutti nel cuore di Lecce — scopri quello giusto per te') }}
         </p>
@@ -318,7 +318,7 @@ function vibrate(ms){ if (window.navigator?.vibrate) window.navigator.vibrate(ms
   background: var(--stone-100, #efe6d3);
   min-height: 100dvh;
   color: var(--sepia-900, #2a2019);
-  padding-top: max(64px, env(safe-area-inset-top)); /* spazio sotto navbar */
+  padding-top: max(84px, env(safe-area-inset-top)); /* spazio sotto navbar */
 }
 .wrap{ width: min(94vw, 1100px); margin: 10px auto 24px; }
 .head{ margin: 4px 0 8px; }
