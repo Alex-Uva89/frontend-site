@@ -87,11 +87,10 @@ const year = new Date().getFullYear()
 }
 
 .foot{
-  background: var(--paper);
+  background-color: var(--stone-100);
   color: var(--sepia);
   border-top: 1.5px solid var(--sepia);
-  padding: 18px 0 0;           /* mobile-first */
-  margin-top: 24px;
+  padding: 34px 0 0;           /* mobile-first */
   border-top: .1px solid rgba(165, 42, 42, 0.267);
 }
 

@@ -145,7 +145,7 @@ async function onSubmit () {
 }
 
 .nl{
-  background: var(--paper);
+  background: #fff;
   color: var(--sepia);
   border-top: 0;
   border-bottom: 0;

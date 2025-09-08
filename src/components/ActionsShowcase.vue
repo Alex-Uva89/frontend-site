@@ -109,7 +109,6 @@ function onPan (evt) {
 <style scoped>
 /* Sezione mobile-first */
 .actions{
-  background: #fff;
   padding: clamp(20px, 4vh, 36px) 0;
 }
 .container{

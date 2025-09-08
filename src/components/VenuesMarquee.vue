@@ -147,7 +147,7 @@ onBeforeUnmount(() => {
 </script>
 
 <style scoped>
-.venues{ background:#fff; padding:24px 0 40px; }
+.venues{  padding:24px 0 40px; }
 .container{ max-width:1100px; margin:0 auto; padding:0 12px; }
 .heading{ display:grid; gap:6px; margin-bottom:12px; }
 .title{ font-size:clamp(20px,6vw,28px); margin:0; }
