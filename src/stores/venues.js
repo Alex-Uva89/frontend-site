@@ -1,11 +1,11 @@
 // venues.ts (o .js)
 
-import casa    from 'src/assets/casa.jpg'
-import cucina  from 'src/assets/cucina.jpg'
-import cucina2 from 'src/assets/cucina2.jpg'
-import enoteca from 'src/assets/enoteca.jpg'
-import piatto1 from 'src/assets/piatto1.jpg'
-import piatto2 from 'src/assets/piatto2.jpg'
+import casa    from '/src/assets/casa.jpg'
+import cucina  from '/src/assets/cucina.jpg'
+import cucina2 from '/src/assets/cucina2.jpg'
+import enoteca from '/src/assets/enoteca.jpg'
+import piatto1 from '/src/assets/piatto1.jpg'
+import piatto2 from '/src/assets/piatto2.jpg'
 
 export const venues = [
   {
