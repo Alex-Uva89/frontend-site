@@ -9,12 +9,12 @@ export const venues = [
     coords: { lng: 18.17162, lat: 40.35241 },
     menuUrl: '#',
     gallery: [
-      { src: 'https://picsum.photos/seed/osteria-1/1920/1080', alt: 'Osteria • Sala 1' },
-      { src: 'https://picsum.photos/seed/osteria-2/1920/1080', alt: 'Osteria • Dettaglio tavolo' },
-      { src: 'https://picsum.photos/seed/osteria-3/1920/1080', alt: 'Osteria • Piatto 1' },
-      { src: 'https://picsum.photos/seed/osteria-4/1920/1080', alt: 'Osteria • Piatto 2' },
-      { src: 'https://picsum.photos/seed/osteria-5/1920/1080', alt: 'Osteria • Vini' },
-      { src: 'https://picsum.photos/seed/osteria-6/1920/1080', alt: 'Osteria • Esterno' }
+      { src: 'src/assets/casa.jpg', alt: 'Osteria • Sala 1' },
+      { src: 'src/assets/cucina.jpg', alt: 'Osteria • Dettaglio tavolo' },
+      { src: 'src/assets/cucina2.jpg', alt: 'Osteria • Piatto 1' },
+      { src: 'src/assets/enoteca.jpg', alt: 'Osteria • Piatto 2' },
+      { src: 'src/assets/piatto1.jpg', alt: 'Osteria • Vini' },
+      { src: 'src/assets/piatto2.jpg', alt: 'Osteria • Esterno' }
     ],
     hours: [
       [ { o: '12:30', c: '15:00' }, { o: '19:30', c: '23:30' } ], // Lun
@@ -51,12 +51,12 @@ export const venues = [
     coords: { lng: 18.17040, lat: 40.35302 },
     menuUrl: '#',
     gallery: [
-      { src: 'https://picsum.photos/seed/ristorante-1/1920/1080', alt: 'Ristorante • Sala 1' },
-      { src: 'https://picsum.photos/seed/ristorante-2/1920/1080', alt: 'Ristorante • Chef al pass' },
-      { src: 'https://picsum.photos/seed/ristorante-3/1920/1080', alt: 'Ristorante • Piatto 1' },
-      { src: 'https://picsum.photos/seed/ristorante-4/1920/1080', alt: 'Ristorante • Piatto 2' },
-      { src: 'https://picsum.photos/seed/ristorante-5/1920/1080', alt: 'Ristorante • Cantina' },
-      { src: 'https://picsum.photos/seed/ristorante-6/1920/1080', alt: 'Ristorante • Esterno' }
+      { src: 'src/assets/casa.jpg', alt: 'Osteria • Sala 1' },
+      { src: 'src/assets/cucina.jpg', alt: 'Osteria • Dettaglio tavolo' },
+      { src: 'src/assets/cucina2.jpg', alt: 'Osteria • Piatto 1' },
+      { src: 'src/assets/enoteca.jpg', alt: 'Osteria • Piatto 2' },
+      { src: 'src/assets/piatto1.jpg', alt: 'Osteria • Vini' },
+      { src: 'src/assets/piatto2.jpg', alt: 'Osteria • Esterno' }
     ],
     hours: [
       [ { o: '19:30', c: '23:30' } ],                           // Lun (aperto cena)
@@ -93,12 +93,12 @@ export const venues = [
     coords: { lng: 18.17238, lat: 40.35202 },
     menuUrl: '#',
     gallery: [
-      { src: 'https://picsum.photos/seed/pizzeria-1/1920/1080', alt: 'Pizzeria • Forno' },
-      { src: 'https://picsum.photos/seed/pizzeria-2/1920/1080', alt: 'Pizzeria • Sala' },
-      { src: 'https://picsum.photos/seed/pizzeria-3/1920/1080', alt: 'Pizzeria • Pizza 1' },
-      { src: 'https://picsum.photos/seed/pizzeria-4/1920/1080', alt: 'Pizzeria • Pizza 2' },
-      { src: 'https://picsum.photos/seed/pizzeria-5/1920/1080', alt: 'Pizzeria • Dettaglio' },
-      { src: 'https://picsum.photos/seed/pizzeria-6/1920/1080', alt: 'Pizzeria • Esterno' }
+      { src: 'src/assets/casa.jpg', alt: 'Osteria • Sala 1' },
+      { src: 'src/assets/cucina.jpg', alt: 'Osteria • Dettaglio tavolo' },
+      { src: 'src/assets/cucina2.jpg', alt: 'Osteria • Piatto 1' },
+      { src: 'src/assets/enoteca.jpg', alt: 'Osteria • Piatto 2' },
+      { src: 'src/assets/piatto1.jpg', alt: 'Osteria • Vini' },
+      { src: 'src/assets/piatto2.jpg', alt: 'Osteria • Esterno' }
     ],
     hours: [
       [ { o: '18:30', c: '00:30' } ], // Lun
@@ -135,12 +135,12 @@ export const venues = [
     coords: { lng: 18.16908, lat: 40.35386 },
     menuUrl: '#',
     gallery: [
-      { src: 'https://picsum.photos/seed/enoteca-1/1920/1080', alt: 'Enoteca • Scaffali' },
-      { src: 'https://picsum.photos/seed/enoteca-2/1920/1080', alt: 'Enoteca • Degustazione' },
-      { src: 'https://picsum.photos/seed/enoteca-3/1920/1080', alt: 'Enoteca • Calici' },
-      { src: 'https://picsum.photos/seed/enoteca-4/1920/1080', alt: 'Enoteca • Salumi e formaggi' },
-      { src: 'https://picsum.photos/seed/enoteca-5/1920/1080', alt: 'Enoteca • Dettaglio bottiglie' },
-      { src: 'https://picsum.photos/seed/enoteca-6/1920/1080', alt: 'Enoteca • Esterno' }
+      { src: 'src/assets/casa.jpg', alt: 'Osteria • Sala 1' },
+      { src: 'src/assets/cucina.jpg', alt: 'Osteria • Dettaglio tavolo' },
+      { src: 'src/assets/cucina2.jpg', alt: 'Osteria • Piatto 1' },
+      { src: 'src/assets/enoteca.jpg', alt: 'Osteria • Piatto 2' },
+      { src: 'src/assets/piatto1.jpg', alt: 'Osteria • Vini' },
+      { src: 'src/assets/piatto2.jpg', alt: 'Osteria • Esterno' }
     ],
     hours: [
       [ { o: '18:00', c: '01:00' } ], // Lun
@@ -177,12 +177,12 @@ export const venues = [
     coords: { lng: 18.17305, lat: 40.35166 },
     menuUrl: '#',
     gallery: [
-      { src: 'https://picsum.photos/seed/bnb-1/1920/1080', alt: 'B&B • Camera 1' },
-      { src: 'https://picsum.photos/seed/bnb-2/1920/1080', alt: 'B&B • Camera 2' },
-      { src: 'https://picsum.photos/seed/bnb-3/1920/1080', alt: 'B&B • Colazione' },
-      { src: 'https://picsum.photos/seed/bnb-4/1920/1080', alt: 'B&B • Dettagli' },
-      { src: 'https://picsum.photos/seed/bnb-5/1920/1080', alt: 'B&B • Cortile' },
-      { src: 'https://picsum.photos/seed/bnb-6/1920/1080', alt: 'B&B • Esterno' }
+      { src: 'src/assets/casa.jpg', alt: 'Osteria • Sala 1' },
+      { src: 'src/assets/cucina.jpg', alt: 'Osteria • Dettaglio tavolo' },
+      { src: 'src/assets/cucina2.jpg', alt: 'Osteria • Piatto 1' },
+      { src: 'src/assets/enoteca.jpg', alt: 'Osteria • Piatto 2' },
+      { src: 'src/assets/piatto1.jpg', alt: 'Osteria • Vini' },
+      { src: 'src/assets/piatto2.jpg', alt: 'Osteria • Esterno' }
     ],
     hours: [
       '24h', // Lun

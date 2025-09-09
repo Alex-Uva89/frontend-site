@@ -1,34 +1,20 @@
 <template>
   <section class="hero" :class="{ 'is-ready': ready }" role="banner" :aria-label="ariaLabel">
-    <!-- SLIDER (se >1 immagine) -->
-    <div v-if="isSlider" class="media slider">
-      <q-carousel
-        ref="carouselEl"
-        v-model="slide"
-        swipeable
-        animated
-        infinite
-        :autoplay="autoplayMs"
-        transition-prev="slide-right"
-        transition-next="slide-left"
-        :arrows="false"
-        :navigation="false"
-        class="carousel"
-      >
-        <q-carousel-slide
-          v-for="(img, i) in imagesArr"
+    <!-- MARQUEE INFINITO (se >1 immagine) -->
+    <div v-if="isSlider" class="media marquee" ref="marqueeWrap" :class="{ 'is-paused': !inView }">
+      <div class="marquee__track" :style="trackStyle" aria-hidden="true">
+        <div
+          v-for="(img, i) in doubledImages"
           :key="i"
-          :name="i"
-          class="carousel__slide"
+          class="marquee__slide"
         >
-          <!-- FULL COVER -->
-          <div class="slide__img" :style="{ backgroundImage: `url(${img.src || img})` }"></div>
-        </q-carousel-slide>
-      </q-carousel>
+          <div class="slide__img" :style="{ backgroundImage: `url(${img.src})` }"></div>
+        </div>
+      </div>
     </div>
 
     <!-- IMMAGINE SINGOLA (FULL COVER) -->
-    <div v-else class="media poster" :style="{ backgroundImage: `url(${imagesArr[0]})` }"></div>
+    <div v-else class="media poster" :style="{ backgroundImage: `url(${(imagesArr[0]?.src) || imagesArr[0] || ''})` }" aria-hidden="true"></div>
 
     <!-- OVERLAY -->
     <div v-if="overlay" class="overlay" :style="{ background: overlayGradient }"></div>
@@ -52,8 +38,9 @@ const props = defineProps({
   subtitle: { type: String, default: '' },
   ariaLabel: { type: String, default: 'Hero' },
 
-  autoplay: { type: Boolean, default: true }, // solo slider
-  interval: { type: Number, default: 4500 },
+  // Nuovo: durata (secondi) per un ciclo completo del marquee (prima sequenza → fine → ricomincia)
+  loopDuration: { type: Number, default: 22 }, // leggermente più veloce
+
   overlay: { type: Boolean, default: true },
   overlayGradient: {
     type: String,
@@ -64,41 +51,54 @@ const props = defineProps({
 })
 
 const ready = ref(false)
-const slide = ref(0)
-const carouselEl = ref(null)
 const inView = ref(true)
+const marqueeWrap = ref(null)
 
 const imagesArr = computed(() => {
   if (Array.isArray(props.images)) return props.images
   return props.images ? [props.images] : []
 })
-const isSlider = computed(() => imagesArr.value.length > 1)
 
-const autoplayMs = computed(() =>
-  (props.autoplay && inView.value && isSlider.value) ? props.interval : 0
+// Normalizza ad oggetti {src, alt}
+const normalizedImages = computed(() =>
+  imagesArr.value.map((img, idx) =>
+    typeof img === 'string' ? { src: img, alt: `Hero image ${idx + 1}` } : { src: img.src, alt: img.alt || `Hero image ${idx + 1}` }
+  )
 )
 
+const isSlider = computed(() => normalizedImages.value.length > 1)
+
+// Duplica la sequenza per uno scorrimento infinito senza salti visivi
+const doubledImages = computed(() => [...normalizedImages.value, ...normalizedImages.value])
+
+// Stili contenuto
 const contentStyle = computed(() => ({
   bottom: props.contentBottom,
   ...(props.align === 'center' ? { textAlign: 'center' } :
      props.align === 'right'  ? { textAlign: 'right' }  : {})
 }))
 
-// pausa autoplay quando l'hero non è visibile
+// Durata animazione per un ciclo completo
+const durationSec = computed(() => Math.max(props.loopDuration, 1))
+const trackStyle = computed(() => ({ '--marquee-duration': `${durationSec.value}s` }))
+
+// IntersectionObserver per mettere in pausa quando fuori viewport
 let io = null
 onMounted(async () => {
   await nextTick()
   requestAnimationFrame(() => { ready.value = true })
 
-  if ('IntersectionObserver' in window && isSlider.value) {
+  if ('IntersectionObserver' in window && marqueeWrap.value) {
     io = new IntersectionObserver((entries) => {
       inView.value = !!entries[0]?.isIntersecting
     }, { threshold: [0, 0.35, 1] })
-    const target = carouselEl.value?.$el
-    if (target) io.observe(target)
+    io.observe(marqueeWrap.value)
   }
 })
-onBeforeUnmount(() => { io && io.disconnect() })
+
+onBeforeUnmount(() => {
+  io && io.disconnect()
+})
 </script>
 
 <style scoped>
@@ -112,15 +112,29 @@ onBeforeUnmount(() => { io && io.disconnect() })
 .media{ position:absolute; inset:0; width:100%; height:100%; }
 .poster{ background-size: cover; background-position: center; }
 
-/* CAROUSEL FULL-BLEED */
-.carousel{ position:absolute; inset:0; width:100%; height:100%; }
-.carousel__slide{ position:relative; width:100%; height:100%; }
+/* MARQUEE FULL-BLEED */
+.marquee{ position:absolute; inset:0; overflow:hidden; }
+.marquee__track{
+  position:absolute; inset:0;
+  display:flex; height:100%;
+  will-change: transform;
+  animation: marquee var(--marquee-duration) linear infinite;
+  animation-play-state: running;
+}
+.is-paused .marquee__track{ animation-play-state: paused; }
+
+.marquee__slide{ position:relative; flex: 0 0 100%; height:100%; }
 .slide__img{
   position:absolute; inset:0;
   width:100%; height:100%;
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
+}
+
+@keyframes marquee{
+  from{ transform: translateX(0); }
+  to{   transform: translateX(-50%); }
 }
 
 /* OVERLAY */
@@ -149,6 +163,7 @@ onBeforeUnmount(() => { io && io.disconnect() })
 .is-ready .anim{ opacity:1; transform:none; transition: opacity .45s ease, transform .45s ease; transition-delay: var(--d,0ms); }
 @media (prefers-reduced-motion: reduce){
   .anim, .is-ready .anim{ opacity:1 !important; transform:none !important; transition:none !important; }
+  .marquee__track{ animation: none !important; transform:none !important; }
 }
 
 /* Tablet+ */
