@@ -1,3 +1,12 @@
+// venues.ts (o .js)
+
+import casa    from 'src/assets/casa.jpg'
+import cucina  from 'src/assets/cucina.jpg'
+import cucina2 from 'src/assets/cucina2.jpg'
+import enoteca from 'src/assets/enoteca.jpg'
+import piatto1 from 'src/assets/piatto1.jpg'
+import piatto2 from 'src/assets/piatto2.jpg'
+
 export const venues = [
   {
     id: 'osteria',
@@ -9,12 +18,12 @@ export const venues = [
     coords: { lng: 18.17162, lat: 40.35241 },
     menuUrl: '#',
     gallery: [
-      { src: 'src/assets/casa.jpg', alt: 'Osteria • Sala 1' },
-      { src: 'src/assets/cucina.jpg', alt: 'Osteria • Dettaglio tavolo' },
-      { src: 'src/assets/cucina2.jpg', alt: 'Osteria • Piatto 1' },
-      { src: 'src/assets/enoteca.jpg', alt: 'Osteria • Piatto 2' },
-      { src: 'src/assets/piatto1.jpg', alt: 'Osteria • Vini' },
-      { src: 'src/assets/piatto2.jpg', alt: 'Osteria • Esterno' }
+      { src: casa,    alt: 'Osteria • Sala 1' },
+      { src: cucina,  alt: 'Osteria • Dettaglio tavolo' },
+      { src: cucina2, alt: 'Osteria • Piatto 1' },
+      { src: enoteca, alt: 'Osteria • Piatto 2' },
+      { src: piatto1, alt: 'Osteria • Vini' },
+      { src: piatto2, alt: 'Osteria • Esterno' }
     ],
     hours: [
       [ { o: '12:30', c: '15:00' }, { o: '19:30', c: '23:30' } ], // Lun
@@ -51,19 +60,19 @@ export const venues = [
     coords: { lng: 18.17040, lat: 40.35302 },
     menuUrl: '#',
     gallery: [
-      { src: 'src/assets/casa.jpg', alt: 'Osteria • Sala 1' },
-      { src: 'src/assets/cucina.jpg', alt: 'Osteria • Dettaglio tavolo' },
-      { src: 'src/assets/cucina2.jpg', alt: 'Osteria • Piatto 1' },
-      { src: 'src/assets/enoteca.jpg', alt: 'Osteria • Piatto 2' },
-      { src: 'src/assets/piatto1.jpg', alt: 'Osteria • Vini' },
-      { src: 'src/assets/piatto2.jpg', alt: 'Osteria • Esterno' }
+      { src: casa,    alt: 'Osteria • Sala 1' },
+      { src: cucina,  alt: 'Osteria • Dettaglio tavolo' },
+      { src: cucina2, alt: 'Osteria • Piatto 1' },
+      { src: enoteca, alt: 'Osteria • Piatto 2' },
+      { src: piatto1, alt: 'Osteria • Vini' },
+      { src: piatto2, alt: 'Osteria • Esterno' }
     ],
     hours: [
-      [ { o: '19:30', c: '23:30' } ],                           // Lun (aperto cena)
-      [],                                                       // Mar (chiuso)
-      [ { o: '19:30', c: '23:30' } ],                           // Mer
-      [ { o: '19:30', c: '23:30' } ],                           // Gio
-      [ { o: '19:30', c: '00:00' } ],                           // Ven
+      [ { o: '19:30', c: '23:30' } ],                            // Lun (aperto cena)
+      [],                                                        // Mar (chiuso)
+      [ { o: '19:30', c: '23:30' } ],                            // Mer
+      [ { o: '19:30', c: '23:30' } ],                            // Gio
+      [ { o: '19:30', c: '00:00' } ],                            // Ven
       [ { o: '12:30', c: '15:00' }, { o: '19:30', c: '00:00' } ],// Sab
       [ { o: '12:30', c: '15:00' }, { o: '19:00', c: '23:30' } ] // Dom
     ],
@@ -93,12 +102,12 @@ export const venues = [
     coords: { lng: 18.17238, lat: 40.35202 },
     menuUrl: '#',
     gallery: [
-      { src: 'src/assets/casa.jpg', alt: 'Osteria • Sala 1' },
-      { src: 'src/assets/cucina.jpg', alt: 'Osteria • Dettaglio tavolo' },
-      { src: 'src/assets/cucina2.jpg', alt: 'Osteria • Piatto 1' },
-      { src: 'src/assets/enoteca.jpg', alt: 'Osteria • Piatto 2' },
-      { src: 'src/assets/piatto1.jpg', alt: 'Osteria • Vini' },
-      { src: 'src/assets/piatto2.jpg', alt: 'Osteria • Esterno' }
+      { src: casa,    alt: 'Osteria • Sala 1' },
+      { src: cucina,  alt: 'Osteria • Dettaglio tavolo' },
+      { src: cucina2, alt: 'Osteria • Piatto 1' },
+      { src: enoteca, alt: 'Osteria • Piatto 2' },
+      { src: piatto1, alt: 'Osteria • Vini' },
+      { src: piatto2, alt: 'Osteria • Esterno' }
     ],
     hours: [
       [ { o: '18:30', c: '00:30' } ], // Lun
@@ -135,12 +144,12 @@ export const venues = [
     coords: { lng: 18.16908, lat: 40.35386 },
     menuUrl: '#',
     gallery: [
-      { src: 'src/assets/casa.jpg', alt: 'Osteria • Sala 1' },
-      { src: 'src/assets/cucina.jpg', alt: 'Osteria • Dettaglio tavolo' },
-      { src: 'src/assets/cucina2.jpg', alt: 'Osteria • Piatto 1' },
-      { src: 'src/assets/enoteca.jpg', alt: 'Osteria • Piatto 2' },
-      { src: 'src/assets/piatto1.jpg', alt: 'Osteria • Vini' },
-      { src: 'src/assets/piatto2.jpg', alt: 'Osteria • Esterno' }
+      { src: casa,    alt: 'Osteria • Sala 1' },
+      { src: cucina,  alt: 'Osteria • Dettaglio tavolo' },
+      { src: cucina2, alt: 'Osteria • Piatto 1' },
+      { src: enoteca, alt: 'Osteria • Piatto 2' },
+      { src: piatto1, alt: 'Osteria • Vini' },
+      { src: piatto2, alt: 'Osteria • Esterno' }
     ],
     hours: [
       [ { o: '18:00', c: '01:00' } ], // Lun
@@ -177,12 +186,12 @@ export const venues = [
     coords: { lng: 18.17305, lat: 40.35166 },
     menuUrl: '#',
     gallery: [
-      { src: 'src/assets/casa.jpg', alt: 'Osteria • Sala 1' },
-      { src: 'src/assets/cucina.jpg', alt: 'Osteria • Dettaglio tavolo' },
-      { src: 'src/assets/cucina2.jpg', alt: 'Osteria • Piatto 1' },
-      { src: 'src/assets/enoteca.jpg', alt: 'Osteria • Piatto 2' },
-      { src: 'src/assets/piatto1.jpg', alt: 'Osteria • Vini' },
-      { src: 'src/assets/piatto2.jpg', alt: 'Osteria • Esterno' }
+      { src: casa,    alt: 'Osteria • Sala 1' },
+      { src: cucina,  alt: 'Osteria • Dettaglio tavolo' },
+      { src: cucina2, alt: 'Osteria • Piatto 1' },
+      { src: enoteca, alt: 'Osteria • Piatto 2' },
+      { src: piatto1, alt: 'Osteria • Vini' },
+      { src: piatto2, alt: 'Osteria • Esterno' }
     ],
     hours: [
       '24h', // Lun
