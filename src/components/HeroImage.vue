@@ -104,7 +104,7 @@ onBeforeUnmount(() => {
 <style scoped>
 .hero{
   position: relative;
-  height: 100dvh; min-height: 100vh; width: 100vw;
+  height: 100dvh; min-height: 100vh; width: 100%;
   margin: 0; padding: 0; overflow: hidden;
 }
 

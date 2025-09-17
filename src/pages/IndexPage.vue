@@ -1,5 +1,5 @@
 <template>
-  <q-page class="page">
+  <q-page class="page" style="background-color: var(--stone-100);">
     <HeroComponent />
     <div class="gap"></div>
 
@@ -26,7 +26,7 @@ import SectionFrame from 'components/SectionFrame.vue'
 </script>
 
 <style>
-.page{ padding:0; background-color: var(--stone-100); }
+.page{ padding:0; }
 .gap{ height:clamp(24px, 10vh, 120px); }
 .gap-sm{ height:clamp(16px, 6vh, 72px); }
 </style>

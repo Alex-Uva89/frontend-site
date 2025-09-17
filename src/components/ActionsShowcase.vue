@@ -174,7 +174,7 @@ function onPan (evt) {
   .card{
     --h: 620px;                              /* più presence sulla pagina */
     border-radius: 24px;
-    width: clamp(80vw, 88vw, 1440px);        /* preferenza leggermente più contenuta */
+    width: clamp(80%, 88%, 1440px);        /* preferenza leggermente più contenuta */
   }
   .col--text{ padding: 36px 40px 20px; }
 }

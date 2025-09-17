@@ -1,11 +1,234 @@
-// app global css in SCSS form
-// src/main.js
-@import 'src/css/tokens.css';
+@import './tokens.css';
 
-
+/* ================== VARIABILI GLOBALI ================== */
 :root{
-  --divider-color: #3b1d12;   /* sepia */
-  --divider-gap: 8px;         /* distanza tra le due linee */
-  --divider-thick: 1.5px;     /* spessore delle linee */
-  --section-bg: transparent;  /* sfondo del wrapper */
+  --divider-color: #3b1d12;
+  --divider-gap: 8px;
+  --divider-thick: 1.5px;
+  --section-bg: transparent;
+
+  /* gaps esterni TV */
+  --tv-gap-x: 2.5vw;
+  --tv-gap-top: 2.5vh;
+  --tv-gap-bottom: 6vh;
+
+  /* spessori cornice */
+  --tv-top: 24px;
+  --tv-right: 350px;
+  --tv-bottom: 24px;
+  --tv-left: 24px;
+  --tv-radius: 38px;
+
+  /* PLASTIC RED palette */
+  --plastic-700: #8F241A;
+  --plastic-600: #B53025;
+  --plastic-500: #D23A2F; /* base */
+  --plastic-400: #E75349;
+  --plastic-300: #F1736A;
+
+  --plastic-highlight: rgba(255,255,255,.55);
+  --plastic-sheen:     rgba(255,255,255,.22);
+  --plastic-shadow:    rgba(0,0,0,.28);
+  --plastic-shadow-deep: rgba(0,0,0,.38);
+
+  /* anti-cucitura per l’anello della cornice */
+  --hair: 0.75px;
+}
+
+
+@media (max-width:700px){
+  :root{
+    /* bordo sottile e uniforme */
+    --tv-top: 16px;
+    --tv-right: 14px;
+    --tv-bottom: 14px;
+    --tv-left: 14px;
+    --tv-radius: 16px;
+
+    /* gap esterni */
+    --tv-gap-x: 3vw;
+    --tv-gap-top: 2vh;
+    --tv-gap-bottom: 6vh;
+  }
+}
+
+
+/* Blocco scroll esterno + fondo nero */
+html, body, #q-app{
+  height: 100%;
+  background: #000;
+  overflow: hidden;
+}
+
+/* finestra interna (area visibile e scrollabile) */
+.crt-host{
+  position: fixed;
+  top:    calc(var(--tv-gap-top) + var(--tv-top));
+  left:   calc(var(--tv-gap-x)   + var(--tv-left));
+  right:  calc(var(--tv-gap-x)   + var(--tv-right));
+  bottom: calc(var(--tv-gap-bottom) + var(--tv-bottom) + env(safe-area-inset-bottom,0px));
+  border-radius: var(--tv-radius);
+  background: #000;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  z-index: 10; /* sotto TvShell */
+}
+
+/* contenitore scrollabile */
+.crt-body{
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: auto;
+}
+
+/* ================== TRANSIZIONE CRT (più lunga/forte) ================== */
+
+/* pannello che anima */
+.crt-pane{
+  position: relative;
+  min-height: 100%;
+  isolation: isolate;
+  overflow: visible;
+}
+
+/* sequenze distinte e più lunghe */
+.crt-pane.crt-leave-active{
+  background:#000;
+  animation: crt-leave-seq 620ms cubic-bezier(.2,.7,.2,1) both;
+}
+.crt-pane.crt-enter-active{
+  background:#000;
+  animation: crt-enter-seq 720ms cubic-bezier(.2,.7,.2,1) both;
+}
+
+/* stati base */
+.crt-pane.crt-enter-from,
+.crt-pane.crt-leave-to{
+  opacity: 0;
+  background:#000;
+}
+.crt-pane.crt-enter-to,
+.crt-pane.crt-leave-from{
+  opacity: 1;
+  background:#000;
+}
+
+/* overlay: leave (più aggressivo, più luminoso) */
+.crt-pane.crt-leave-active::after{
+  content:"";
+  position:absolute; inset:0; pointer-events:none; z-index:2;
+  opacity:.85;
+  mix-blend-mode:screen;
+  background:
+    repeating-linear-gradient(to bottom, rgba(255,255,255,.24) 0 1px, rgba(0,0,0,0) 1px 2px),
+    repeating-linear-gradient(90deg,
+      rgba(255,0,0,.12) 0 1px,
+      rgba(0,255,0,.12) 1px 2px,
+      rgba(0,0,255,.12) 2px 3px,
+      rgba(0,0,0,0)     3px 4px);
+  background-size: 100% 100%, 4px 100%;
+  animation: crt-noise-burst 220ms steps(12,end) infinite,
+             crt-flicker 80ms steps(2,end) infinite;
+}
+
+/* overlay: enter (più scuro) */
+.crt-pane.crt-enter-active::after{
+  content:"";
+  position:absolute; inset:0; pointer-events:none; z-index:2;
+  opacity:.5;
+  mix-blend-mode:multiply;
+  background:
+    repeating-linear-gradient(to bottom, rgba(0,0,0,.18) 0 1px, rgba(0,0,0,0) 1px 2px),
+    repeating-linear-gradient(90deg,
+      rgba(255,0,0,.07) 0 1px,
+      rgba(0,255,0,.07) 1px 2px,
+      rgba(0,0,255,.07) 2px 3px,
+      rgba(0,0,0,0)     3px 4px);
+  background-size: 100% 100%, 4px 100%;
+  animation: crt-noise 160ms steps(6,end) infinite,
+             crt-flicker 110ms steps(2,end) infinite;
+}
+
+/* barra di roll: più lenta in entrata */
+.crt-pane.crt-leave-active::before,
+.crt-pane.crt-enter-active::before{
+  content:"";
+  position:absolute; inset:0; pointer-events:none; z-index:3;
+  opacity:.95;
+  background: linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,.98) 50%, rgba(0,0,0,0) 100%);
+  transform: translateY(-120%);
+  filter: blur(0.6px);
+}
+.crt-pane.crt-leave-active::before{
+  animation: crt-roll 320ms cubic-bezier(.2,.7,.2,1) both;
+}
+.crt-pane.crt-enter-active::before{
+  animation: crt-roll 520ms cubic-bezier(.2,.7,.2,1) both;
+}
+
+/* ================== KEYFRAMES ================== */
+
+/* uscita: jitter → collasso → blackout */
+@keyframes crt-leave-seq{
+  0%   { transform:none; filter:none; opacity:1; }
+  15%  { transform: translateX(-1px) skewX(-0.6deg); filter: contrast(1.6) brightness(1.15) saturate(.8); }
+  30%  { transform: translateX(1px) skewX(0.4deg); }
+  55%  { transform: scaleY(0.035) scaleX(1.18); filter: contrast(2) brightness(1.2) saturate(0.6); }
+  70%  { transform: scaleY(0.01)  scaleX(1.24); }
+  85%  { transform: scaleY(0); opacity:0; }
+  100% { transform:none; opacity:0; }
+}
+
+/* entrata: blackout → linea → riapertura + micro jitter */
+@keyframes crt-enter-seq{
+  0%   { opacity:0; transform: scaleY(0) scaleX(1.24); filter: contrast(2) brightness(1.1) saturate(0.6); }
+  18%  { opacity:1; transform: scaleY(0.02) scaleX(1.18); }
+  40%  { transform: scaleY(0.06) scaleX(1.12); }
+  60%  { transform: scaleY(1) scaleX(1); filter:none; }
+  78%  { transform: translateX(-1px) skewX(-0.4deg); filter: contrast(1.25); }
+  92%  { transform: translateX(1px)  skewX(0.3deg);  }
+  100% { transform:none; filter:none; }
+}
+
+/* rumore */
+@keyframes crt-noise{
+  0%   { background-position: 0 0, 0 0; }
+  50%  { background-position: 0 2px, -10px 0; }
+  100% { background-position: 0 0, -20px 0; }
+}
+@keyframes crt-noise-burst{
+  0%   { background-position: 0 0, 0 0; }
+  33%  { background-position: 0 3px, -14px 0; }
+  66%  { background-position: 0 -2px, -28px 0; }
+  100% { background-position: 0 0, -42px 0; }
+}
+
+/* flicker */
+@keyframes crt-flicker{
+  0%   { opacity:.45; }
+  50%  { opacity:.7; }
+  100% { opacity:.45; }
+}
+
+/* barra di roll */
+@keyframes crt-roll{
+  0%   { transform: translateY(-120%); opacity:0; }
+  12%  { opacity:1; }
+  60%  { transform: translateY(22%);  opacity:1; }
+  100% { transform: translateY(120%); opacity:0; }
+}
+
+/* Accessibilità */
+@media (prefers-reduced-motion: reduce){
+  .crt-pane.crt-enter-active,
+  .crt-pane.crt-leave-active{ animation: none !important; }
+  .crt-pane.crt-enter-from,
+  .crt-pane.crt-leave-to{ opacity: 0; transform: none !important; filter: none !important; }
+  .crt-pane.crt-enter-active::after,
+  .crt-pane.crt-leave-active::after,
+  .crt-pane.crt-enter-active::before,
+  .crt-pane.crt-leave-active::before{
+    animation: none !important; opacity: 0 !important;
+  }
 }

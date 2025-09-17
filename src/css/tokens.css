@@ -18,4 +18,21 @@
   --white-12:  rgba(255,255,255,.12);
   --white-18:  rgba(255,255,255,.18);
   --white-28:  rgba(255,255,255,.28);
+
+
+  /* 70's */
+  --plastic-700: #8F241A; /* ombra profonda */
+  --plastic-600: #B53025; /* ombra */
+  --plastic-500: #D23A2F; /* base */
+  --plastic-400: #E75349; /* luce */
+  --plastic-300: #F1736A; /* highlight ampio */
+
+  /* riflessi/ombre */
+  --plastic-highlight: rgba(255,255,255,.55); /* specular forte */
+  --plastic-sheen:     rgba(255,255,255,.22); /* lucido morbido */
+  --plastic-shadow:    rgba(0,0,0,.28);       /* inner shadow */
+  --plastic-shadow-deep: rgba(0,0,0,.38);
+
+  /* micro fix anti-cucitura dell’anello */
+  --hair: 0.75px;
 }

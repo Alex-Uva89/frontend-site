@@ -43,11 +43,11 @@ onBeforeUnmount(()=>{ io && io.disconnect() })
 </script>
 
 <style scoped>
-.hero{ position:relative; height:100dvh; min-height:100vh; width:100vw; margin:0; padding:0; overflow:hidden; }
+.hero{ position:relative; height:100dvh; min-height:100vh; width:100%; margin:0; padding:0; overflow:hidden; }
 .video{ position:absolute; inset:0; overflow:hidden; pointer-events:none; }
 .iframe{
   position:absolute; top:50%; left:50%;
-  width:100vw; height:56.25vw;     /* 16:9 base */
+  width:100%; height:56.25vw;     /* 16:9 base */
   min-width:177.78vh; min-height:100vh; /* cover anche in verticale */
   transform:translate(-50%,-50%); border:0;
 }

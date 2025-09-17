@@ -21,7 +21,7 @@
 
 
 .section-frame{
-  background: var(--section-bg);
+  background: var(--stone-100);
 }
 
 .section-frame__slot{
