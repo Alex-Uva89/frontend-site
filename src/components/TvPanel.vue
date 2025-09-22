@@ -331,9 +331,7 @@ function onPressLangAnimated(){
   font-weight: 800;
   font-size: clamp(11px, .95vw, 13px);
   line-height: 1.2;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  white-space: wrap;
 }
 
 /* fallback senza aspect-ratio */
