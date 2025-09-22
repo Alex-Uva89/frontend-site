@@ -173,7 +173,7 @@ import TvPanel from './TvPanel.vue'
 
 /* Mobile: solo contorno rosso */
 @media (max-width:700px){
-  .tv-shell{height: 95vh;}
+  .tv-shell{display: none;}
   .panel-desktop{ display: none; }
   .tv-feet{ display: none; }
 }

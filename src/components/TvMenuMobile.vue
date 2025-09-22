@@ -53,7 +53,7 @@ const programs = computed(() => drawer.links ?? [])
 
 const open = ref(false)
 const btnRef = ref(null)
-const itemRefs = ref([])       // refs ai pulsanti del menu
+const itemRefs = ref([])
 const menuId = 'tv-mobile-menu'
 
 function toggle(){ open.value ? close() : openAndFocus() }
@@ -80,7 +80,6 @@ function go(link){
   else if (link.to) router.push(link.to)
 }
 
-// chiusura click-outside
 function onDocClick(e){
   const root = e.target.closest('.tv-menu-mobile')
   if (!root) close()
@@ -100,62 +99,73 @@ onBeforeUnmount(() => document.removeEventListener('click', onDocClick))
     padding: 16px var(--tv-gap-x, 16px);
   }
 
-  /* === TRIGGER GLASS === */
+  /* === TRIGGER GLASS (senza bordo) === */
   .menu-trigger{
     --glass-bg: rgba(28,28,28,.45);
-    --glass-brd: rgba(255,255,255,.20);
     --glass-hi: rgba(255,255,255,.40);
+    position: relative;
     display:inline-flex; align-items:center; gap:.6rem;
     padding: .7rem 1rem;
-    border: 1px solid var(--glass-brd);
-    border-radius: 12px;
+    border: none;                    /* niente cornice */
+    outline: none; border-radius: 12px;
     background:
-      linear-gradient(180deg, rgba(255,255,255,.12), rgba(255,255,255,0) 40%) border-box,
+      linear-gradient(180deg, rgba(255,255,255,.12), rgba(255,255,255,0) 40%),
       var(--glass-bg);
     backdrop-filter: blur(8px) saturate(1.1);
     -webkit-backdrop-filter: blur(8px) saturate(1.1);
     color: #f3f3f3; font-weight: 800; letter-spacing:.01em;
     box-shadow:
-      inset 0 1px 0 var(--glass-hi),
-      0 6px 18px rgba(0,0,0,.35);
+      inset 0 1px 0 var(--glass-hi),          /* highlight alto */
+      0 10px 20px rgba(0,0,0,.35);            /* ombra sotto */
     cursor: pointer;
   }
+  /* ombre laterali senza bordo */
+  .menu-trigger::before,
+  .menu-trigger::after{
+    content:""; position:absolute; top:6px; bottom:6px; width:10px; border-radius:10px;
+    pointer-events:none;
+  }
+  .menu-trigger::before{ left:0;  background:linear-gradient(90deg, rgba(0,0,0,.28), rgba(0,0,0,0)); }
+  .menu-trigger::after { right:0; background:linear-gradient(270deg, rgba(0,0,0,.28), rgba(0,0,0,0)); }
+
   .menu-trigger:focus-visible{ outline: 2px solid #ffd76a; outline-offset: 3px; }
   .menu-trigger .icon{ font-size: 1.15rem; line-height:1; }
   .menu-trigger .label{ text-transform: uppercase; }
 
-  /* === DROPDOWN GLASS === */
+  /* === DROPDOWN GLASS (senza bordo, ombre ai lati) === */
   .dropdown{
     --glass-panel: rgba(16,16,16,.48);
-    --glass-brd:   rgba(255,255,255,.16);
     position: absolute;
     top: calc(100% + 8px);
-    left: 0;
-    right: 0;
+    left: 0; right: 0;
+    border: none;                      /* niente cornice */
+    border-radius: 16px;
     background:
       radial-gradient(120% 160% at 50% 0%, rgba(255,255,255,.12), rgba(255,255,255,0) 60%),
       var(--glass-panel);
-    border: 1px solid var(--glass-brd);
-    border-radius: 16px;
-    padding: 10px;
     box-shadow:
-      0 10px 24px rgba(0,0,0,.35),
-      inset 0 1px 0 rgba(255,255,255,.12);
+      0 16px 28px rgba(0,0,0,.38),     /* ombra globale */
+      inset 0 1px 0 rgba(255,255,255,.12); /* highlight interno alto */
     backdrop-filter: blur(12px) saturate(1.08);
     -webkit-backdrop-filter: blur(12px) saturate(1.08);
-
+    padding: 10px;
     display:grid;
     grid-auto-rows: minmax(54px, auto);
     gap: 10px;
   }
+  /* gradienti laterali per “cornice” senza bordo */
+  .dropdown::before,
+  .dropdown::after{
+    content:""; position:absolute; top:6px; bottom:6px; width:14px; border-radius:14px;
+    pointer-events:none;
+  }
+  .dropdown::before{ left:0;  background:linear-gradient(90deg, rgba(0,0,0,.28), rgba(0,0,0,0)); }
+  .dropdown::after { right:0; background:linear-gradient(270deg, rgba(0,0,0,.28), rgba(0,0,0,0)); }
 
-  /* === BOTTONI GLASS EFFETTO VETRO === */
+  /* === VOCI GLASS (senza bordo, ombre ai lati) === */
   .drop-item{
     --glass-btn: rgba(32,32,32,.42);
-    --glass-brd: rgba(255,255,255,.18);
     --glass-hi:  rgba(255,255,255,.45);
-    --glow:      rgba(120,255,180,.5);
-
     position: relative;
     display:grid;
     grid-template-columns: 52px 1fr;
@@ -165,10 +175,10 @@ onBeforeUnmount(() => document.removeEventListener('click', onDocClick))
     width: 100%;
     min-height: 56px;
     padding: 12px 14px;
-    border: 1px solid var(--glass-brd);
+    border: none;                    /* niente cornice */
     border-radius: 14px;
     background:
-      linear-gradient(180deg, rgba(255,255,255,.14), rgba(255,255,255,0) 48%) border-box,
+      linear-gradient(180deg, rgba(255,255,255,.14), rgba(255,255,255,0) 48%),
       var(--glass-btn);
     backdrop-filter: blur(10px) saturate(1.05);
     -webkit-backdrop-filter: blur(10px) saturate(1.05);
@@ -176,37 +186,43 @@ onBeforeUnmount(() => document.removeEventListener('click', onDocClick))
     color:#eaeaea; font-weight:800; letter-spacing:.02em;
     text-align:left;
     box-shadow:
-      inset 0 1px 0 var(--glass-hi),
-      inset 0 -10px 18px rgba(0,0,0,.28),
-      0 6px 16px rgba(0,0,0,.32);
+      inset 0 1px 0 var(--glass-hi),         /* highlight alto */
+      inset 0 -10px 18px rgba(0,0,0,.28),    /* ombra interna bassa */
+      0 10px 18px rgba(0,0,0,.28);           /* ombra esterna */
     transition: transform .06s ease, filter .18s ease, box-shadow .18s ease;
   }
+  /* riflesso diagonale */
   .drop-item::after{
-    /* riflesso morbido diagonale */
     content:""; position:absolute; top:8%; left:10%; width:60%; height:46%;
     border-radius: 100% 100% 60% 60%;
     background: radial-gradient(ellipse at 30% 20%, rgba(255,255,255,.38), rgba(255,255,255,0) 60%);
     pointer-events:none; opacity:.55; filter: blur(.3px);
+  }
+  /* ombre laterali dedicate */
+  .drop-item::before{
+    content:""; position:absolute; top:6px; bottom:6px; left:0; width:12px; border-radius:12px;
+    background:linear-gradient(90deg, rgba(0,0,0,.22), rgba(0,0,0,0));
+    pointer-events:none;
   }
   .drop-item:hover{
     filter: brightness(1.06) saturate(1.03);
     box-shadow:
       inset 0 1px 0 var(--glass-hi),
       inset 0 -10px 18px rgba(0,0,0,.34),
-      0 8px 20px rgba(0,0,0,.36);
+      0 12px 22px rgba(0,0,0,.36);
   }
   .drop-item:active{ transform: translateY(1px); }
   .drop-item:focus-visible{ outline: 2px solid #9cf2b8; outline-offset: 2px; }
 
-  /* Numero: pill digitale con glow */
+  /* Numero: pill digitale (senza bordo) */
   .knum{
     display:grid; place-items:center;
     height: 36px; min-width: 44px; padding: 0 8px;
     border-radius: 999px;
+    border: none; /* niente cornice */
     background:
-      linear-gradient(180deg, rgba(255,255,255,.22), rgba(255,255,255,0) 50%) border-box,
+      linear-gradient(180deg, rgba(255,255,255,.22), rgba(255,255,255,0) 50%),
       rgba(0,0,0,.35);
-    border: 1px solid rgba(255,255,255,.22);
     box-shadow:
       inset 0 1px 0 rgba(255,255,255,.25),
       inset 0 -6px 10px rgba(0,0,0,.35),
@@ -220,7 +236,7 @@ onBeforeUnmount(() => document.removeEventListener('click', onDocClick))
     letter-spacing:.04em;
   }
 
-  /* Etichetta: digitale con glow soft */
+  /* Etichetta */
   .klabel{
     white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     color:#dcffe9;
@@ -240,7 +256,7 @@ onBeforeUnmount(() => document.removeEventListener('click', onDocClick))
     opacity: 0; transform: scale(.98) translateY(-6px);
   }
 
-  /* Riduci motion per chi lo richiede */
+  /* Riduci motion */
   @media (prefers-reduced-motion: reduce){
     .fade-scale-enter-active, .fade-scale-leave-active{
       transition: opacity .14s linear;
