@@ -420,11 +420,11 @@ function vibrate(ms){ if (window.navigator?.vibrate) window.navigator.vibrate(ms
 /* ===== Layout base ===== */
 .map-experience{
   background: var(--stone-100, #efe6d3);
-  min-height: 100dvh;
+  min-height: 100%;
   color: var(--sepia-900, #2a2019);
   padding-top: max(84px, env(safe-area-inset-top));
 }
-.wrap{ width: min(94vw, 1200px); margin: 10px auto 24px; }
+.wrap{ width:90%; margin: 10px auto 24px; }
 .subtitle{ margin:4px 0 0; opacity:.76; font-size: clamp(12px,3.2vw,15px); }
 
 /* ===== Controls (NON sticky) ===== */
@@ -470,7 +470,7 @@ function vibrate(ms){ if (window.navigator?.vibrate) window.navigator.vibrate(ms
 .map-shell{
   position: relative;
   width: 100%;
-  height: clamp(420px, 60vh, 720px);
+  height: clamp(420px, 60%, 720px);
   border-radius: 22px;
   overflow: hidden;
   background: var(--stone-100, #efe6d3);

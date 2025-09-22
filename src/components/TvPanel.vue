@@ -1,35 +1,44 @@
 <template>
-  <aside class="tv-controls" aria-label="TV control panel">
+  <aside class="tv-controls seventies" aria-label="TV control panel">
     <div class="panel-inner">
-      <!-- DISPLAY: VISITORS -->
-      <div class="display-block" aria-label="Visitors display">
+      <!-- DISPLAY: TESTO (vetro) -->
+      <div class="display-block glass" aria-label="Text display">
         <svg
-          class="sevenseg"
-          :viewBox="`0 0 ${70*digitCount} 80`"
+          class="dotmatrix"
+          :viewBox="`0 0 ${charWidth * chars.length} ${charHeight}`"
           preserveAspectRatio="xMidYMid meet"
           role="img"
-          :aria-label="`Visitors ${displayValue}`"
+          :aria-label="displayText"
         >
-          <g v-for="(digit, idx) in digits" :key="idx" class="digit" :transform="`translate(${idx*70},0)`">
-            <rect v-for="s in segList" :key="s" class="seg" :class="{ on: isOn(digit, s) }" v-bind="segAttrs[s]" />
+          <g v-for="(ch, ci) in chars" :key="ci" :transform="`translate(${ci*charWidth},0)`">
+            <rect
+              v-for="(dot, di) in dotRects(ch)"
+              :key="di"
+              class="dot"
+              :x="dot.x" :y="dot.y"
+              :width="dotSize" :height="dotSize" rx="1.5" ry="1.5"
+            />
           </g>
         </svg>
-        <span class="label">VISITORS</span>
       </div>
 
-      <!-- MANOPOLE (estetiche) -->
+      <!-- MANOPOLE → BOTTONI -->
       <div class="knobs">
-        <div class="knob-group">
-          <div class="knob" data-role="tuner"><div class="notch"></div></div>
-          <span class="knob-label">TUNER</span>
-        </div>
-        <div class="knob-group">
-          <div class="knob" data-role="volume"><div class="notch"></div></div>
-          <span class="knob-label">VOLUME</span>
-        </div>
+        <KnobButton
+          label="TUNER"
+          aria-label="Tuner"
+          @press="$emit && $emit('tuner')"
+        />
+        <KnobButton
+          label="LANG"
+          :title="`Lingua: ${lang.current.toUpperCase()}`"
+          :angle="volAngle"
+          aria-label="Cambia lingua"
+          @press="onPressLangAnimated"
+        />
       </div>
 
-      <!-- PROGRAMMI dal drawerStore -->
+      <!-- PROGRAMMI (glass + digitale) -->
       <div class="programs" role="group" aria-label="Program buttons">
         <button
           v-for="(link, i) in programs"
@@ -38,8 +47,8 @@
           type="button"
           @click="go(link)"
         >
-          <span class="num">{{ i+1 }}</span>
-          <span class="text">{{ link.label }}</span>
+          <span class="num digital">{{ i+1 }}</span>
+          <span class="text digital">{{ link.label }}</span>
         </button>
       </div>
 
@@ -49,20 +58,22 @@
           <span class="led" :class="{ on: power }"></span>
           <span class="tiny">POWER</span>
         </div>
-        <div class="brand">SognoVision</div>
+        <div class="brand">Powered by Uva</div>
       </div>
     </div>
   </aside>
 </template>
 
 <script setup>
-import { computed, ref, onMounted } from 'vue'
+import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useDrawerStore } from 'src/stores/drawerStore'
+import { useLangStore } from 'src/stores/langStore'
+import KnobButton from 'src/components/KnobButton.vue'
 
 const props = defineProps({
-  visitors: { type: Number, default: null },
-  power:    { type: Boolean, default: true  }
+  power: { type: Boolean, default: true },
+  displayText: { type: String, default: 'MAMMA ELVIRA' }
 })
 
 /* Store: programmi */
@@ -77,140 +88,281 @@ function go(link){
   else if (link.to) router.push(link.to)
 }
 
-/* VISITORS fallback locale */
-const localVisitors = ref(0)
-onMounted(() => {
-  try{
-    const K = 'sv_visitors'
-    const n = (parseInt(localStorage.getItem(K) || '0', 10) || 0) + 1
-    localStorage.setItem(K, String(n))
-    localVisitors.value = n
-  }catch(e){
-    console.log(e)
+/* === DOT-MATRIX 5×7 === */
+const DOTS = Object.freeze({
+  'A': ['01110','10001','10001','11111','10001','10001','10001'],
+  'B': ['11110','10001','11110','10001','10001','10001','11110'],
+  'C': ['01111','10000','10000','10000','10000','10000','01111'],
+  'D': ['11110','10001','10001','10001','10001','10001','11110'],
+  'E': ['11111','10000','11110','10000','10000','10000','11111'],
+  'F': ['11111','10000','11110','10000','10000','10000','10000'],
+  'G': ['01111','10000','10000','10111','10001','10001','01111'],
+  'H': ['10001','10001','11111','10001','10001','10001','10001'],
+  'I': ['01110','00100','00100','00100','00100','00100','01110'],
+  'L': ['10000','10000','10000','10000','10000','10000','11111'],
+  'M': ['10001','11011','10101','10101','10001','10001','10001'],
+  'N': ['10001','11001','10101','10011','10001','10001','10001'],
+  'O': ['01110','10001','10001','10001','10001','10001','01110'],
+  'P': ['11110','10001','10001','11110','10000','10000','10000'],
+  'R': ['11110','10001','10001','11110','10100','10010','10001'],
+  'S': ['01111','10000','10000','01110','00001','00001','11110'],
+  'T': ['11111','00100','00100','00100','00100','00100','00100'],
+  'U': ['10001','10001','10001','10001','10001','10001','01110'],
+  'V': ['10001','10001','10001','10001','01010','01010','00100'],
+  'Y': ['10001','01010','00100','00100','00100','00100','00100'],
+  ' ': ['00000','00000','00000','00000','00000','00000','00000']
+})
+const text = computed(() => (props.displayText || '').toUpperCase())
+const chars = computed(() => text.value.split('').map(c => DOTS[c] ? c : ' '))
+const dotSize = 6
+const dotGap = 3
+const cols = 5, rows = 7
+const charWidth = (dotSize*cols) + (dotGap*(cols-1)) + 10
+const charHeight = (dotSize*rows) + (dotGap*(rows-1))
+function dotRects(ch){
+  const pattern = DOTS[ch] || DOTS[' ']
+  const rects = []
+  for(let r=0;r<rows;r++){
+    for(let c=0;c<cols;c++){
+      if (pattern[r][c] === '1'){
+        rects.push({ x: c*(dotSize+dotGap), y: r*(dotSize+dotGap) })
+      }
+    }
   }
-})
-const displayValue = computed(() => (props.visitors ?? localVisitors.value))
-
-/* 7-segment */
-const digitCount = 4
-const MAP = { 0:['a','b','c','d','e','f'], 1:['b','c'], 2:['a','b','g','e','d'], 3:['a','b','g','c','d'],
-  4:['f','g','b','c'], 5:['a','f','g','c','d'], 6:['a','f','g','e','c','d'], 7:['a','b','c'], 8:['a','b','c','d','e','f','g'], 9:['a','b','c','d','f','g'] }
-const segList = ['a','b','c','d','e','f','g']
-const segAttrs = {
-  a:{ x:13, y:8,  width:44, height:10, rx:2 },
-  g:{ x:13, y:35, width:44, height:10, rx:2 },
-  d:{ x:13, y:62, width:44, height:10, rx:2 },
-  f:{ x:8,  y:13, width:10, height:22, rx:2 },
-  e:{ x:8,  y:39, width:10, height:22, rx:2 },
-  b:{ x:57, y:13, width:10, height:22, rx:2 },
-  c:{ x:57, y:39, width:10, height:22, rx:2 },
+  return rects
 }
-const digits = computed(() => {
-  const v = Math.max(0, Math.min(9999, Math.floor(displayValue.value || 0)))
-  return String(v).padStart(digitCount, '0').split('').map(n => +n)
-})
-const isOn = (digit, seg) => MAP[digit]?.includes(seg)
+
+/* Power */
+const power = computed(() => props.power)
+
+/* === LINGUA GLOBALE === */
+const lang = useLangStore()
+const volAngle = ref(0)
+function onPressLangAnimated(){
+  volAngle.value = (volAngle.value + 30) % 360
+  lang.cycleLocale()
+}
 </script>
 
 <style scoped>
-/* Posizione nella “spalla” destra della TV (solo desktop; su mobile la shell nasconde tutto) */
+/* === PALETTE ’70s === */
+.seventies .panel-inner{
+  --wood-1:#3d281c; --wood-2:#5a3a26; --wood-3:#744b2e;
+  --brass-1:#d9a441; --brass-2:#8d6423;
+  --amber:#ffb750; --amber-glow:rgba(255,156,47,.55);
+  --cream:#f7ead9;
+}
+
+/* Posizione */
 .tv-controls{
   position: absolute;
-  top:    calc(var(--tv-top) + 12px);
-  bottom: calc(var(--tv-bottom) + 12px);
-  left:   calc(100% - var(--tv-right) + 12px);
-  right:  12px;
+  top:    calc(var(--tv-top, 12px) + 10px);
+  bottom: calc(var(--tv-bottom, 12px) + 10px);
+  right: 10px;
+  width: calc(var(--tv-right) - 30px);
+  max-width: calc(100% - 20px);
+  left: auto;
   pointer-events: auto;
 }
 
-/* Pannello nero lucido */
+/* Scatola legno + filetto ottone */
 .panel-inner{
-  position: relative; height: 100%; border-radius: 14px;
+  position: relative; height: 100%;
+  border-radius: 16px;
   background:
-    radial-gradient(140% 120% at 20% 0%, rgba(255,255,255,.18), rgba(255,255,255,0) 50%),
-    linear-gradient(160deg, #0b0b0b 0%, #111 40%, #1a1a1a 55%, #080808 100%);
-  box-shadow:
-    0 1px 0 rgba(255,255,255,.25) inset,
-    0 -10px 20px rgba(0,0,0,.6) inset,
-    0 10px 18px rgba(0,0,0,.6) inset,
-    0 8px 24px rgba(0,0,0,.5);
+    radial-gradient(180% 120% at 20% 0%, rgba(255,255,255,.18), transparent 50%),
+    radial-gradient(120% 120% at 100% 100%, rgba(255,255,255,.08), transparent 50%),
+    repeating-linear-gradient(0deg, var(--wood-2) 0 6px, var(--wood-1) 6px 10px, var(--wood-3) 10px 14px);
+  box-shadow: 0 10px 24px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.12), inset 0 -10px 18px rgba(0,0,0,.35);
   padding: 16px 14px;
   display: grid;
   grid-template-rows: auto auto 1fr auto;
   gap: 14px;
+  color: var(--cream);
+  border: 2px solid #6a4a2f;
+}
+.panel-inner::before{
+  content:""; position:absolute; inset:6px; border-radius: 12px;
+  background: linear-gradient(180deg, var(--brass-1), var(--brass-2));
+  opacity:.28;
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor; mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0); mask-composite: exclude;
+  padding: 2px;
 }
 
-/* Display digitale */
-.display-block{
-  display: grid; justify-items: center; gap: 6px;
-  padding: 8px 6px 10px; border-radius: 10px;
-  background: linear-gradient(180deg, #0a0a0a, #121212);
-  box-shadow: 0 1px 0 rgba(255,255,255,.15) inset, 0 -6px 10px rgba(0,0,0,.6) inset;
+/* Display vetro (coerente col mobile) */
+.display-block.glass{
+  --glass-panel: rgba(16,16,16,.48);
+  --glass-brd:   rgba(255,255,255,.16);
+
+  position: relative;
+  display: grid; justify-items: center; gap: 8px;
+  padding: 20px 14px 20px; border-radius: 12px;
+
+  background:rgb(0, 0, 0);
+  border: 1px solid var(--glass-brd);
+
+  box-shadow:
+    0 10px 24px rgba(0,0,0,.35),
+    inset 0 1px 0 rgba(255,255,255,.12);
+  backdrop-filter: blur(12px) saturate(1.08);
+  -webkit-backdrop-filter: blur(12px) saturate(1.08);
+
+  margin-bottom: 50px;
 }
-.sevenseg{
-  width: 100%; max-width: 220px; height: auto; display: block;
-  filter: drop-shadow(0 0 4px rgba(255,0,0,.55)) drop-shadow(0 0 10px rgba(255,0,0,.25));
+.display-block.glass::after{
+  content:""; position:absolute; inset:0; border-radius: 10px;
+  background: linear-gradient(145deg, rgba(255,255,255,.22), rgba(255,255,255,0) 50%);
+  mix-blend-mode: screen; pointer-events:none; opacity:.25;
 }
-.sevenseg .seg{ fill: rgba(200,0,0,.10); }
-.sevenseg .seg.on{ fill: rgba(255,40,30,.95); }
-.label{ font-size: 10px; letter-spacing: .18em; color: #bcbcbc; opacity:.9; }
+.dotmatrix{
+  width: 100%; max-width: 280px; height: auto; display: block;
+  filter: drop-shadow(0 0 6px var(--amber-glow)) drop-shadow(0 0 16px rgba(255,160,60,.28));
+}
+.dot{ fill: var(--amber); }
 
 /* Manopole */
 .knobs{ display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-.knob-group{ text-align: center; }
-.knob-label{ display: block; margin-top: 6px; font-size: 10px; letter-spacing:.2em; color:#cfcfcf; opacity:.9; }
-.knob{
-  --k: 64px;
-  width: var(--k); height: var(--k); margin: 0 auto; border-radius: 50%;
-  background:
-    radial-gradient(120% 130% at 30% 25%, rgba(255,255,255,.25), rgba(255,255,255,0) 55%),
-    conic-gradient(from 210deg, #1e1e1e, #0f0f0f, #1a1a1a, #0a0a0a, #1e1e1e);
-  box-shadow: 0 2px 3px rgba(255,255,255,.2) inset, 0 -6px 10px rgba(0,0,0,.65) inset, 0 10px 16px rgba(0,0,0,.5);
-  position: relative;
-}
-.knob .notch{
-  position: absolute; top: 6px; left: 50%; width: 3px; height: 18px; transform: translateX(-50%);
-  background: linear-gradient(180deg, #e6e6e6, #999);
-  border-radius: 2px; box-shadow: 0 0 1px rgba(0,0,0,.6);
-}
 
-/* Program buttons */
+/* === PROGRAM BUTTONS — GLASS + DIGITALE (2 per fila) === */
 .programs{
-  display: grid; grid-auto-rows: minmax(36px, auto); gap: 10px; overflow:auto;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr)); /* 2 per fila */
+  gap: 14px;
+  align-content: start;
+  overflow: auto;
   padding-right: 2px;
 }
+
+/* Bottone tondo “vetro” con blur, identico vibe al mobile */
 .prog{
-  display: grid; grid-template-columns: 40px 1fr; align-items: center; gap: 10px;
-  width: 100%; padding: 8px 10px; border: 0; cursor: pointer; user-select: none;
-  border-radius: 8px;
-  background: linear-gradient(180deg, #f2f2f2, #cfcfcf);
-  box-shadow: 0 1px 0 rgba(255,255,255,.85) inset, 0 -3px 6px rgba(0,0,0,.35) inset, 0 3px 10px rgba(0,0,0,.5);
-  color: #111; text-align: left; font-weight: 700; letter-spacing: .02em;
-  transition: transform .05s ease, filter .15s ease;
+  --glass-btn: rgba(32,32,32,.42);
+  --glass-brd: rgba(255,255,255,.18);
+  --glass-hi:  rgba(255,255,255,.45);
+  --inner-ring: rgba(255,255,255,.08);
+
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border-radius: 50%;
+  border: 1px solid var(--glass-brd);
+  overflow: hidden;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px;
+
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.14), rgba(255,255,255,0) 48%) border-box,
+    var(--glass-btn);
+  box-shadow:
+    inset 0 1px 0 var(--glass-hi),
+    inset 0 0 0 8px var(--inner-ring),
+    inset 0 -14px 18px rgba(0,0,0,.28),
+    0 8px 20px rgba(0,0,0,.36);
+  backdrop-filter: blur(10px) saturate(1.05);
+  -webkit-backdrop-filter: blur(10px) saturate(1.05);
+
+  transition: transform .06s ease, filter .18s ease, box-shadow .18s ease;
 }
-.prog:hover{ filter: brightness(1.05); }
-.prog:active{ transform: translateY(1px); filter: brightness(.96); }
+.prog::after{
+  /* riflesso morbido diagonale */
+  content:""; position:absolute; top: 8%; left: 12%; width: 62%; height: 46%;
+  border-radius: 100% 100% 60% 60%;
+  background: radial-gradient(ellipse at 30% 20%, rgba(255,255,255,.38), rgba(255,255,255,0) 60%);
+  pointer-events:none; opacity:.55; filter: blur(.3px);
+}
+.prog:hover{
+  filter: brightness(1.06) saturate(1.03);
+  box-shadow:
+    inset 0 1px 0 var(--glass-hi),
+    inset 0 0 0 8px var(--inner-ring),
+    inset 0 -14px 20px rgba(0,0,0,.34),
+    0 10px 24px rgba(0,0,0,.38);
+}
+.prog:active{ transform: translateY(1px); }
+.prog:focus-visible{ outline: 2px solid #9cf2b8; outline-offset: 2px; }
+
+/* ——— DIGITALE (numero + nome) ——— */
+.digital{
+  --digit: #ffb6b6;                 /* verde “display” */
+  --glow:  rgba(255, 120, 120, 0.55);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono","Courier New", monospace;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: var(--digit);
+  text-shadow:
+    0 0 2px var(--digit),
+    0 0 6px var(--glow),
+    0 0 14px var(--glow),
+    0 2px 0 rgba(0,0,0,.35);
+}
+
+/* NUMERO */
 .num{
-  display: inline-grid; place-items: center; height: 24px; min-width: 32px; padding: 0 6px;
-  border-radius: 6px; background: #111; color: #e7e7e7; font-variant-numeric: tabular-nums;
-  box-shadow: 0 1px 0 rgba(255,255,255,.15) inset, 0 2px 4px rgba(0,0,0,.45);
+  font-weight: 900;
+  font-size: clamp(20px, 2.6vw, 30px);
+  line-height: 1;
+  margin-top: 2px;
 }
-.text{ white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* DIVISORE tra numero e nome */
+.text::before{
+  content:"";
+  display:block;
+  width: 64%;
+  height: 1px;
+  margin: 8px auto 6px;
+  background:
+    linear-gradient(90deg, rgba(255,255,255,.85), rgba(255,255,255,.4) 40%, rgba(255,255,255,.85) 100%);
+  box-shadow:
+    0 0 8px rgba(120,255,180,.45),
+    0 1px 0 rgba(0,0,0,.35) inset;
+  border-radius: 999px;
+}
+
+/* NOME PROGRAMMA */
+.text{
+  max-width: 82%;
+  text-align: center;
+  font-weight: 800;
+  font-size: clamp(11px, .95vw, 13px);
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* fallback senza aspect-ratio */
+@supports not (aspect-ratio: 1 / 1){
+  .prog{ height: 0; padding-bottom: 100%; }
+  .prog > .num, .prog > .text{ position: absolute; left: 50%; transform: translateX(-50%); }
+  .prog > .num{ top: 18%; }
+  .prog > .text{ bottom: 16%; width: 82%; }
+}
 
 /* Footer */
 .panel-footer{ display: grid; grid-template-columns: auto 1fr; align-items: center; }
 .led-wrap{ display: grid; justify-items: center; gap: 4px; }
-.tiny{ font-size: 9px; letter-spacing:.18em; color:#cfcfcf; opacity:.85; }
+.tiny{ font-size: 9px; letter-spacing:.18em; color:#f0e3d2; opacity:.9; }
 .led{
   width: 12px; height: 12px; border-radius: 50%;
   background:
-    radial-gradient(circle at 35% 35%, rgba(255,255,255,.9) 0 20%, rgba(255,0,0,.8) 35%, rgba(120,0,0,1) 60%),
-    #700;
-  box-shadow: 0 0 10px rgba(255,0,0,.8), 0 0 20px rgba(255,0,0,.35);
+    radial-gradient(circle at 35% 35%, rgba(255,255,255,.9) 0 20%, rgba(255,120,50,.9) 35%, rgba(120,50,0,1) 60%),
+    #7a3b00;
+  box-shadow: 0 0 12px rgba(255,140,50,.9), 0 0 22px rgba(255,140,50,.4);
   opacity: .35;
 }
 .led.on{ opacity: 1; }
 .brand{
-  justify-self: center; font-size: 12px; letter-spacing: .28em; color:#ddd; opacity:.9; text-transform: uppercase;
+  justify-self: center; font-size: 12px; letter-spacing: .28em; color:#f4e7d4; opacity:.9; text-transform: uppercase;
+}
+.brand::before{
+  content:""; display:inline-block; vertical-align:middle; margin-right:8px; width:38px; height:8px; border-radius: 999px;
+  background: linear-gradient(90deg, #ff8a00, #ff0066, #00aaff);
+  opacity:.55; filter: saturate(1.1);
 }
 </style>

@@ -49,7 +49,7 @@ const imgs = computed(() => {
   --sepia-40:rgba(59,29,18,.4);
 }
 .emo{
-  width:min(92vw,1100px);
+  width:min(92%,1100px);
   margin: clamp(16px,6vh,32px) auto;
   padding: 0 12px;
   display: grid;

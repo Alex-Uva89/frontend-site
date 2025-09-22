@@ -8,15 +8,15 @@
   --section-bg: transparent;
 
   /* gaps esterni TV */
-  --tv-gap-x: 2.5vw;
-  --tv-gap-top: 2.5vh;
-  --tv-gap-bottom: 6vh;
+  --tv-gap-x: 0%;
+  --tv-gap-top: 0%;
+  --tv-gap-bottom: 0%;
 
   /* spessori cornice */
-  --tv-top: 24px;
+  --tv-top: 44px;
   --tv-right: 350px;
-  --tv-bottom: 24px;
-  --tv-left: 24px;
+  --tv-bottom: 44px;
+  --tv-left: 44px;
   --tv-radius: 38px;
 
   /* PLASTIC RED palette */
@@ -39,7 +39,7 @@
 @media (max-width:700px){
   :root{
     /* bordo sottile e uniforme */
-    --tv-top: 16px;
+    --tv-top: 36px;
     --tv-right: 14px;
     --tv-bottom: 14px;
     --tv-left: 14px;
@@ -49,6 +49,25 @@
     --tv-gap-x: 3vw;
     --tv-gap-top: 2vh;
     --tv-gap-bottom: 6vh;
+
+    --bezel-width: 12px;         /* anello nero lucido esterno alla mesh */
+    --mesh-width: 14px;          /* anello retinato */
+    --fade-width: 12px;          /* spessore sfumatura (nero→trasparente) sopra la mesh */
+
+    /* Retinato */
+    --mesh-dot-step: 6px;        /* passo della griglia dei forellini */
+    --mesh-dot-size: 1.2px;      /* raggio apparente del foro */
+
+    /* Lucidità / ombre */
+    --bezel-gloss-top: rgba(255,255,255,.08);
+    --bezel-gloss-diag: rgba(255,255,255,.06);
+
+      --rust-paper: #F6F1EA;         /* fondo carta calda */
+    --rust-paper-2: #F1E8DE;       /* variazione carta */
+    --rust-ink:   #3B2F28;         /* inchiostro scuro */
+    --rust-accent:#A06D45;         /* accento “rame/legno” */
+    --rust-accent-2:#7C5538;       /* accento scuro */
+    --rust-edge: rgba(0,0,0,.05);  /* bordo tenue */
   }
 }
 
@@ -56,7 +75,7 @@
 /* Blocco scroll esterno + fondo nero */
 html, body, #q-app{
   height: 100%;
-  background: #000;
+  background: var(--sepia-900);
   overflow: hidden;
 }
 
@@ -67,12 +86,17 @@ html, body, #q-app{
   left:   calc(var(--tv-gap-x)   + var(--tv-left));
   right:  calc(var(--tv-gap-x)   + var(--tv-right));
   bottom: calc(var(--tv-gap-bottom) + var(--tv-bottom) + env(safe-area-inset-bottom,0px));
-  border-radius: var(--tv-radius);
-  background: #000;
+  background: var(--plastic-shadow-deep);
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  z-index: 10; /* sotto TvShell */
+  z-index: 10;
+}
+
+@media (max-width:700px){
+  .crt-host{
+    padding-top: 20px;
+  }
 }
 
 /* contenitore scrollabile */

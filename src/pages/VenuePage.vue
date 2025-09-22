@@ -212,7 +212,7 @@ const isOpenNow = computed(() => {
   padding: 24px 0px 34px;
 }
 .focus__wrap{
-  width:min(92vw,1100px);
+  width:min(92%,1100px);
   margin: 18px auto;
   display:grid; gap:12px;
   grid-template-columns: 1fr;
@@ -220,7 +220,7 @@ const isOpenNow = computed(() => {
   padding: 0 12px;
 }
 .focus__title{
-  margin:0; font-size:clamp(20px,5.4vw,32px); line-height:1.1; letter-spacing:-.01em;
+  margin:0; font-size:clamp(20px,5.4%,32px); line-height:1.1; letter-spacing:-.01em;
 }
 .focus__meta{
   margin:.2rem 0 0; opacity:.7; font-size:14px; letter-spacing:.04em; text-transform:uppercase;
@@ -236,13 +236,13 @@ const isOpenNow = computed(() => {
 
 /* ===== Soluzioni ===== */
 .solutions{ background:#fff; padding: 14px 0 18px; }
-.container{ width:min(92vw,1100px); margin:0 auto; padding:0 12px; }
-.sectionTitle{ margin:0 0 8px 0; font-size:clamp(18px,4.8vw,24px); }
+.container{ width:92%; margin:0 auto; padding:0 12px; }
+.sectionTitle{ margin:0 0 8px 0; font-size:clamp(18px,4.8%,24px); }
 
 .solutions__rail{ overflow-x:auto; -webkit-overflow-scrolling:touch; padding: 2px 8px 2px 12px; }
 .solutions__track{ display:flex; gap:10px; }
 .sol{
-  flex:0 0 82vw; max-width:520px;
+  flex:0 0 82%; max-width:520px;
   border-radius:16px; padding:14px;
   background: var(--paper);
   border: 1px solid rgba(0,0,0,.06);
@@ -259,7 +259,7 @@ const isOpenNow = computed(() => {
 @media (min-width: 900px){
   .solutions__rail{ display:none; }
   .solutions__grid{
-    width:min(92vw,1100px); margin:0 auto; padding:0 16px;
+    width:min(92%,1100px); margin:0 auto; padding:0 16px;
     display:grid; grid-template-columns: repeat(3, 1fr); gap:14px;
   }
   .sol{ flex:initial; }
@@ -294,7 +294,7 @@ const isOpenNow = computed(() => {
 .hours__range{ opacity:.9; }
 
 .hours__cta{
-  width:min(92vw,1100px);
+  width:min(92%,1100px);
   margin:10px auto 0;
   padding:0 12px;
 }

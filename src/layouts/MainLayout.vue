@@ -50,6 +50,6 @@ function playTvClick(){
     g.gain.exponentialRampToValueAtTime(0.35, now + 0.006)
     g.gain.exponentialRampToValueAtTime(0.00001, now + 0.09)
     o.start(now); o.stop(now + 0.1)
-  }catch(e){console.log8(e)}
+  }catch(e){console.log(e)}
 }
 </script>

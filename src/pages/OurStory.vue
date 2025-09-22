@@ -153,7 +153,7 @@ const heroImg = 'https://picsum.photos/seed/lecce-stone/2400/1400'
   background: var(--stone-100, #efe6d3);
   color: var(--sepia-900, #2a2019);
 }
-.wrap{ width: min(94vw, 1100px); margin: 0 auto; padding: 28px 0 40px; }
+.wrap{ width: 90%; margin: 0 auto; padding: 28px 0 40px; }
 
 /* ====== HERO (riuso del “nostro hero di sempre”) ====== */
 .hero{
