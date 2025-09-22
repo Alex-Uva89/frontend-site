@@ -96,6 +96,7 @@ html, body, #q-app{
 @media (max-width:700px){
   .crt-host{
     padding-top: 20px;
+    bottom: var(--tv-gap-bottom);
   }
 }
 

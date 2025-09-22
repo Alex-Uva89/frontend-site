@@ -27,7 +27,7 @@ import TvPanel from './TvPanel.vue'
   top:    var(--tv-gap-top);
   left:   var(--tv-gap-x);
   right:  var(--tv-gap-x);
-  bottom: calc(var(--tv-gap-bottom) + env(safe-area-inset-bottom, 0px));
+  bottom: var(--tv-gap-bottom);
   z-index: 999999;
   pointer-events: none; /* il contenuto dell'app resta cliccabile */
 
@@ -173,6 +173,7 @@ import TvPanel from './TvPanel.vue'
 
 /* Mobile: solo contorno rosso */
 @media (max-width:700px){
+  .tv-shell{height: 95vh;}
   .panel-desktop{ display: none; }
   .tv-feet{ display: none; }
 }

@@ -97,7 +97,7 @@ onBeforeUnmount(() => document.removeEventListener('click', onDocClick))
     display:block;
     position: relative;
     z-index: 60;
-    padding: 16px var(--tv-gap-x, 16px) 10px;
+    padding: 16px var(--tv-gap-x, 16px);
   }
 
   /* === TRIGGER GLASS === */
@@ -147,7 +147,6 @@ onBeforeUnmount(() => document.removeEventListener('click', onDocClick))
     display:grid;
     grid-auto-rows: minmax(54px, auto);
     gap: 10px;
-    margin-bottom: max(12px, env(safe-area-inset-bottom, 0px));
   }
 
   /* === BOTTONI GLASS EFFETTO VETRO === */
