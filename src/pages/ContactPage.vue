@@ -3,6 +3,13 @@
 
     <div class="container">
       <!-- === 1) FORM EMAIL === -->
+       <q-toolbar class="q-mb-md">
+        <q-toolbar-title class="text-center">
+          <div class="text-h2 text-uppercase">
+            Contatti
+          </div>
+        </q-toolbar-title>
+       </q-toolbar>
       <section class="section">
         <q-card flat bordered class="rust-card">
           <div class="section-header">
@@ -281,10 +288,11 @@ const socials = ref([
 /* ===================== LAYOUT BASE ===================== */
 .page.contact.rustic{
   min-height: 100%;
-  padding: 20px !important; /* richiesto: almeno 20px attorno alla pagina */
+  padding: 50px 20px;
   color: var(--rust-ink);
   /* texture carta */
-  background-color:var(--stone-50)
+  background-color:var(--stone-50);
+  padding-top: 50px;
 }
 .page.contact.rustic::before{
   /* grana leggerissima della carta */
