@@ -1,4 +1,4 @@
-<!-- App.vue -->
+<!-- src/App.vue -->
 <template>
   <!-- le route e i layout vivono qui -->
   <router-view />
@@ -15,5 +15,15 @@
 </template>
 
 <script setup>
+import { ref, watchEffect } from 'vue'
 import TvShell from 'src/components/TvShell.vue'
+
+/* NEW: canale corrente (persistito opzionale) */
+const saved = Number(localStorage.getItem('tv:channel') || 0) || 0
+const currentChannel = ref(saved)
+
+/* opzionale: persisti quando cambia */
+watchEffect(() => {
+  localStorage.setItem('tv:channel', String(currentChannel.value))
+})
 </script>

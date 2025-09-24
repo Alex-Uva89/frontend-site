@@ -49,7 +49,7 @@ import { useRouter } from 'vue-router'
 import { useDrawerStore } from 'src/stores/drawerStore'
 
 const drawer = useDrawerStore()
-const programs = computed(() => drawer.links ?? [])
+const programs = computed(() => drawer.linksMobile ?? [])
 
 const open = ref(false)
 const btnRef = ref(null)

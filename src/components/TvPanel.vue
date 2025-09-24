@@ -24,17 +24,12 @@
 
       <!-- MANOPOLE → BOTTONI -->
       <div class="knobs">
-        <KnobButton
-          label="TUNER"
-          aria-label="Tuner"
-          @press="$emit && $emit('tuner')"
-        />
-        <KnobButton
-          label="LANG"
-          :title="`Lingua: ${lang.current.toUpperCase()}`"
-          :angle="volAngle"
-          aria-label="Cambia lingua"
-          @press="onPressLangAnimated"
+        <ConcaveButton to="/" :size="72" />
+        <LanguageKnob
+          :locales="lang.supported"
+          v-model="currentLocale"
+          :width="140"
+          :height="44"
         />
       </div>
 
@@ -52,6 +47,12 @@
         </button>
       </div>
 
+      <div class="container-contacts">
+        <div class="contacts">
+          <RouterLink to="/contact" aria-label="Contatti">Contatti</RouterLink>
+        </div>
+      </div>
+
       <!-- LED + marchietto -->
       <div class="panel-footer">
         <div class="led-wrap" :aria-label="power ? 'Power on' : 'Power off'">
@@ -65,11 +66,13 @@
 </template>
 
 <script setup>
-import { computed, ref } from 'vue'
+import { computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useDrawerStore } from 'src/stores/drawerStore'
 import { useLangStore } from 'src/stores/langStore'
-import KnobButton from 'src/components/KnobButton.vue'
+
+import LanguageKnob from './LanguageKnob.vue'
+import ConcaveButton from './ConcaveButton.vue'
 
 const props = defineProps({
   power: { type: Boolean, default: true },
@@ -135,13 +138,14 @@ function dotRects(ch){
 /* Power */
 const power = computed(() => props.power)
 
-/* === LINGUA GLOBALE === */
 const lang = useLangStore()
-const volAngle = ref(0)
-function onPressLangAnimated(){
-  volAngle.value = (volAngle.value + 30) % 360
-  lang.cycleLocale()
-}
+
+const currentLocale = computed({
+  get: () => lang.current,
+  set: (val) => lang.setLocale ? lang.setLocale(val) : (lang.current = val)
+})
+
+lang.init()
 </script>
 
 <style scoped>
@@ -217,12 +221,20 @@ function onPressLangAnimated(){
 }
 .dotmatrix{
   width: 100%; max-width: 280px; height: auto; display: block;
-  filter: drop-shadow(0 0 6px var(--amber-glow)) drop-shadow(0 0 16px rgba(255,160,60,.28));
+  filter: drop-shadow(0 0 4px rgb(255, 255, 255)) drop-shadow(0 0 20px rgb(255, 0, 0));
 }
-.dot{ fill: var(--amber); }
+/* .dot{ fill: var(--amber); } */
+.dot{ fill: red;}
 
 /* Manopole */
-.knobs{ display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.knobs{
+  background-color: #2a1a12;
+  padding: 15px 0;
+  border-radius: 10px;
+  box-shadow: inset 0 0 10px wheat;
+  display: flex;
+  justify-content: space-around;
+}
 
 /* === PROGRAM BUTTONS — GLASS + DIGITALE (2 per fila) === */
 .programs{
@@ -232,6 +244,12 @@ function onPressLangAnimated(){
   align-content: start;
   overflow: auto;
   padding-right: 2px;
+
+  background-color: #2a1a12;
+  padding: 15px;
+  height: fit-content;
+  border-radius: 10px;
+  box-shadow: inset 0 0 10px wheat;
 }
 
 /* Bottone tondo “vetro” con blur, identico vibe al mobile */
@@ -262,7 +280,7 @@ function onPressLangAnimated(){
     inset 0 1px 0 var(--glass-hi),
     inset 0 0 0 8px var(--inner-ring),
     inset 0 -14px 18px rgba(0,0,0,.28),
-    0 8px 20px rgba(0,0,0,.36);
+    0 0 20px rgb(0, 0, 0);
   backdrop-filter: blur(10px) saturate(1.05);
   -webkit-backdrop-filter: blur(10px) saturate(1.05);
 
@@ -300,6 +318,96 @@ function onPressLangAnimated(){
     0 0 14px var(--glow),
     0 2px 0 rgba(0,0,0,.35);
 }
+
+/* CONTACTS */
+.container-contacts{
+  display: flex;
+  align-items: center;
+  justify-content: end;
+}
+.contacts{
+  /* ---- base dal tuo snippet ---- */
+  width: 50%;
+  padding: 10px 30px;
+  border-radius: 12px;
+
+  /* ---- palette '70s carta/avorio ---- */
+  --paper-top: #fff7e8;   /* luce */
+  --paper-mid: #f8f0e2;   /* tuo colore */
+  --paper-bot: #eeddc5;   /* ombra */
+  --edge: #00000030;      /* bordo esterno */
+  --drop: rgba(0,0,0,.40);/* ombra esterna */
+
+  position: relative;
+  background:
+    linear-gradient(180deg, var(--paper-top), var(--paper-mid) 55%, var(--paper-bot));
+  border: 1px solid var(--edge);
+
+  /* Ombra “rialzata” + riflessi interni */
+  box-shadow:
+    0 10px 0 rgba(90, 60, 30, .45),      /* zoccolo/tasto sollevato */
+    0 14px 24px var(--drop),             /* ombra morbida */
+    inset 0 1px 0 rgba(255,255,255,.9),  /* lucina bordo alto */
+    inset 0 -12px 18px rgba(0,0,0,.10);  /* sfumatura basso */
+  cursor: pointer;
+  user-select: none;
+  text-align: center;
+}
+
+/* Riflesso diagonale “plexi” */
+.contacts::after{
+  content:"";
+  position:absolute; inset:0; border-radius: inherit;
+  background: linear-gradient(155deg, rgba(255,255,255,.45) 0%, rgba(255,255,255,0) 46%);
+  mix-blend-mode: screen; opacity:.35; pointer-events:none;
+}
+
+/* fai occupare tutto al link, mantenendo lo stile del bottone */
+.contacts > a{
+  display:block;
+  width: 100%;
+  height: 100%;
+  color: #2a1a12;
+  font-weight: 800;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  text-decoration: none;
+}
+
+/* Hover: leggero boost */
+.contacts:hover{
+  filter: brightness(1.03) saturate(1.03);
+  box-shadow:
+    0 10px 0 rgba(90, 60, 30, .5),
+    0 16px 26px var(--drop),
+    inset 0 1px 0 rgba(255,255,255,.95),
+    inset 0 -14px 20px rgba(0,0,0,.12);
+}
+
+/* Pressed (mouse down) */
+.contacts:active{
+  transform: translateY(2px);
+  box-shadow:
+    0 7px 0 rgba(90, 60, 30, .45),
+    0 10px 18px var(--drop),
+    inset 0 2px 0 rgba(255,255,255,.85),
+    inset 0 -10px 16px rgba(0,0,0,.14);
+}
+
+/* Focus accessibile sul link interno */
+.contacts > a:focus-visible{
+  outline: 3px solid rgba(255, 221, 130, .9);
+  outline-offset: 4px;
+  border-radius: 10px;
+}
+
+/* Variante quadrata (se la vuoi “tasto TV” classico) */
+.contacts.is-square{
+  width: 96px;
+  padding: 16px 0;
+  border-radius: 12px;
+}
+
 
 /* NUMERO */
 .num{

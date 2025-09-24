@@ -30,13 +30,13 @@ export default {
     title: 'Cosa puoi fare',
     book: {
       title: 'Si accettano prenotazioni!',
-      lead: '<em>Amici belli</em>, tutti i nostri ristoranti accettano prenotazioni. Per grandi tavolate, primi appuntamenti o rimpatriate — passate a trovarci!',
+      lead: 'Amici belli, tutti i nostri ristoranti accettano prenotazioni. Per grandi tavolate, primi appuntamenti o rimpatriate — passate a trovarci!',
       cta: 'Prenotare',
       imgAlt: 'Tavolata che brinda'
     },
     menu: {
       title: 'Conosci i nostri menù',
-      lead: 'Ingredienti selezionati, artigianalità radicale, stagionalità. Scopri piatti e carte dei vini dei nostri locali.',
+      lead: 'Ingredienti selezionati, artigianalità radicale, stagionalità. Scopri piatti e carte dei vini.',
       cta: 'Vedi menù',
       imgAlt: 'Piatti e calici'
     },
@@ -58,7 +58,28 @@ export default {
     giftNote: 'Useremo la data solo per inviarti un piccolo pensiero nel tuo mese di compleanno.',
     consent: 'Acconsento al trattamento dei dati per finalità di comunicazione',
     privacy: 'Privacy',
-    submit: 'Invia'
-  }
+    submit: 'Invia',
+    terms: 'Termini & Privacy',
+    go: 'Vai'
+  },
 
+  /* ---------- ALIAS per vecchie chiavi usate nei template ---------- */
+  venues: {
+    title: 'I nostri locali',
+    subtitle: 'Dove trovarci'
+  },
+  actions: {
+    viewMenu: 'Vedi menù',
+    book: 'Prenota un tavolo'
+  },
+  newsletterAliases: {
+    title1: 'Iscriviti alla',
+    and: 'e',
+    title2: 'newsletter'
+  },
+
+  /* mapping piatto (evita refactor del template): */
+  'newsletter.title1': 'Iscriviti alla',
+  'newsletter.and': 'e',
+  'newsletter.title2': 'newsletter'
 }

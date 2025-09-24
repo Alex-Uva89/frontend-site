@@ -20,16 +20,16 @@
   --tv-radius: 38px;
 
   /* PLASTIC RED palette */
-  --plastic-700: #8F241A;
-  --plastic-600: #B53025;
-  --plastic-500: #D23A2F; /* base */
-  --plastic-400: #E75349;
-  --plastic-300: #F1736A;
+  --plastic-700: #b22222;
+  --plastic-600: #b52525;
+  --plastic-500: #d22f2f; /* base */
+  --plastic-400: #e74949;
+  --plastic-300: #f16a6a;
 
   --plastic-highlight: rgba(255,255,255,.55);
   --plastic-sheen:     rgba(255,255,255,.22);
-  --plastic-shadow:    rgba(0,0,0,.28);
-  --plastic-shadow-deep: rgba(0,0,0,.38);
+  --plastic-shadow:    rgba(0, 0, 0, 0.192);
+  --plastic-shadow-deep: rgba(0, 0, 0, 0.178);
 
   /* anti-cucitura per l’anello della cornice */
   --hair: 0.75px;
@@ -100,7 +100,6 @@ html, body, #q-app{
     right: 0;
     bottom: 0;
     padding-top: 20px;
-    bottom: var(--tv-gap-bottom);
   }
 }
 

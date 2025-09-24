@@ -30,7 +30,7 @@ export default {
     title: 'What you can do',
     book: {
       title: 'Bookings are welcome!',
-      lead: '<em>Friends</em>, all our restaurants accept reservations. Big tables, first dates, family reunions—come by!',
+      lead: 'Friends, all our restaurants accept reservations. Big tables, first dates, family reunions—come by!',
       cta: 'Book now',
       imgAlt: 'People cheering at a table'
     },
@@ -48,17 +48,38 @@ export default {
     }
   },
   newsletter: {
-  title: 'Join our newsletter',
-  lead: 'News, seasonal menus, special events — one email a month, promise.',
-  email: 'Your email',
-  emailErr: 'Please enter a valid email',
-  giftQ: 'Would you like a birthday gift?',
-  birthdate: 'Birth date',
-  birthErr: 'Invalid date',
-  giftNote: 'We will use it only to send you a small treat around your birthday.',
-  consent: 'I agree to the processing of my data for communication purposes',
-  privacy: 'Privacy',
-  submit: 'Send'
-}
+    title: 'Join our newsletter',
+    lead: 'News, seasonal menus, special events — one email a month, promise.',
+    email: 'Your email',
+    emailErr: 'Please enter a valid email',
+    giftQ: 'Would you like a birthday gift?',
+    birthdate: 'Birth date',
+    birthErr: 'Invalid date',
+    giftNote: 'We will use it only to send you a small treat around your birthday.',
+    consent: 'I agree to the processing of my data for communication purposes',
+    privacy: 'Privacy',
+    submit: 'Send',
+    terms: 'Terms & Privacy',
+    go: 'Go'
+  },
 
+  /* ---------- ALIAS per vecchie chiavi usate nei template ---------- */
+  venues: {
+    title: 'Our venues',
+    subtitle: 'Where to find us'
+  },
+  actions: {
+    viewMenu: 'View menus',
+    book: 'Book now'
+  },
+  newsletterAliases: {
+    title1: 'Join our',
+    and: 'and',
+    title2: 'newsletter'
+  },
+
+  /* mapping piatto (evita refactor del template): */
+  'newsletter.title1': 'Join our',
+  'newsletter.and': 'and',
+  'newsletter.title2': 'newsletter'
 }

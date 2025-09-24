@@ -6,14 +6,20 @@ export const useDrawerStore = defineStore('drawer', {
     image: 'https://picsum.photos/seed/mamma-elvira-drawer/1920/1080',
     // Link di navigazione (ordine = quello mostrato in drawer)
     links: [
-      { label: 'Home',              to: '/' },
       { label: 'I nostri locali',   to: '/venues' },
       { label: 'La nostra storia',  to: '/story' },
       { label: 'Produttori',        to: '/producers' },
       { label: 'Lavora con noi',    to: '/jobs' },
-      { label: 'Contatti',          to: '/contact' },
       // Esempio esterno:
       // { label: 'Press', href: 'https://press.example.com' }
+    ],
+    linksMobile: [
+      { label: 'Home',   to: '/' },
+      { label: 'I nostri locali',   to: '/venues' },
+      { label: 'La nostra storia',  to: '/story' },
+      { label: 'Produttori',        to: '/producers' },
+      { label: 'Lavora con noi',    to: '/jobs' },
+      { label: 'Contatti',    to: '/contacts' },
     ],
     // CTA in basso
     ctas: {
