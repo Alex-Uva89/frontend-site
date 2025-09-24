@@ -126,6 +126,42 @@ export default {
     fillRequired: 'Please fill the required fields'
   },
 
+  ourstory: {
+    title: 'Our story',
+    subtitle: 'And the story of a team',
+    heading: 'How we became Mamma Elvira',
+    lead: 'A kitchen born in a family and grown with the city: few ingredients, lots of memory, simple and honest gestures.',
+    p1: 'At the beginning we were one big table and a stubborn will to let dishes do the talking. Hand-rolled pasta, living bread, wine from people who know the land by name.',
+    p2: 'Then came friends, neighbors, travelers. The kitchen stayed honest, the service more attentive, the rooms brighter. Lecce stone held everything together.',
+    quote: 'Elegance is removing, not adding.',
+    quoteAuthor: 'The Brigade',
+    tl2012: 'The fires of the first Osteria are lit.',
+    tl2016: 'The Enoteca arrives: bottles that tell stories.',
+    tl2019: 'The Restaurant is born: technique and memory on the plate.',
+    tl2022: 'The Pizzeria completes the family. A live oven and mature doughs.'
+  },
+
+  // additions for the "Team" section used in OurStory
+  jobs: {
+    join: 'Join the Mamma Elvira team',
+    lead: 'We look for curious, kind and down-to-earth people. If you love dough on your hands and details in the dining room, we’d love to meet you.',
+    openings: 'Open positions',
+    email: 'Email us',
+    kitchen: 'Kitchen',
+    kitchenDesc: 'Fresh pasta, prep, pass: tight team and perfect timing.',
+    pizza: 'Pizzeria',
+    pizzaDesc: 'Long-fermented doughs, live oven, calibrated service.',
+    floor: 'Dining room',
+    floorDesc: 'Welcome, pace and care: make people feel at home.',
+    sommelier: 'Wine',
+    sommelierDesc: 'A living wine bar, small producers, honest storytelling.',
+    pastry: 'Pastry',
+    pastryDesc: 'Essential desserts, clean ingredients, seasons on the plate.',
+    stage: 'Internship',
+    stageDesc: 'Learning paths in kitchen and dining room: learn by doing.'
+  },
+
+
 
 
   /* mapping piatto (evita refactor del template): */

@@ -3,8 +3,8 @@
     <!-- HERO -->
     <HeroImage
       :images="heroImg"
-      title="La nostra storia"
-      subtitle="E la storia di una squadra"
+      :title="$t('ourstory.title')"
+      :subtitle="$t('ourstory.subtitle')"
       content-bottom="10vh"
       align="left"
     />

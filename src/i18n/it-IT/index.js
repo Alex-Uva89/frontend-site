@@ -125,6 +125,40 @@ export default {
     invalidEmail: 'Email non valida',
     fillRequired: 'Compila i campi obbligatori'
   },
+  ourstory: {
+    title: 'La nostra storia',
+    subtitle: 'E la storia di una squadra',
+    heading: 'Come siamo diventati Mamma Elvira',
+    lead: 'Una cucina che nasce in famiglia e cresce con la città: pochi ingredienti, tanta memoria, gesti semplici e veri.',
+    p1: 'All’inizio eravamo un tavolo grande e una voglia ostinata di far parlare i piatti. La pasta tirata a mano, il pane vivo, il vino di chi la terra la conosce per nome.',
+    p2: 'Poi sono arrivati gli amici, i vicini, i viaggiatori. La cucina è rimasta onesta, il servizio più attento, le sale più luminose. La pietra leccese ha tenuto insieme tutto.',
+    quote: 'Eleganza è togliere, non aggiungere.',
+    quoteAuthor: 'La Brigata',
+    tl2012: 'Si accendono i fuochi della prima Osteria.',
+    tl2016: 'Arriva l’Enoteca: bottiglie che raccontano storie.',
+    tl2019: 'Nasce il Ristorante: tecnica e memoria nel piatto.',
+    tl2022: 'La Pizzeria completa la famiglia. Forno vivo, impasti maturi.'
+  },
+
+  // aggiunte per la sezione "Team" usata in OurStory
+  jobs: {
+    join: 'Unisciti al team di Mamma Elvira',
+    lead: 'Cerchiamo persone curiose, gentili e concrete. Se ti piacciono le mani in pasta e i dettagli in sala, ci piacerà conoscerti.',
+    openings: 'Posizioni aperte',
+    email: 'Scrivici',
+    kitchen: 'Cucina',
+    kitchenDesc: 'Pasta fresca, linea, pass: team unito e tempi giusti.',
+    pizza: 'Pizzeria',
+    pizzaDesc: 'Impasti a lunga maturazione, forno vivo, servizio calibrato.',
+    floor: 'Sala',
+    floorDesc: 'Accoglienza, ritmo e attenzione: far sentire a casa.',
+    sommelier: 'Vino',
+    sommelierDesc: 'Enoteca viva, piccoli produttori, storytelling sincero.',
+    pastry: 'Pasticceria',
+    pastryDesc: 'Dolci essenziali, ingredienti puliti, stagioni nel piatto.',
+    stage: 'Stage',
+    stageDesc: 'Percorsi formativi in cucina e sala: imparare facendo.'
+  },
 
 
   /* mapping piatto (evita refactor del template): */
