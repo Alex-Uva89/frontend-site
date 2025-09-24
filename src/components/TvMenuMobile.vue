@@ -195,35 +195,25 @@ watch(programs, () => { if (open.value) nextTick(focusFirst) })
 
   /* === DROPDOWN — scrollabile, con altezza massima === */
   .dropdown{
-    --glass-panel: rgba(16,16,16,.48);
-    position: absolute;
-    top: calc(100% + 8px);
-    left: 0; right: 0;
-    border: none; border-radius: 16px;
-    background:
-      radial-gradient(120% 160% at 50% 0%, rgba(255,255,255,.12), rgba(255,255,255,0) 60%),
-      var(--glass-panel);
-    box-shadow:
-      0 16px 28px rgba(0,0,0,.38),
-      inset 0 1px 0 rgba(255,255,255,.12);
+   --glass-panel: rgba(16,16,16,.48);
+    border: none;
+    border-radius: 16px;
+    background: radial-gradient(120% 160% at 50% 0%, rgba(255,255,255,.12), rgba(255,255,255,0) 60%), var(--glass-panel);
+    box-shadow: 0 16px 28px rgba(0,0,0,.38), inset 0 1px 0 rgba(255,255,255,.12);
     backdrop-filter: blur(12px) saturate(1.08);
     -webkit-backdrop-filter: blur(12px) saturate(1.08);
-
     padding: 10px;
-    display:grid;
+    display: flex;
     grid-auto-rows: minmax(54px, auto);
     gap: 10px;
-
-    /* >>> mobile overflow handling <<< */
-    max-height: min(65vh, calc(100dvh - 120px)); /* 120px = trigger + margini */
+    height: fit-content;
     overflow: auto;
     -webkit-overflow-scrolling: touch;
     overscroll-behavior: contain;
     scrollbar-gutter: stable;
-
-    /* fade top/bottom per suggerire scroll */
-    -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 12px, #000 calc(100% - 12px), transparent 100%);
-            mask-image: linear-gradient(to bottom, transparent 0, #000 12px, #000 calc(100% - 12px), transparent 100%);
+    mask-image: linear-gradient(to bottom, transparent 0, #000 12px, #000 calc(100% - 12px), transparent 100%);
+    margin-bottom: 20px;
+    flex-direction: column;
   }
 
   /* === VOCI GLASS === */
@@ -234,7 +224,7 @@ watch(programs, () => { if (open.value) nextTick(focusFirst) })
     display:grid; grid-template-columns: 52px 1fr; align-items:center; gap:12px;
 
     width: 100%;
-    min-height: 56px;
+    min-height: fit-content;
     padding: 12px 14px;
     border: none; border-radius: 14px;
     background:

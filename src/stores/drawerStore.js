@@ -19,7 +19,7 @@ export const useDrawerStore = defineStore('drawer', {
       { label: 'La nostra storia',  to: '/story' },
       { label: 'Produttori',        to: '/producers' },
       { label: 'Lavora con noi',    to: '/jobs' },
-      { label: 'Contatti',    to: '/contacts' },
+      { label: 'Contatti',    to: '/contact' },
     ],
     // CTA in basso
     ctas: {
