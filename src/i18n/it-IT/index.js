@@ -77,6 +77,55 @@ export default {
     and: 'e',
     title2: 'newsletter'
   },
+  pages: {
+    jobs: {
+      title: 'Lavora con noi',
+      subtitle: 'Entra nel team di Mamma Elvira e cresci con noi.',
+      ctaSpontaneous: 'Candidatura spontanea',
+      whyUs: 'Perché lavorare con noi',
+
+      search: 'Cerca ruolo o parola chiave',
+      location: 'Località',
+      department: 'Reparto',
+      contract: 'Contratto',
+      level: 'Seniority',
+
+      noResultsTitle: 'Nessun risultato',
+      noResultsBody: 'Prova a cambiare i filtri o invia una candidatura spontanea.',
+      tips: 'Mance',
+      details: 'Dettagli ruolo',
+      responsibilities: 'Responsabilità',
+      requirements: 'Requisiti',
+
+      apply: 'Candidati',
+      share: 'Condividi',
+      hiringNow: 'Assunzioni in corso',
+
+      whyUsTitle: 'Perché lavorare con noi',
+
+      applyNow: 'Candidati ora',
+      position: 'Posizione',
+      positionHint: 'Se candidatura spontanea, scegli “Generale”',
+      coverLetter: 'Presentazione',
+      privacy: 'Acconsento al trattamento dei dati personali',
+      sendApplication: 'Invia candidatura',
+      writeUs: 'Scrivici via email',
+      openMail: 'Apro il client di posta…',
+      writeUsFallback: 'Se non si apre, scrivici direttamente via email.',
+      copiedEmail: 'Email copiata negli appunti',
+      copiedLink: 'Link copiato'
+    }
+  },
+  common: {
+    clearAll: 'Pulisci filtri',
+    name: 'Nome e cognome',
+    email: 'Email',
+    phoneOptional: 'Telefono (opzionale)',
+    required: 'Campo obbligatorio',
+    invalidEmail: 'Email non valida',
+    fillRequired: 'Compila i campi obbligatori'
+  },
+
 
   /* mapping piatto (evita refactor del template): */
   'newsletter.title1': 'Iscriviti alla',

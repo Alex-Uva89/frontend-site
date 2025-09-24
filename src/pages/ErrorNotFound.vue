@@ -36,23 +36,37 @@ onMounted(() => {
   const ctx = cvs.getContext('2d', { alpha: false, willReadFrequently: true })
 
   // === Parametri facilmente regolabili ===
-  const FPS = 30             // 30 fps = look analogico e CPU ok
-  const LEVELS = [0, 160, 255] // nero / grigio / bianco (cambia per più/meno grigio)
-  const SCALE = 1            // 1 = risoluzione piena (dots piccolissimi). Metti 1.5 per alleggerire.
+  const FPS = 30                    // 30 fps = look analogico e CPU ok
+  const LEVELS = [0, 160, 255]      // nero / grigio / bianco
+  const MIN_DENSITY = 4             // minimo 2× su desktop (puntini più piccoli)
+  const MAX_DENSITY = 5             // limita il carico su schermi molto densi
+
+  const getRes = () => {
+    const dpr = Math.max(1, window.devicePixelRatio || 1)
+    // usa almeno 2×; su mobile con DPR alto, limita a 3×
+    return Math.min(Math.max(dpr, MIN_DENSITY), MAX_DENSITY)
+  }
+
+  let RES = getRes()
 
   const fit = () => {
-    const w = Math.max(1, Math.floor(cvs.clientWidth  / SCALE))
-    const h = Math.max(1, Math.floor(cvs.clientHeight / SCALE))
-    // Dimensione “logica” del canvas
+    RES = getRes() // ricalcola in caso di zoom/cambio DPR
+    const wCss = Math.max(1, Math.floor(cvs.clientWidth))
+    const hCss = Math.max(1, Math.floor(cvs.clientHeight))
+    const w = Math.max(1, Math.floor(wCss * RES))
+    const h = Math.max(1, Math.floor(hCss * RES))
+
+    // Dimensioni “logiche” del canvas (backing store)
     cvs.width  = w
     cvs.height = h
-    // Stira al contenitore
+    // Stira al contenitore (dimensione CSS)
     cvs.style.width  = '100%'
     cvs.style.height = '100%'
   }
 
   const draw = () => {
     const { width: w, height: h } = cvs
+    if (!w || !h) return
     const img = ctx.createImageData(w, h)
     const data = img.data
     // riempi con livelli quantizzati (puntinato fitto)
@@ -87,10 +101,13 @@ onMounted(() => {
 <style scoped>
 .tv404{
   position: relative;
-  width: 100%; height: 100%;
+  width: 100%;
+  height: 100vh;     /* se vuoi centrarla nel contenitore TV, metti height: 100%; */
   background: #0a0a0a;
   overflow: hidden;
-  display: grid; place-items: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 /* === CANVAS NOISE (fitto) === */
@@ -99,6 +116,10 @@ onMounted(() => {
   display:block;
   /* esalta il puntinato */
   filter: contrast(130%) brightness(110%);
+  /* evita smoothing quando si scala: puntini piccoli e netti */
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  pointer-events: none;
 }
 
 /* === SCANLINES CRT === */
@@ -152,7 +173,11 @@ onMounted(() => {
     1px 0 0 rgba(255,60,0,.25),
     -1px 0 0 rgba(0,180,255,.25);
 }
-.home-btn{ margin-top:24px; font-weight:800; letter-spacing:.06em; border-radius:10px; box-shadow: 0 10px 18px rgba(0,0,0,.35); }
+.home-btn{
+  margin-top:24px;
+  font-weight:800; letter-spacing:.06em; border-radius:10px;
+  box-shadow: 0 10px 18px rgba(0,0,0,.35);
+}
 
 /* riduci motion */
 @media (prefers-reduced-motion: reduce){

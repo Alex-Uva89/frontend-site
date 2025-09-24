@@ -19,11 +19,11 @@ const routes = [
       { path: 'jobs',      name: 'jobs',      component: () => import('pages/JobsPage.vue') },
       { path: 'contact',   name: 'contact',   component: () => import('pages/ContactPage.vue') },
       { path: 'events',    name: 'events',    component: () => import('pages/EventsPage.vue') }, // per CTA "Eventi privati"
+
+      // 404
+      { path: ':catchAll(.*)*', name: 'not-found', component: () => import('pages/ErrorNotFound.vue') },
     ],
   },
-
-  // 404
-  { path: '/:catchAll(.*)*', component: () => import('pages/ErrorNotFound.vue') },
 ]
 
 export default routes

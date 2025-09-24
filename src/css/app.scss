@@ -93,6 +93,11 @@ html, body, #q-app{
   z-index: 10;
 }
 
+.crt-body .tv404{
+  min-height: 100% !important;
+  height: 100%;
+}
+
 @media (max-width:700px){
   .crt-host{
     top: 0;

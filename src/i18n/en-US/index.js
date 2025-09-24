@@ -77,6 +77,56 @@ export default {
     and: 'and',
     title2: 'newsletter'
   },
+  pages: {
+    jobs: {
+      title: 'Careers',
+      subtitle: 'Join the Mamma Elvira team and grow with us.',
+      ctaSpontaneous: 'Open application',
+      whyUs: 'Why join us',
+
+      search: 'Search role or keyword',
+      location: 'Location',
+      department: 'Department',
+      contract: 'Contract',
+      level: 'Seniority',
+
+      noResultsTitle: 'No results',
+      noResultsBody: 'Try changing filters or send an open application.',
+      tips: 'Tips',
+      details: 'Role details',
+      responsibilities: 'Responsibilities',
+      requirements: 'Requirements',
+
+      apply: 'Apply',
+      share: 'Share',
+      hiringNow: 'Hiring now',
+
+      whyUsTitle: 'Why work with us',
+
+      applyNow: 'Apply now',
+      position: 'Position',
+      positionHint: 'For an open application, choose “General”',
+      coverLetter: 'Cover letter',
+      privacy: 'I consent to personal data processing',
+      sendApplication: 'Send application',
+      writeUs: 'Write us via email',
+      openMail: 'Opening your mail client…',
+      writeUsFallback: 'If it doesn’t open, please email us directly.',
+      copiedEmail: 'Email copied to clipboard',
+      copiedLink: 'Link copied'
+    }
+  },
+  common: {
+    clearAll: 'Clear all',
+    name: 'Full name',
+    email: 'Email',
+    phoneOptional: 'Phone (optional)',
+    required: 'Required field',
+    invalidEmail: 'Invalid email',
+    fillRequired: 'Please fill the required fields'
+  },
+
+
 
   /* mapping piatto (evita refactor del template): */
   'newsletter.title1': 'Join our',
