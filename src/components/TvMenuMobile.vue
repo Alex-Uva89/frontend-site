@@ -1,19 +1,32 @@
+<!-- TvMenuMobile.vue -->
 <template>
   <nav class="tv-menu-mobile" aria-label="Programmi">
-    <!-- Trigger -->
-    <button
-      ref="btnRef"
-      class="menu-trigger"
-      type="button"
-      aria-haspopup="menu"
-      :aria-expanded="open"
-      :aria-controls="menuId"
-      @click="toggle"
-      @keydown.down.prevent="focusFirst"
-    >
-      <span class="icon" aria-hidden="true">☰</span>
-      <span class="label">Menu</span>
-    </button>
+    <!-- TOPBAR: trigger + lingua -->
+    <div class="topbar">
+      <button
+        ref="btnRef"
+        class="menu-trigger"
+        type="button"
+        aria-haspopup="menu"
+        :aria-expanded="open"
+        :aria-controls="menuId"
+        @click="toggle"
+        @keydown.down.prevent="focusFirst"
+      >
+        <span class="icon" aria-hidden="true">☰</span>
+        <span class="label">Menu</span>
+      </button>
+
+      <!-- levetta lingua -->
+      <LanguageKnob
+        class="lang-ctl"
+        :locales="locales2"
+        v-model="langModel"
+        :width="160"
+        :height="38"
+        aria-label="Lingua"
+      />
+    </div>
 
     <!-- Dropdown -->
     <transition name="fade-scale">
@@ -51,24 +64,29 @@
 import { ref, computed, onMounted, onBeforeUnmount, nextTick, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useDrawerStore } from 'src/stores/drawerStore'
+import { useLangStore } from 'src/stores/langStore'
+import LanguageKnob from './LanguageKnob.vue'
 
 /* Data */
 const drawer = useDrawerStore()
 const programs = computed(() => drawer.linksMobile ?? [])
 
+/* Lingua: bind diretto allo store */
+const lang = useLangStore()
+const locales2 = computed(() => (lang.supported?.length ? lang.supported.slice(0, 2) : ['it-IT', 'en-US']))
+const langModel = computed({
+  get: () => lang.current,
+  set: (val) => lang.setLocale(val)
+})
+
+/* Open/Close + focus mgmt (come già avevi) */
 const open = ref(false)
 const btnRef = ref(null)
 const menuRef = ref(null)
 const itemRefs = ref([])
 const menuId = 'tv-mobile-menu'
 
-/* Helpers: items refs */
-function setItemRef (el, i) {
-  if (!el) return
-  itemRefs.value[i] = el
-}
-
-/* Open/Close + focus mgmt */
+function setItemRef (el, i) { if (el) itemRefs.value[i] = el }
 function toggle(){ open.value ? close() : openAndFocus() }
 function openAndFocus(){
   open.value = true
@@ -100,20 +118,17 @@ function focusPrev(i){
   if (!n) return
   itemRefs.value[(i-1+n)%n]?.focus?.()
 }
-
-/* TAB trap: cicla tra trigger e menu */
 function onTabNavigate(e){
   const activeEl = document.activeElement
   const first = itemRefs.value?.[0]
   const last  = itemRefs.value?.[itemRefs.value.length - 1]
   if (!first || !last) return
 
-  if (!e.shiftKey && activeEl === last) { // Tab su ultimo → torna al primo
+  if (!e.shiftKey && activeEl === last) {
     first.focus()
-  } else if (e.shiftKey && activeEl === first) { // Shift+Tab su primo → torna al trigger
+  } else if (e.shiftKey && activeEl === first) {
     btnRef.value?.focus?.()
   } else {
-    // lascia passare la tabulazione interna
     e.preventDefault()
     const idx = itemRefs.value.indexOf(activeEl)
     if (idx >= 0) (e.shiftKey ? focusPrev(idx) : focusNext(idx))
@@ -164,7 +179,14 @@ watch(programs, () => { if (open.value) nextTick(focusFirst) })
     padding: 16px var(--tv-gap-x, 16px);
   }
 
-  /* === TRIGGER GLASS (senza bordo) === */
+  /* TOPBAR: trigger a sx, lingua a dx */
+  .topbar{
+    display:flex; align-items:center; justify-content:space-between; gap:12px;
+    margin-bottom: 10px;
+  }
+  .lang-ctl{ flex: 0 0 auto; }
+
+  /* === TRIGGER === */
   .menu-trigger{
     --glass-bg: rgba(28,28,28,.45);
     --glass-hi: rgba(255,255,255,.40);
@@ -178,9 +200,7 @@ watch(programs, () => { if (open.value) nextTick(focusFirst) })
     backdrop-filter: blur(8px) saturate(1.1);
     -webkit-backdrop-filter: blur(8px) saturate(1.1);
     color: #f3f3f3; font-weight: 800; letter-spacing:.01em;
-    box-shadow:
-      inset 0 1px 0 var(--glass-hi),
-      0 10px 20px rgba(0,0,0,.35);
+    box-shadow: inset 0 1px 0 var(--glass-hi), 0 10px 20px rgba(0,0,0,.35);
     cursor: pointer;
   }
   .menu-trigger::before,
@@ -193,9 +213,9 @@ watch(programs, () => { if (open.value) nextTick(focusFirst) })
   .menu-trigger .icon{ font-size: 1.15rem; line-height:1; }
   .menu-trigger .label{ text-transform: uppercase; }
 
-  /* === DROPDOWN — scrollabile, con altezza massima === */
+  /* === DROPDOWN (come avevi) === */
   .dropdown{
-   --glass-panel: rgba(16,16,16,.48);
+    --glass-panel: rgba(16,16,16,.48);
     border: none;
     border-radius: 16px;
     background: radial-gradient(120% 160% at 50% 0%, rgba(255,255,255,.12), rgba(255,255,255,0) 60%), var(--glass-panel);
@@ -204,19 +224,20 @@ watch(programs, () => { if (open.value) nextTick(focusFirst) })
     -webkit-backdrop-filter: blur(12px) saturate(1.08);
     padding: 10px;
     display: flex;
-    grid-auto-rows: minmax(54px, auto);
+    flex-direction: column;
     gap: 10px;
-    height: fit-content;
+
+    /* scroll-ben-gestito su mobile */
+    max-height: min(60vh, 420px);
     overflow: auto;
     -webkit-overflow-scrolling: touch;
     overscroll-behavior: contain;
     scrollbar-gutter: stable;
     mask-image: linear-gradient(to bottom, transparent 0, #000 12px, #000 calc(100% - 12px), transparent 100%);
     margin-bottom: 20px;
-    flex-direction: column;
   }
 
-  /* === VOCI GLASS === */
+  /* Voci */
   .drop-item{
     --glass-btn: rgba(32,32,32,.42);
     --glass-hi:  rgba(255,255,255,.45);
@@ -224,7 +245,6 @@ watch(programs, () => { if (open.value) nextTick(focusFirst) })
     display:grid; grid-template-columns: 52px 1fr; align-items:center; gap:12px;
 
     width: 100%;
-    min-height: fit-content;
     padding: 12px 14px;
     border: none; border-radius: 14px;
     background:
@@ -269,10 +289,7 @@ watch(programs, () => { if (open.value) nextTick(focusFirst) })
     background:
       linear-gradient(180deg, rgba(255,255,255,.22), rgba(255,255,255,0) 50%),
       rgba(0,0,0,.35);
-    box-shadow:
-      inset 0 1px 0 rgba(255,255,255,.25),
-      inset 0 -6px 10px rgba(0,0,0,.35),
-      0 0 12px rgba(120,255,180,.25);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.25), inset 0 -6px 10px rgba(0,0,0,.35), 0 0 12px rgba(120,255,180,.25);
     color:#b8ffd4;
     text-shadow: 0 0 2px currentColor, 0 0 8px rgba(120,255,180,.5);
     font-variant-numeric: tabular-nums;
