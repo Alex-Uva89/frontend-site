@@ -53,9 +53,9 @@ onBeforeUnmount(()=>{ io && io.disconnect() })
 }
 .poster{ position:absolute; inset:0; background-size:cover; background-position:center; }
 .overlay{ position:absolute; inset:0; background:linear-gradient(180deg, rgba(0,0,0,.22) 0%, rgba(0,0,0,.08) 35%, rgba(0,0,0,.28) 100%); mix-blend-mode:multiply; pointer-events:none; }
-.content{ width: fit-content;position:absolute; left:0; right:0; bottom:12vh; z-index:2; width:min(1100px,92vw); margin:0 auto; color:#fff; padding:0 12px; text-align:left; }
+.content{ width: fit-content;position:absolute; left:0; right:0; bottom:12vh; z-index:2; width:min(1100px,92vw); margin:0 auto; color:#fff; padding:0 12px; text-align:center; }
 .title{ font-size:clamp(28px, 10%, 64px); line-height:1.04; letter-spacing:-.02em; font-weight:800; text-shadow:0 6px 28px rgba(0,0,0,.35); margin:0; }
-.subtitle{ margin-top:.5rem; font-size:clamp(14px, 3.8vw, 20px); max-width:70ch; opacity:.95; text-shadow:0 3px 18px rgba(0,0,0,.32); }
+.subtitle{ margin-top:.5rem; font-size:clamp(14px, 3.8vw, 20px); opacity:.95; text-shadow:0 3px 18px rgba(0,0,0,.32); }
 
 /* tablet+ */
 @media (min-width:768px){
