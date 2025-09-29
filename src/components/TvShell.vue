@@ -57,7 +57,7 @@ import TvPanel from './TvPanel.vue'
   left: var(--tv-gap-x);
   right: var(--tv-gap-x);
   bottom: var(--tv-gap-bottom);
-  z-index: 999999;
+   z-index: 2147483647;
   pointer-events: none;
 
   /* arrotonda anche la scocca fuori */
@@ -72,6 +72,10 @@ import TvPanel from './TvPanel.vue'
   --plastic-shadow: var(--plastic-shadow-fb, rgba(0,0,0,.28));
   --plastic-shadow-deep: var(--plastic-shadow-deep-fb, rgba(0,0,0,.55));
   --tv-radius: var(--tv-radius, 22px);
+  -webkit-transform: translateZ(0);
+          transform: translateZ(0);
+  will-change: transform;
+  isolation: isolate;
 }
 
 /* plastica esterna (come avevi) */
@@ -93,6 +97,7 @@ import TvPanel from './TvPanel.vue'
     repeating-linear-gradient(135deg, rgba(255,255,255,.015) 0 2px, rgba(0,0,0,.015) 2px 4px);
     background-blend-mode: screen, screen, normal, multiply, soft-light;
     border-radius: 60px;
+
 }
 .tv-shell::after{
   content:""; position:absolute; inset:0;

@@ -634,7 +634,7 @@ function jobDisplayNumber(job){
 
 /* ===== CTA MOBILE ===== */
 .apply-fab{
-  position: fixed; right: 16px; bottom: 16px; z-index: 30;
+  position: fixed; right: 16px; bottom: 16px; z-index: 0;
 }
 @media (min-width: 901px){
   .apply-fab{ display:none; }
