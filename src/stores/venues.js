@@ -217,5 +217,47 @@ export const venues = [
         { label: 'Consigli', desc: 'Itinerari su misura' }
       ]
     }
-  }
+  },
+  {
+    id: 'delicatessesn',
+    name: 'Mamma Elvira delicatessesn',
+    kind: 'delicatessesn',
+    address: 'Lecce',
+    image: 'https://picsum.photos/seed/delicatessesn/800/600',
+    bookingUrl: 'https://prenota.example/delicatessesn',
+    coords: { lng: 18.17162, lat: 40.35241 },
+    menuUrl: '#',
+    gallery: [
+      { src: casa,    alt: 'delicatessesn • Sala 1' },
+      { src: cucina,  alt: 'delicatessesn • Dettaglio tavolo' },
+      { src: cucina2, alt: 'delicatessesn • Piatto 1' },
+      { src: enoteca, alt: 'delicatessesn • Piatto 2' },
+      { src: piatto1, alt: 'delicatessesn • Vini' },
+      { src: piatto2, alt: 'delicatessesn • Esterno' }
+    ],
+    hours: [
+      [ { o: '12:30', c: '15:00' }, { o: '19:30', c: '23:30' } ], // Lun
+      [],                                                         // Mar (chiuso)
+      [ { o: '12:30', c: '15:00' }, { o: '19:30', c: '23:30' } ], // Mer
+      [ { o: '12:30', c: '15:00' }, { o: '19:30', c: '23:30' } ], // Gio
+      [ { o: '12:30', c: '15:00' }, { o: '19:30', c: '00:00' } ], // Ven
+      [ { o: '12:30', c: '15:30' }, { o: '19:00', c: '00:00' } ], // Sab
+      [ { o: '12:30', c: '15:30' }, { o: '19:00', c: '23:30' } ]  // Dom
+    ],
+    emotion: {
+      tagline: 'Calore salentino, semplicità radicale.',
+      body: 'Pane caldo, sughi lenti, vini di piccoli vignaioli. A tavola si sta stretti, vicini: è qui che la cucina diventa casa.',
+      quote: { text: 'Il sapore migliore è quello condiviso.', author: 'Mamma Elvira' },
+      images: [
+        'https://picsum.photos/seed/osteria-em1/1200/1600',
+        'https://picsum.photos/seed/osteria-em2/1600/1200',
+        'https://picsum.photos/seed/osteria-em3/1200/1200'
+      ],
+      highlights: [
+        { label: 'Pasta fresca', desc: 'Tirata a mano ogni mattina' },
+        { label: 'Cantina', desc: 'Solo artigiani indipendenti' },
+        { label: 'Pane', desc: 'Lievito madre, forno vivo' }
+      ]
+    }
+  },
 ]
