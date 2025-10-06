@@ -76,7 +76,7 @@ function goToVenue (id){ router.push({ name: 'locale', params: { id } }) }
 /* ===== Griglia piena, senza spazi attorno ===== */
 .cards{
   display:grid;
-  gap: 0;                 /* NESSUN gap: tassellato pieno */
+  gap: 10px;                 /* NESSUN gap: tassellato pieno */
   grid-template-columns: 1fr; /* mobile */
 }
 
@@ -97,7 +97,7 @@ function goToVenue (id){ router.push({ name: 'locale', params: { id } }) }
   aspect-ratio: auto;         /* mobile lascia libertà d'altezza */
   cursor: pointer;
   overflow: hidden;
-  border-radius: 0;           /* niente arrotondamenti */
+  border-radius: 10px;           /* niente arrotondamenti */
 }
 @media (min-width: 768px){
   .vcard{ min-height: 44vh; } /* tablet */
