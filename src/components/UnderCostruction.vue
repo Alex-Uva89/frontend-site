@@ -41,13 +41,7 @@
 </template>
 
 <script setup>
-import { useMeta } from 'quasar'
-import { useI18n } from 'vue-i18n'
 
-const { t } = useI18n()
-useMeta(() => ({
-  title: t('pages.producers.metaTitle') || 'Produttori | Mamma Elvira'
-}))
 </script>
 
 <style scoped>
