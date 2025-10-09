@@ -192,8 +192,8 @@ onMounted(async () => {
 
 // ✅ se per qualsiasi motivo cambia il nodo referenziato, ri-aggancia RO
 watch(programsRef, (el, prev) => {
-  try { if (prev && ro) ro.unobserve(prev) } catch {}
-  try { if (el && ro) ro.observe(el) } catch {}
+  try { if (prev && ro) ro.unobserve(prev) } catch(e) { console.log(e)}
+  try { if (el && ro) ro.observe(el) } catch(e) { console.log(e)}
 })
 
 watch([programs, currentLocale], async () => {
