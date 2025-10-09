@@ -34,7 +34,13 @@
       </div>
 
       <!-- PROGRAMMI (auto-scale + 2 colonne) -->
-      <div class="programs" role="group" aria-label="Program buttons">
+      <!-- ✅ AGGIUNTO ref="programsRef" -->
+      <div
+        class="programs"
+        ref="programsRef"
+        role="group"
+        aria-label="Program buttons"
+      >
         <button
           v-for="(link, i) in programs"
           :key="(link.to || link.href || i)"
@@ -49,7 +55,7 @@
 
       <div class="container-contacts">
         <div class="contacts">
-          <RouterLink to="/contact" aria-label="Contatti">Contatti</RouterLink>
+          <RouterLink to="/contact" :aria-label="contactLabel">{{ contactLabel }}</RouterLink>
         </div>
       </div>
 
@@ -68,8 +74,8 @@
 <script setup>
 import { computed, ref, onMounted, onBeforeUnmount, nextTick, watch } from 'vue'
 import { useRouter } from 'vue-router'
-import { useDrawerStore } from 'src/stores/drawerStore'
 import { useLangStore } from 'src/stores/langStore'
+import { useDrawerStore } from 'src/stores/drawerStore'
 
 import LanguageKnob from './LanguageKnob.vue'
 import ConcaveButton from './ConcaveButton.vue'
@@ -83,6 +89,10 @@ const props = defineProps({
 /* === Store: programmi === */
 const drawer = useDrawerStore()
 const programs = computed(() => drawer.links ?? [])
+
+const contactLabel = computed(() =>
+  (lang.current || 'it-IT').startsWith('en') ? 'Contacts' : 'Contatti'
+)
 
 /* === Router === */
 const router = useRouter()
@@ -148,20 +158,17 @@ const currentLocale = computed({
 lang.init()
 
 /* === Auto-scaling area Programmi === */
-const programsRef = ref(null)
+const programsRef = ref(null)           // ✅ ref del container
 const progScale = ref(1)
 let ro = null
 let rafId = 0
 
 function recomputeScale(){
   const el = programsRef.value
-  if (!el) return
-  // azzero la scala per misurare la dimensione reale del contenuto
+  if (!el) return                              // ✅ null-guard
   el.style.setProperty('--prog-scale', 1)
-  // leggo dimensioni
   const ch = el.clientHeight
   const sh = el.scrollHeight
-  // calcolo scala massima che fa entrare il contenuto (mai oltre 1)
   const k = Math.min(1, ch > 0 ? ch / sh : 1)
   progScale.value = Number.isFinite(k) ? k : 1
   el.style.setProperty('--prog-scale', progScale.value)
@@ -173,15 +180,22 @@ function scheduleRecompute(){
 }
 
 onMounted(async () => {
+  drawer.initI18n({ langStore: lang })
   await nextTick()
+  const el = programsRef.value
+  if (!el) return                              // ✅ null-guard
+  ro = new ResizeObserver(() => scheduleRecompute())
+  ro.observe(el)
   recomputeScale()
-  // Riosserva cambi di dimensione del container
-  ro = new ResizeObserver(scheduleRecompute)
-  ro.observe(programsRef.value)
   window.addEventListener('resize', scheduleRecompute)
 })
 
-// ricalcola quando cambiano i programmi o la lingua (etichette più lunghe/corte)
+// ✅ se per qualsiasi motivo cambia il nodo referenziato, ri-aggancia RO
+watch(programsRef, (el, prev) => {
+  try { if (prev && ro) ro.unobserve(prev) } catch {}
+  try { if (el && ro) ro.observe(el) } catch {}
+})
+
 watch([programs, currentLocale], async () => {
   await nextTick()
   scheduleRecompute()
@@ -190,20 +204,18 @@ watch([programs, currentLocale], async () => {
 onBeforeUnmount(() => {
   cancelAnimationFrame(rafId)
   window.removeEventListener('resize', scheduleRecompute)
-  if (ro) ro.disconnect()
+  try { ro?.disconnect() } finally { ro = null }
 })
 </script>
 
 <style scoped>
-/* === PALETTE ’70s === */
+/* (stili invariati) */
 .seventies .panel-inner{
   --wood-1:#3d281c; --wood-2:#5a3a26; --wood-3:#744b2e;
   --brass-1:#d9a441; --brass-2:#8d6423;
   --amber:#ffb750; --amber-glow:rgba(255,156,47,.55);
   --cream:#f7ead9;
 }
-
-/* Posizione: l'aside occupa sempre tutta l'altezza disponibile */
 .tv-controls{
   position: absolute;
   top:    calc(var(--tv-top, 12px) + 10px);
@@ -214,11 +226,9 @@ onBeforeUnmount(() => {
   left: auto;
   pointer-events: auto;
 }
-
-/* Scatola legno + filetto ottone */
 .panel-inner{
   position: relative;
-  height: 100%; /* riempie l'aside */
+  height: 100%;
   border-radius: 16px;
   background:
     radial-gradient(180% 120% at 20% 0%, rgba(255,255,255,.18), transparent 50%),
@@ -227,7 +237,7 @@ onBeforeUnmount(() => {
   box-shadow: 0 10px 24px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.12), inset 0 -10px 18px rgba(0,0,0,.35);
   padding: 16px 14px;
   display: grid;
-  grid-template-rows: auto auto 1fr auto; /* i programmi occupano il resto */
+  grid-template-rows: auto auto 1fr auto;
   gap: 14px;
   color: var(--cream);
   border: 2px solid #6a4a2f;
@@ -240,9 +250,7 @@ onBeforeUnmount(() => {
   -webkit-mask-composite: xor; mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0); mask-composite: exclude;
   padding: 2px;
 }
-.panel-inner > * { min-height: 0; } /* consente ai figli di comprimersi */
-
-/* Display vetro */
+.panel-inner > * { min-height: 0; }
 .display-block.glass{
   --glass-panel: rgba(16,16,16,.48);
   --glass-brd:   rgba(255,255,255,.16);
@@ -266,8 +274,6 @@ onBeforeUnmount(() => {
   filter: drop-shadow(0 0 4px rgb(255,255,255)) drop-shadow(0 0 20px rgb(255,0,0));
 }
 .dot{ fill: red; }
-
-/* Manopole */
 .knobs{
   background-color: #2a1a12;
   padding: 15px 0;
@@ -276,32 +282,21 @@ onBeforeUnmount(() => {
   display: flex;
   justify-content: space-around;
 }
-
-/* === PROGRAMMI — GRID 2×2 con bottoni che si adattano al contenitore === */
 .programs{
-  /* estetica */
   background-color: #2a1a12;
   padding: 15px;
   border-radius: 10px;
   box-shadow: inset 0 0 10px wheat;
-
-  /* layout 2 colonne */
   --gap: 14px;
   display: flex;
   flex-wrap: wrap;
   gap: var(--gap);
   align-content: start;
   align-items: flex-start;
-
-  /* abilita cqw/cqh (container query units) */
   container-type: size;
-
-  /* comportamento */
   min-height: 0;
   overflow: auto;
 }
-
-/* Bottone tondo “vetro” che si adatta */
 .prog{
   width:  calc(50cqw - (var(--gap) / 2));
   min-height: 0;
@@ -310,7 +305,6 @@ onBeforeUnmount(() => {
   border: 1px solid var(--glass-brd);
   position: relative;
   overflow: hidden;
-
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -318,12 +312,10 @@ onBeforeUnmount(() => {
   justify-content: center;
   gap: 8px;
   padding: 12px;
-
   --glass-btn: rgba(32,32,32,.42);
   --glass-brd: rgba(255,255,255,.18);
   --glass-hi:  rgba(255,255,255,.45);
   --inner-ring: rgba(255,255,255,.08);
-
   background:
     linear-gradient(180deg, rgba(255,255,255,.14), rgba(255,255,255,0) 48%) border-box,
     var(--glass-btn);
@@ -332,7 +324,6 @@ onBeforeUnmount(() => {
     inset 0 0 0 8px var(--inner-ring),
     inset 0 -14px 18px rgba(0,0,0,.28),
     0 0 20px rgb(0, 0, 0);
-
   transition: transform .06s ease, filter .18s ease, box-shadow .18s ease;
 }
 .prog::after{
@@ -351,8 +342,6 @@ onBeforeUnmount(() => {
 }
 .prog:active{ transform: translateY(1px); }
 .prog:focus-visible{ outline: 2px solid #9cf2b8; outline-offset: 2px; }
-
-/* ——— DIGITALE (numero + nome) ——— */
 .digital{
   --digit: #ffb6b6;
   --glow:  rgba(255, 120, 120, 0.55);
@@ -366,8 +355,6 @@ onBeforeUnmount(() => {
     0 0 14px var(--glow),
     0 2px 0 rgba(0,0,0,.35);
 }
-
-/* CONTACTS */
 .container-contacts{
   display: flex;
   align-items: center;
@@ -377,13 +364,11 @@ onBeforeUnmount(() => {
   width: 50%;
   padding: 10px 30px;
   border-radius: 12px;
-
   --paper-top: #fff7e8;
   --paper-mid: #f8f0e2;
   --paper-bot: #eeddc5;
   --edge: #00000030;
   --drop: rgba(0,0,0,.40);
-
   position: relative;
   background: linear-gradient(180deg, var(--paper-top), var(--paper-mid) 55%, var(--paper-bot));
   border: 1px solid var(--edge);
@@ -427,16 +412,12 @@ onBeforeUnmount(() => {
   outline: 3px solid rgba(255, 221, 130, .9);
   outline-offset: 4px; border-radius: 10px;
 }
-
-/* NUMERO */
 .num{
   font-weight: 900;
   font-size: clamp(20px, 2.6vw, 30px);
   line-height: 1;
   margin-top: 2px;
 }
-
-/* DIVISORE tra numero e nome */
 .text::before{
   content:"";
   display:block; width: 64%; height: 1px; margin: 8px auto 6px;
@@ -445,8 +426,6 @@ onBeforeUnmount(() => {
     0 0 8px rgba(120,255,180,.45), 0 1px 0 rgba(0,0,0,.35) inset;
   border-radius: 999px;
 }
-
-/* NOME PROGRAMMA */
 .text{
   max-width: 82%;
   text-align: center;
@@ -455,16 +434,12 @@ onBeforeUnmount(() => {
   line-height: 1.2;
   white-space: wrap;
 }
-
-/* Fallback senza aspect-ratio */
 @supports not (aspect-ratio: 1 / 1){
   .prog{ height: 0; padding-bottom: 100%; }
   .prog > .num, .prog > .text{ position: absolute; left: 50%; transform: translateX(-50%); }
   .prog > .num{ top: 18%; }
   .prog > .text{ bottom: 16%; width: 82%; }
 }
-
-/* Footer */
 .panel-footer{ display: grid; grid-template-columns: auto 1fr; align-items: center; }
 .led-wrap{ display: grid; justify-items: center; gap: 4px; }
 .tiny{ font-size: 9px; letter-spacing:.18em; color:#f0e3d2; opacity:.9; }
@@ -486,4 +461,3 @@ onBeforeUnmount(() => {
   opacity:.55; filter: saturate(1.1);
 }
 </style>
-

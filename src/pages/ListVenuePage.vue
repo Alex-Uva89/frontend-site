@@ -1,7 +1,19 @@
 <template>
   <div class="venues-grid q-pa-none">
     <section class="cards" role="list">
+      <!-- Loading -->
+      <div v-if="loading" class="q-pa-md">
+        <q-spinner size="32px" />
+      </div>
+
+      <!-- Error -->
+      <div v-else-if="error" class="q-pa-md text-negative">
+        {{ error }}
+      </div>
+
+      <!-- Lista -->
       <article
+        v-else
         v-for="v in venues"
         :key="v.id"
         class="vcard"
@@ -9,22 +21,39 @@
         @click="goToVenue(v.id)"
       >
         <!-- Immagine di sfondo -->
-        <div class="vcard__bg" :style="{ backgroundImage:`url(${v.image})` }" aria-hidden="true"></div>
+        <div
+          class="vcard__bg"
+          :style="bgStyle(v.image)"
+          aria-hidden="true"
+        ></div>
 
         <!-- Top: Nome centrato + Stato -->
         <div class="vcard__top">
           <h3 class="vcard__title">{{ v.name }}</h3>
           <span class="vcard__status" :class="{ open: isOpenNow(v) }">
-            {{ isOpenNow(v) ? $t('open.now','Aperto ora') : $t('closed.now','Chiuso') }}
+            {{ isOpenNow(v) ? $t('open.now','Open') : $t('closed.now','Close') }}
           </span>
         </div>
 
         <!-- Bottom: CTA (non propagano il click) -->
         <div class="vcard__bottom" @click.stop>
-          <q-btn no-caps unelevated class="btn primary"
-            :label="$t('book','Prenota')" :href="v.bookingUrl" target="_blank" />
-          <q-btn no-caps outline class="btn ghost"
-            :label="$t('menu','Menu')" :href="v.menuUrl" />
+          <q-btn
+            no-caps
+            unelevated
+            class="btn primary"
+            :disable="!v.bookingUrl"
+            :label="$t('actions.book','Book')"
+            :href="v.bookingUrl || undefined"
+            target="_blank"
+          />
+          <q-btn
+            no-caps
+            outline
+            class="btn ghost"
+            :disable="!v.menuUrl || v.menuUrl === '#'"
+            :label="$t('menu','Menu')"
+            :href="v.menuUrl || undefined"
+          />
         </div>
       </article>
     </section>
@@ -32,16 +61,54 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
-import { venues as data } from 'src/stores/venues.js'
+import { fetchVenues } from 'src/stores/venues.js'
+import { useLangStore } from 'src/stores/langStore.js'
 
 const router = useRouter()
+const lang = useLangStore() // lang.current = 'it-IT' | 'en-US'
 
-/* Solo i locali, senza filtri/ordinamenti extra */
-const venues = computed(() => Array.isArray(data) ? data : [])
+const loading = ref(true)
+const error = ref('')
+const list = ref([])
 
-/* Stato apertura */
+// carica lista dal backend in base alla lingua corrente
+async function load() {
+  // aspetta che il langStore sia pronto (se usi init all'avvio)
+  if (!lang.ready) {
+    // piccolo loop di attesa non bloccante
+    await Promise.resolve()
+  }
+
+  loading.value = true
+  error.value = ''
+  try {
+    const items = await fetchVenues(lang.current) // <-- lingua dal Pinia store
+    list.value = Array.isArray(items) ? items : []
+  } catch (err) {
+    error.value = err?.message || 'Errore nel caricamento'
+    list.value = []
+  } finally {
+    loading.value = false
+  }
+}
+
+onMounted(load)
+
+// se cambi lingua dal Pinia store, ricarica
+watch(() => lang.current, load)
+
+// computed per template
+const venues = computed(() => list.value)
+
+// bg style safe
+function bgStyle(url) {
+  const safe = url || ''
+  return { backgroundImage: safe ? `url(${safe})` : 'none' }
+}
+
+// stato apertura (tua logica invariata)
 function isOpenNow (v){
   try{
     const now = new Date()
@@ -58,9 +125,10 @@ function isOpenNow (v){
   }catch{ return false }
 }
 
-/* Navigazione: tutta la card è cliccabile */
+// navigazione
 function goToVenue (id){ router.push({ name: 'locale', params: { id } }) }
 </script>
+
 
 <style scoped>
 /* ===== Layout pagina: solo griglia ===== */

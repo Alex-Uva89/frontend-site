@@ -1,6 +1,8 @@
 <template>
   <q-page class="q-pa-none">
-    <!-- HERO -->
+    <div v-if="loading" class="q-pa-md"><q-spinner size="32px" /></div>
+    <div v-else-if="error" class="q-pa-md text-negative">{{ error }}</div>
+    <div v-else>
     <HeroImage
       :images="heroImages"
       :title="venue?.name || 'Locale'"
@@ -37,7 +39,9 @@
     <!-- SOLUZIONI PRENOTAZIONE -->
     <section class="solutions">
       <div class="container">
-        <h3 class="sectionTitle">{{ $t('venue.solutionsTitle','Come vuoi prenotare?') }}</h3>
+        <h3 class="sectionTitle">
+          {{ solutionsTitle }}
+        </h3>
       </div>
 
       <div class="solutions__rail" v-if="isMobile">
@@ -66,10 +70,10 @@
     <section class="hours">
       <div class="container">
         <div class="hours__head">
-          <h3 class="sectionTitle">{{ $t('venue.hoursTitle','Orari') }}</h3>
+          <h3 class="sectionTitle">{{ hoursTitle }}</h3>
           <div class="hours__status" :class="{ open: isOpenNow }">
             <span class="dot"></span>
-            {{ isOpenNow ? $t('venue.openNow','Aperto ora') : $t('venue.closedNow','Chiuso ora') }}
+            {{ isOpenNow ? openNowLabel : closedNowLabel }}
           </div>
         </div>
 
@@ -88,76 +92,201 @@
         </q-btn>
       </div>
     </section>
+    </div>
   </q-page>
 </template>
 
 <script setup>
-import { computed, ref, onMounted, onBeforeUnmount } from 'vue'
+import { computed, ref, onMounted, onBeforeUnmount, watch } from 'vue'
 import { useRoute } from 'vue-router'
-import { venues } from 'src/stores/venues.js'
+import { useI18n } from 'vue-i18n'
+import { fetchVenueById } from 'src/stores/venues.js'
+import { useLangStore } from 'src/stores/langStore.js'
 import HeroImage from 'components/HeroImage.vue'
 import EmotionBlock from 'components/EmotionBlock.vue'
 import SectionFrame from 'src/components/SectionFrame.vue'
 
 const route = useRoute()
-const venue = computed(() => venues.find(v => v.id === route.params.id) || {})
+const { locale, t } = useI18n({ useScope: 'global' })
+const langStore = useLangStore()
 
+// ===== stato =====
+const loading = ref(true)        // usalo solo per primo load o cambio ID
+const error   = ref('')
+const venue   = ref(null)
+const site    = ref(null)
+
+// ===== utils =====
+const API_BASE = import.meta?.env?.VITE_API_BASE || 'http://localhost:8787'
+
+// ====== traduzioni singole ======
+const hoursTitle     = computed(() => site.value?.venueUi?.hoursTitle ?? 'Orari')
+const openNowLabel   = computed(() => site.value?.venueUi?.openNow   ?? 'Aperto ora')
+const closedNowLabel = computed(() => site.value?.venueUi?.closedNow ?? 'Chiuso ora')
+
+// cache per switch fluido
+const venueCache = new Map() // chiave: `${id}:${loc}` → venue
+const siteCache  = new Map() // chiave: `${loc}`       → siteStrings
+
+let aborter // per cancellare richieste in corso
+
+async function fetchSiteStrings(loc, { signal } = {}) {
+  // cache first
+  if (siteCache.has(loc)) return siteCache.get(loc)
+  const res = await fetch(`${API_BASE}/content/${encodeURIComponent(loc)}`, { signal })
+  if (!res.ok) throw new Error(`HTTP ${res.status} on /content/${loc}`)
+  const data = await res.json()
+  siteCache.set(loc, data)
+  return data
+}
+
+// loader “duale”: hard o soft
+async function load({ soft = false } = {}) {
+  const id = String(route.params.id)
+  const loc = locale.value
+
+  // se soft=false (primo load o cambio ID) mostra spinner
+  if (!soft) {
+    loading.value = true
+    error.value = ''
+    aborter?.abort?.()
+    aborter = new AbortController()
+  }
+
+  try {
+    // 1) venue: prova cache
+    const vKey = `${id}:${loc}`
+    const vPromise = (async () => {
+      if (venueCache.has(vKey)) return venueCache.get(vKey)
+      const v = await fetchVenueById(id, loc, { signal: aborter?.signal })
+      venueCache.set(vKey, v)
+      return v
+    })()
+
+    // 2) siteStrings (solutions): prova cache
+    const sPromise = (async () => {
+      if (siteCache.has(loc)) return siteCache.get(loc)
+      const s = await fetchSiteStrings(loc, { signal: aborter?.signal })
+      siteCache.set(loc, s)
+      return s
+    })()
+
+    // Se soft=true e NON è in cache, non toccare lo stato finché non arriva;
+    // se è in cache, aggiorna subito.
+    if (soft) {
+      if (venueCache.has(vKey)) venue.value = venueCache.get(vKey)
+      if (siteCache.has(loc))   site.value  = siteCache.get(loc)
+    }
+
+    const [v, s] = await Promise.all([vPromise, sPromise])
+    venue.value = v
+    site.value  = s
+  } catch (err) {
+    // se soft, non mostrare errori a schermo: mantieni l’UI attuale
+    if (!soft) {
+      console.error('[venue load]', err)
+      error.value = err?.message || 'Errore nel caricamento'
+      venue.value = null
+      site.value = null
+    }
+  } finally {
+    if (!soft) loading.value = false
+  }
+}
+
+onMounted(() => load({ soft: false }))
+
+// cambio route id → hard load (spinner ok)
+watch(() => route.params.id, () => load({ soft: false }))
+
+// cambio lingua → soft load (niente spinner, UI fluida)
+watch(() => locale.value, () => load({ soft: true }))
+
+// ===== hero images =====
 const heroImages = computed(() => {
-  if (venue.value?.gallery?.length) return venue.value.gallery
-  return [venue.value?.image || 'https://picsum.photos/seed/fallback/1920/1080']
+  const v = venue.value
+  if (!v) return ['https://picsum.photos/seed/fallback/1920/1080']
+  if (Array.isArray(v.gallery) && v.gallery.length) {
+    return v.gallery.map(g => g.src).filter(Boolean)
+  }
+  if (v.image) return [v.image]
+  return ['https://picsum.photos/seed/fallback/1920/1080']
 })
 
-/* Mobile detection */
+// ===== mobile detection =====
 const isMobile = ref(true)
 let mql
+const onMedia = () => { isMobile.value = mql.matches }
 onMounted(() => {
   mql = window.matchMedia('(max-width: 768px)')
-  const set = () => { isMobile.value = mql.matches }
-  set()
-  mql.addEventListener?.('change', set)
+  onMedia()
+  mql.addEventListener?.('change', onMedia)
 })
-onBeforeUnmount(() => { mql?.removeEventListener?.('change', () => {}) })
+onBeforeUnmount(() => {
+  mql?.removeEventListener?.('change', onMedia)
+  aborter?.abort?.()
+})
 
-/* Soluzioni prenotazione (puoi spostarle nello store se vuoi personalizzarle per venue) */
-const solutions = computed(() => ([
-  {
-    id: 'table',
-    title: 'Prenota un tavolo',
-    desc: 'Per 1–8 persone',
-    cta: 'Prenota',
-    icon: 'event_seat',
-    href: venue.value.bookingUrl,
-    target: '_blank'
-  },
-  {
-    id: 'birthday',
-    title: 'Compleanno',
-    desc: 'Torta, brindisi, setup personalizzato',
-    cta: 'Richiedi',
-    icon: 'cake',
-    to: { path: '/events', query: { kind: 'birthday', venue: venue.value.id } }
-  },
-  {
-    id: 'private',
-    title: 'Evento privato',
-    desc: 'Cene aziendali, feste, ricorrenze',
-    cta: 'Richiedi',
-    icon: 'groups',
-    to: { path: '/events', query: { kind: 'private', venue: venue.value.id } }
-  }
-]))
+// ===== SOLUZIONI da Sanity =====
+const solutionsTitle = computed(() =>
+  site.value?.solutions?.title ||
+  t('venue.solutionsTitle', 'Come vuoi prenotare?')
+)
 
-/* ====== ORARI DALLO STORE ====== */
-const daysIT = ['Lunedì','Martedì','Mercoledì','Giovedì','Venerdì','Sabato','Domenica']
-const schedule = computed(() => Array.isArray(venue.value.hours) ? venue.value.hours : [])
+const solutions = computed(() => {
+  const v = venue.value || {}
+  const s = site.value?.solutions || {}
+  return [
+    {
+      id: 'table',
+      title: s.table?.title || 'Prenota un tavolo',
+      desc:  s.table?.desc  || 'Per 1–8 persone',
+      cta:   s.table?.cta   || t('actions.book','Prenota'),
+      icon:  'event_seat',
+      href:  v.bookingUrl,
+      target:'_blank'
+    },
+    {
+      id: 'birthday',
+      title: s.birthday?.title || 'Compleanno',
+      desc:  s.birthday?.desc  || 'Torta, brindisi, setup personalizzato',
+      cta:   s.birthday?.cta   || 'Richiedi',
+      icon:  'cake',
+      to: { path: '/events', query: { kind: 'birthday', venue: v.id } }
+    },
+    {
+      id: 'private',
+      title: s.private?.title || 'Evento privato',
+      desc:  s.private?.desc  || 'Cene aziendali, feste, ricorrenze',
+      cta:   s.private?.cta   || 'Richiedi',
+      icon:  'groups',
+      to: { path: '/events', query: { kind: 'private', venue: v.id } }
+    }
+  ]
+})
+
+/* ====== ORARI ====== */
+function weekdaysForLocale(localeTag = 'it-IT') {
+  const baseMonday = new Date(Date.UTC(2021, 5, 7)) // lunedì
+  const fmt = new Intl.DateTimeFormat(localeTag, { weekday: 'long' })
+  return Array.from({ length: 7 }, (_, i) => {
+    const d = new Date(baseMonday)
+    d.setUTCDate(baseMonday.getUTCDate() + i)
+    const name = fmt.format(d)
+    return name.charAt(0).toLocaleUpperCase(localeTag) + name.slice(1)
+  })
+}
+const dayLabels = computed(() => weekdaysForLocale(langStore.current))
+
+const schedule = computed(() => Array.isArray(venue.value?.hours) ? venue.value.hours : [])
 
 function toMinutes (hhmm) {
   const [h, m] = (hhmm || '').split(':').map(Number)
   return (h * 60) + (m || 0)
 }
 function formatRange (seg) {
-  if (seg === '24h') return 'Sempre aperto'
-  if (Array.isArray(seg) && seg.length === 0) return 'Chiuso'
+  if (seg === '24h') return site.value?.venueUi?.open24h ?? 'Open 24 hours' // opzionale se vuoi aggiungere anche questa
+  if (Array.isArray(seg) && seg.length === 0) return site.value?.venueUi?.closed ?? closedNowLabel.value
   if (Array.isArray(seg)) return seg.map(b => `${b.o}–${b.c}`).join(', ')
   return '—'
 }
@@ -180,17 +309,17 @@ function isOpenAt (dayIdx, date = new Date()) {
   return false
 }
 
-/* Rows settimana + stato corrente */
 const weekRows = computed(() => {
   const todayJS = new Date().getDay() // 0=Dom … 6=Sab
   const todayIdx = (todayJS + 6) % 7   // 0=Lun … 6=Dom
-  return daysIT.map((label, i) => ({
+  return dayLabels.value.map((label, i) => ({
     key: i,
     label,
     isToday: i === todayIdx,
     range: formatRange(schedule.value[i])
   }))
 })
+
 const isOpenNow = computed(() => {
   const js = new Date().getDay()
   const idx = (js + 6) % 7

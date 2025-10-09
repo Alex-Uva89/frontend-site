@@ -47,6 +47,12 @@
 
 <script setup>
 import TvPanel from './TvPanel.vue'
+
+defineProps({
+  channel: { type: Number, default: 0 },
+  power:   { type: Boolean, default: true },
+})
+defineEmits(['channelUp','channelDown'])
 </script>
 
 <style scoped>

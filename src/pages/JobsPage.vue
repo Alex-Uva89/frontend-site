@@ -91,9 +91,9 @@
     <!-- ===== LISTA POSIZIONI ===== -->
     <section class="q-mb-xl">
       <div v-if="filteredJobs.length === 0" class="empty glass-card q-pa-xl text-center">
-        <q-icon name="travel_explore" size="40px" class="q-mb-sm"/>
-        <div class="text-h6 q-mb-xs">{{ $t('pages.jobs.noResultsTitle') || 'Nessun risultato' }}</div>
-        <div class="text-body2 q-mb-md">
+        <q-icon name="travel_explore" size="40px" class="q-mb-sm text-grey-10"/>
+        <div class="text-h6 q-mb-xs text-grey-10">{{ $t('pages.jobs.noResultsTitle') || 'Nessun risultato' }}</div>
+        <div class="text-body2 q-mb-md text-grey-10">
           {{ $t('pages.jobs.noResultsBody') || 'Prova a cambiare i filtri o invia una candidatura spontanea.' }}
         </div>
         <q-btn color="primary" icon="work" no-caps @click="openApplyDialog(null)"
@@ -170,7 +170,7 @@
               </div>
               <div class="col">
                 <div class="text-subtitle1 text-weight-bold q-mb-xs">{{ bv.title }}</div>
-                <div class="text-body2 text-grey-3">{{ bv.body }}</div>
+                <div class="text-body2 text-grey-10">{{ bv.body }}</div>
               </div>
             </div>
           </q-card>
@@ -269,126 +269,39 @@ const $q = useQuasar()
 /** Email HR (cambia con quella reale) */
 const SEND_TO = 'hr@mammaelvira.it'
 
-/* ===== DATA MOCK POSIZIONI ===== */
-const jobs = ref([
-  {
-    id: 'cameriere-lecce',
-    title: 'Cameriere/a di sala',
-    department: 'Sala',
-    location: 'Lecce – Enoteca',
-    contract: 'Full-time',
-    shift: 'Turni serali',
-    level: 'Junior',
-    tips: true,
-    description: 'Accoglienza ospiti, servizio al tavolo, cura dell’esperienza in stile Mamma Elvira.',
-    responsibilities: [
-      'Mise en place e gestione sala',
-      'Presentazione menu e carta vini',
-      'Gestione comande e pagamenti',
-      'Collaborazione con cucina e bar'
-    ],
-    requirements: [
-      'Attitudine al servizio e al sorriso',
-      'Italiano fluente; inglese base',
-      'Esperienza minima di 6 mesi (preferibile)',
-      'Disponibilità a turni serali/weekend'
-    ]
-  },
-  {
-    id: 'sommelier-lecce',
-    title: 'Sommelier',
-    department: 'Sala',
-    location: 'Lecce – Wine Bar',
-    contract: 'Part-time',
-    shift: 'Serale',
-    level: 'Mid',
-    tips: true,
-    description: 'Consulenza al cliente e guida nella scelta dei vini del territorio.',
-    responsibilities: [
-      'Consulenza e abbinamenti',
-      'Gestione mescita e stock',
-      'Formazione base al team',
-      'Degustazioni guidate'
-    ],
-    requirements: [
-      'Qualifica AIS/WSET o equivalente',
-      'Conoscenza vitigni pugliesi',
-      'Ottime capacità comunicative'
-    ]
-  },
-  {
-    id: 'cuoco-osteria',
-    title: 'Cuoco/a',
-    department: 'Cucina',
-    location: 'Lecce – Osteria',
-    contract: 'Full-time',
-    shift: 'Pranzo e cena',
-    level: 'Mid',
-    tips: false,
-    description: 'Preparazione piatti tradizionali rivisitati con attenzione a stagionalità e fornitori locali.',
-    responsibilities: [
-      'Linea e preparazioni',
-      'Controllo qualità e impiattamento',
-      'Gestione HACCP',
-      'Collaborazione con sala'
-    ],
-    requirements: [
-      'Esperienza in cucina tradizionale',
-      'Pulizia e precisione',
-      'Team working'
-    ]
-  },
-  {
-    id: 'bartender-winebar',
-    title: 'Bartender',
-    department: 'Bar',
-    location: 'Lecce – Wine Bar',
-    contract: 'Part-time',
-    shift: 'Serale',
-    level: 'Junior',
-    tips: true,
-    description: 'Miscele, cocktail classici e twist ispirati al territorio salentino.',
-    responsibilities: [ 'Preparazione drink', 'Ordine banco', 'Gestione scorte' ],
-    requirements: [ 'Min. 1 anno al banco', 'Conoscenza classici IBA', 'Precisione, velocità' ]
-  },
-  {
-    id: 'store-manager',
-    title: 'Store Manager',
-    department: 'Amministrazione',
-    location: 'Lecce – Enoteca',
-    contract: 'Full-time',
-    shift: 'Diurno',
-    level: 'Senior',
-    tips: false,
-    description: 'Coordinamento del punto vendita, KPI, turni e standard di qualità.',
-    responsibilities: [ 'Gestione team', 'KPI e report', 'Ordini e fornitori', 'Turni e formazione' ],
-    requirements: [ '3+ anni in ruolo simile', 'Leadership empatica', 'Orientamento al risultato' ]
+/* ===== STATE ===== */
+const jobs = ref([])
+const locations = ref([])
+const departments = ref([])
+const contracts = ref([])
+const levels = ref([])
+
+/* ===== API BASE ===== */
+const API_BASE =
+  (import.meta?.env?.VITE_API_BASE) ||
+  'http://localhost:8787'
+
+/* ===== LOAD FROM /jobs ===== */
+onMounted(async () => {
+  try {
+    const res = await fetch(`${API_BASE}/jobs`, { headers: { 'Accept': 'application/json' }})
+    if (!res.ok) throw new Error(`HTTP ${res.status}`)
+    const data = await res.json()
+
+    jobs.value = Array.isArray(data?.items) ? data.items : []
+
+    const map = (arr = []) => arr.map(v => ({ label: v, value: v }))
+    locations.value   = map(data?.filters?.locations)
+    departments.value = map(data?.filters?.departments)
+    contracts.value   = map(data?.filters?.contracts)
+    levels.value      = map(data?.filters?.levels)
+  } catch (err) {
+    console.error('[jobs load]', err)
+    $q.notify({ type: 'negative', message: 'Errore nel caricamento posizioni' })
   }
-])
+})
 
 /* ===== FILTRI ===== */
-const locations   = [
-  { label: 'Lecce – Enoteca', value: 'Lecce – Enoteca' },
-  { label: 'Lecce – Osteria', value: 'Lecce – Osteria' },
-  { label: 'Lecce – Wine Bar', value: 'Lecce – Wine Bar' }
-]
-const departments = [
-  { label: 'Sala', value: 'Sala' },
-  { label: 'Cucina', value: 'Cucina' },
-  { label: 'Bar', value: 'Bar' },
-  { label: 'Amministrazione', value: 'Amministrazione' }
-]
-const contracts   = [
-  { label: 'Full-time', value: 'Full-time' },
-  { label: 'Part-time', value: 'Part-time' },
-  { label: 'Stage', value: 'Stage' }
-]
-const levels      = [
-  { label: 'Junior', value: 'Junior' },
-  { label: 'Mid', value: 'Mid' },
-  { label: 'Senior', value: 'Senior' }
-]
-
 const search = ref('')
 const filters = ref({
   location: null,
@@ -416,10 +329,10 @@ const filteredJobs = computed(() => {
   return jobs.value.filter(j => {
     const matchesText =
       !txt ||
-      j.title.toLowerCase().includes(txt) ||
-      j.description.toLowerCase().includes(txt) ||
-      j.department.toLowerCase().includes(txt) ||
-      j.location.toLowerCase().includes(txt)
+      j.title?.toLowerCase?.().includes(txt) ||
+      j.description?.toLowerCase?.().includes(txt) ||
+      j.department?.toLowerCase?.().includes(txt) ||
+      j.location?.toLowerCase?.().includes(txt)
 
     const mLoc  = !filters.value.location   || j.location   === filters.value.location
     const mDep  = !filters.value.department || j.department === filters.value.department
