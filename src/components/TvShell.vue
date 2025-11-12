@@ -48,7 +48,7 @@
 </template>
 
 <script setup>
-// import TvPanel from './TvPanel.vue'
+import TvPanel from './TvPanel.vue'
 defineProps({
   channel: { type: Number, default: 0 },
   power:   { type: Boolean, default: true },
