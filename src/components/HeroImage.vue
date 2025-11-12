@@ -80,7 +80,10 @@ const contentStyle = computed(() => ({
 
 // Durata animazione per un ciclo completo
 const durationSec = computed(() => Math.max(props.loopDuration, 1))
-const trackStyle = computed(() => ({ '--marquee-duration': `${durationSec.value}s` }))
+const trackStyle = computed(() => ({
+  '--marquee-duration': `${durationSec.value}s`,
+  '--marquee-count': normalizedImages.value.length
+}))
 
 // IntersectionObserver per mettere in pausa quando fuori viewport
 let io = null
@@ -116,7 +119,9 @@ onBeforeUnmount(() => {
 .marquee{ position:absolute; inset:0; overflow:hidden; }
 .marquee__track{
   position:absolute; inset:0;
-  display:flex; height:100%;
+  display:flex;
+  width: 100%;
+  height:100%;
   will-change: transform;
   animation: marquee var(--marquee-duration) linear infinite;
   animation-play-state: running;
@@ -134,7 +139,7 @@ onBeforeUnmount(() => {
 
 @keyframes marquee{
   from{ transform: translateX(0); }
-  to{   transform: translateX(-50%); }
+  to{   transform: translateX(calc(-100% * var(--marquee-count))); }
 }
 
 /* OVERLAY */

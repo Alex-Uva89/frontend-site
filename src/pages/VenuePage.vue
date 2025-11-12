@@ -8,6 +8,7 @@
       :title="venue?.name || 'Locale'"
       :subtitle="venue?.address || ''"
       content-bottom="10vh"
+      :loop-duration="30"
       align="left"
     />
 
@@ -236,6 +237,7 @@ const solutionsTitle = computed(() =>
 const solutions = computed(() => {
   const v = venue.value || {}
   const s = site.value?.solutions || {}
+  console.log('solution', s)
   return [
     {
       id: 'table',

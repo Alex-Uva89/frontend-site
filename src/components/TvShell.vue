@@ -1,9 +1,9 @@
+<!-- TVShell.vue -->
 <template>
   <!-- Defs SVG: sagoma convessa + mask per angoli interni -->
   <svg width="0" height="0" style="position:absolute; pointer-events:none" aria-hidden="true">
     <defs>
-      <!-- Sagoma CRT convessa (lati verso l’esterno).
-           Regola .06/.94 per avere meno/più spazio ai lati -->
+      <!-- Sagoma CRT convessa (lati verso l’esterno). Regola .06/.94 per spazio ai lati -->
       <clipPath id="crtClip" clipPathUnits="objectBoundingBox">
         <path d="
           M .06 .03
@@ -14,8 +14,7 @@
         " />
       </clipPath>
 
-      <!-- Mask per gli angoli interni rossi: tutto bianco (visibile),
-           la sagoma CRT è nera (bucata). -->
+      <!-- Mask per gli angoli interni rossi -->
       <mask id="innerCornersMask" maskUnits="objectBoundingBox">
         <rect x="0" y="0" width="1" height="1" fill="white"/>
         <path d="
@@ -30,13 +29,16 @@
   </svg>
 
   <div class="tv-shell">
-    <!-- anelli interni -->
+    <!-- anelli interni (desktop) -->
     <div class="tv-bezel" aria-hidden="true"></div>
     <div class="tv-mesh" aria-hidden="true"></div>
     <div class="tv-vignette" aria-hidden="true"></div>
 
-    <!-- angoli interni rossi che seguono la curva CRT -->
+    <!-- angoli interni rossi (desktop) -->
     <div class="tv-inner-corners" aria-hidden="true"></div>
+
+    <!-- foro curvo trasparente SOLO mobile (bordo morbido) -->
+    <div class="tv-mobile-cutout" aria-hidden="true"></div>
 
     <!-- plancia -->
     <div class="panel-desktop">
@@ -46,8 +48,7 @@
 </template>
 
 <script setup>
-import TvPanel from './TvPanel.vue'
-
+// import TvPanel from './TvPanel.vue'
 defineProps({
   channel: { type: Number, default: 0 },
   power:   { type: Boolean, default: true },
@@ -63,28 +64,25 @@ defineEmits(['channelUp','channelDown'])
   left: var(--tv-gap-x);
   right: var(--tv-gap-x);
   bottom: var(--tv-gap-bottom);
-   z-index: 2147483647;
+  z-index: 2147483647;
   pointer-events: none;
 
-  /* arrotonda anche la scocca fuori */
-  border-radius: var(--tv-radius);
+  border-radius: var(--tv-radius, 22px);
   overflow: hidden;
 
   /* fallback palette */
   --plastic-400: var(--plastic-400-fb, #d13b3f);
   --plastic-500: var(--plastic-500-fb, #b32329);
   --plastic-600: var(--plastic-600-fb, #7f1119);
-  --plastic-highlight: var(--plastic-highlight-fb, rgba(255,255,255,.35));
   --plastic-shadow: var(--plastic-shadow-fb, rgba(0,0,0,.28));
   --plastic-shadow-deep: var(--plastic-shadow-deep-fb, rgba(0,0,0,.55));
-  --tv-radius: var(--tv-radius, 22px);
   -webkit-transform: translateZ(0);
           transform: translateZ(0);
   will-change: transform;
   isolation: isolate;
 }
 
-/* plastica esterna (come avevi) */
+/* plastica esterna */
 .tv-shell::before{
   content:""; position:absolute; inset:0;
   padding: var(--tv-top) var(--tv-right) var(--tv-bottom) var(--tv-left);
@@ -101,10 +99,11 @@ defineEmits(['channelUp','channelDown'])
     linear-gradient(180deg, var(--plastic-600) 0%, var(--plastic-500) 40%, var(--plastic-400) 62%, var(--plastic-600) 100%),
     radial-gradient(140% 120% at 50% 50%, rgba(0,0,0,.15), rgba(0,0,0,0) 60%),
     repeating-linear-gradient(135deg, rgba(255,255,255,.015) 0 2px, rgba(0,0,0,.015) 2px 4px);
-    background-blend-mode: screen, screen, normal, multiply, soft-light;
-    border-radius: 60px;
-
+  background-blend-mode: screen, screen, normal, multiply, soft-light;
+  border-radius: 60px;
 }
+
+/* ombre cornice interna */
 .tv-shell::after{
   content:""; position:absolute; inset:0;
   padding-top:    calc(var(--tv-top)    + var(--hair, .75px));
@@ -124,10 +123,9 @@ defineEmits(['channelUp','channelDown'])
       top 0 left var(--tv-left) / calc(100% - var(--tv-left) - var(--tv-right)) 8px no-repeat,
     linear-gradient(90deg, rgba(255,255,255,.18), transparent)
       top var(--tv-top) left 0 / 8px calc(100% - var(--tv-top) - var(--tv-bottom)) no-repeat;
-
 }
 
-/* ============== ANELLI INTERNI (seguono la sagoma) ============== */
+/* ============== ANELLI INTERNI (desktop) ============== */
 .tv-bezel,
 .tv-mesh,
 .tv-vignette{
@@ -140,8 +138,6 @@ defineEmits(['channelUp','channelDown'])
   -webkit-clip-path: url(#crtClip);
           clip-path: url(#crtClip);
 }
-
-/* ombre rimosse */
 .tv-bezel{ z-index:999998; box-shadow:none; }
 .tv-mesh{  z-index:999999; box-shadow:none;
   background:
@@ -151,33 +147,65 @@ defineEmits(['channelUp','channelDown'])
 }
 .tv-vignette{ z-index:1000000; box-shadow:none; }
 
-/* ============== ANGOLI INTERNI ROSSI (curvi) ============== */
+/* ============== ANGOLI INTERNI ROSSI (desktop) ============== */
 .tv-inner-corners{
   position:absolute;
   top:var(--tv-top); right:var(--tv-right); bottom:var(--tv-bottom); left:var(--tv-left);
   width: calc(100% - var(--tv-left) - var(--tv-right));
   height: calc(100% - var(--tv-top) - var(--tv-bottom));
   pointer-events:none;
-
   border-radius: 10px;
-  /* stesso “vernice” della scocca (semplice gradiente coerente) */
   background: linear-gradient(180deg, var(--plastic-600) 0%, var(--plastic-500) 40%, var(--plastic-400) 62%, var(--plastic-600) 100%);
-
-  /* mostra solo la zona tra rettangolo e CRT → angoli curvi */
   -webkit-mask: url(#innerCornersMask);
           mask: url(#innerCornersMask);
-
-  /* assicurati che stia SOPRA il fondo ma SOTTO agli anelli */
   z-index: 999997;
 }
 
-/* plancia cliccabile */
-.panel-desktop{ pointer-events:auto; }
+/* ============== FORO CURVO TRASPARENTE (solo mobile) ============== */
+.tv-mobile-cutout{
+  display:none; /* desktop: non si vede */
+}
 
-/* mobile */
+/* ========== MOBILE: nascondi lo schermo nero e mostra SOLO il foro curvo ========== */
 @media (max-width:700px){
-  .tv-shell{ display:none; }
-  .panel-desktop{ display:none; }
-  .tv-feet{ display:none; }
+  /* tieni visibile la scocca rossa */
+  .tv-shell{ pointer-events:none; top: 0; left: 0; right: 0; bottom: 0;
+    &::before{
+      border-radius: 0;
+    }
+  }
+
+  /* NASCONDI elementi che riempiono lo schermo interno (nero/mesh/vignette/angoli/pannello) */
+  .tv-bezel,
+  .tv-mesh,
+  .tv-vignette,
+  .tv-inner-corners,
+  .panel-desktop{
+    display: none !important;
+  }
+
+  svg{
+    display: none;
+  }
+
+  /* Mostra un foro curvo trasparente con leggero bordo interno per suggerire la curvatura */
+  .tv-mobile-cutout{
+    display:block;
+    position:absolute;
+    top:var(--tv-top); right:var(--tv-right); bottom:var(--tv-bottom); left:var(--tv-left);
+    width: calc(100% - var(--tv-left) - var(--tv-right));
+    height: calc(100% - var(--tv-top) - var(--tv-bottom));
+    pointer-events:none;
+    /* stessa curva dello schermo */
+    -webkit-clip-path: url(#crtClip);
+            clip-path: url(#crtClip);
+    /* bordo/ombreggiatura interna molto soft per dare l’effetto “lati un po’ curvati” */
+    box-shadow:
+      inset 0 0 0 1px rgba(0,0,0,.55),
+      inset 0 22px 34px rgba(0,0,0,.35),
+      inset 0 -18px 28px rgba(0,0,0,.35);
+    background: transparent; /* TRASPARENTE: si vede il contenuto sotto */
+    z-index: 2;
+  }
 }
 </style>

@@ -31,13 +31,14 @@
         <div class="vcard__top">
           <h3 class="vcard__title">{{ v.name }}</h3>
           <span class="vcard__status" :class="{ open: isOpenNow(v) }">
-            {{ isOpenNow(v) ? $t('open.now','Open') : $t('closed.now','Close') }}
+            {{ isOpenNow(v) ? $t('open.now','Open') : $t('closed.now','Close now') }}
           </span>
         </div>
 
         <!-- Bottom: CTA (non propagano il click) -->
         <div class="vcard__bottom" @click.stop>
           <q-btn
+            v-if="v.bookingUrl"
             no-caps
             unelevated
             class="btn primary"
@@ -46,7 +47,9 @@
             :href="v.bookingUrl || undefined"
             target="_blank"
           />
+
           <q-btn
+            v-if="v.menuUrl != '#'"
             no-caps
             outline
             class="btn ghost"
@@ -110,6 +113,7 @@ function bgStyle(url) {
 
 // stato apertura (tua logica invariata)
 function isOpenNow (v){
+  console.log(v)
   try{
     const now = new Date()
     const day = (now.getDay()+6)%7 // 0=Mon

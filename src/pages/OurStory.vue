@@ -48,46 +48,16 @@
             </blockquote>
           </article>
 
-          <!-- TIMELINE SEMPLICE -->
-          <aside class="story__timeline" aria-label="Timeline">
-            <ul>
-              <li>
-                <span class="dot" aria-hidden="true"></span>
-                <div>
-                  <h3>2012</h3>
-                  <p>{{ $t('ourstory.tl2012', 'Si accendono i fuochi della prima Osteria.') }}</p>
-                </div>
-              </li>
-              <li>
-                <span class="dot" aria-hidden="true"></span>
-                <div>
-                  <h3>2016</h3>
-                  <p>{{ $t('ourstory.tl2016', 'Arriva l’Enoteca: bottiglie che raccontano storie.') }}</p>
-                </div>
-              </li>
-              <li>
-                <span class="dot" aria-hidden="true"></span>
-                <div>
-                  <h3>2019</h3>
-                  <p>{{ $t('ourstory.tl2019', 'Nasce il Ristorante: tecnica e memoria nel piatto.') }}</p>
-                </div>
-              </li>
-              <li>
-                <span class="dot" aria-hidden="true"></span>
-                <div>
-                  <h3>2022</h3>
-                  <p>{{ $t('ourstory.tl2022', 'La Pizzeria completa la famiglia. Forno vivo, impasti maturi.') }}</p>
-                </div>
-              </li>
-            </ul>
-          </aside>
 
           <!-- MOSAICO IMMAGINI -->
           <div class="story__mosaic" aria-hidden="true">
-            <img src="https://picsum.photos/seed/mamma-1/800/1000" alt="" loading="lazy">
-            <img src="https://picsum.photos/seed/mamma-2/800/800" alt="" loading="lazy">
-            <img src="https://picsum.photos/seed/mamma-3/800/900" alt="" loading="lazy">
-            <img src="https://picsum.photos/seed/mamma-4/800/1100" alt="" loading="lazy">
+            <img
+              v-for="(img, index) in randomImages"
+              :key="index"
+              :src="img"
+              alt=""
+              loading="lazy"
+            />
           </div>
         </div>
       </section>
@@ -142,9 +112,28 @@
 </template>
 
 <script setup>
+import { ref } from 'vue'
+
 /* Hero image: puoi sostituire con un asset del progetto */
 import HeroImage from 'src/components/HeroImage.vue';
 const heroImg = 'https://picsum.photos/seed/lecce-stone/2400/1400'
+
+
+const images = import.meta.glob('../assets/immagini/**/*.{jpg,jpeg,png,webp,avif}', {
+  eager: true,
+  import: 'default'
+})
+
+// ottieni solo gli URL (non i path)
+const allImages = Object.values(images)
+
+// funzione per ottenere N immagini casuali
+function getRandomImages(arr, n = 4) {
+  return [...arr].sort(() => 0.5 - Math.random()).slice(0, n)
+}
+
+// reactive array di immagini random
+const randomImages = ref(getRandomImages(allImages, 4))
 </script>
 
 <style scoped>
