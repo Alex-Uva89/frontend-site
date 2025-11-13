@@ -79,7 +79,12 @@ const contentStyle = computed(() => ({
 }))
 
 // Durata animazione per un ciclo completo
-const durationSec = computed(() => Math.max(props.loopDuration, 1))
+const durationSec = computed(() => {
+  const perImage = Math.max(props.loopDuration, 1)
+  const count = Math.max(normalizedImages.value.length, 1)
+  return perImage * count
+})
+
 const trackStyle = computed(() => ({
   '--marquee-duration': `${durationSec.value}s`,
   '--marquee-count': normalizedImages.value.length
