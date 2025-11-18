@@ -21,9 +21,9 @@
     <!-- Collage immagini -->
     <div v-if="imgs.length" class="emo__media">
       <div class="big" :style="{ backgroundImage:`url(${imgs[0]})` }" />
+      <!-- {{ emotion.images }} -->
       <div class="col">
-        <div class="sm" v-if="imgs[1]" :style="{ backgroundImage:`url(${imgs[1]})` }" />
-        <div class="sm" v-if="imgs[2]" :style="{ backgroundImage:`url(${imgs[2]})` }" />
+        <div class="sm" v-if="emotion.images" :style="{ backgroundImage:`url(${emotion.images[0]})` }" />
       </div>
     </div>
   </section>

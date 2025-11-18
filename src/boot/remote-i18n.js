@@ -1,5 +1,7 @@
+// src/boot/remote-i18n.js
 import { boot } from 'quasar/wrappers'
 import { i18n } from 'boot/i18n' // importa la tua istanza
+
 const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:8787'
 
 // Converte il documento Sanity nel formato messages di vue-i18n
@@ -24,6 +26,29 @@ function docToMessages(doc) {
   return messages
 }
 
+// Merge "sicuro" tra messaggi locali e remoti:
+// - non butta via le chiavi già presenti (es. pages.contact dai file locali)
+// - sovrascrive solo ciò che arriva da Sanity
+function mergeMessages(locale, msgs) {
+  const existing = i18n.global.getLocaleMessage(locale) || {}
+
+  const merged = {
+    ...existing,
+    ...msgs,
+    // merge più profondo per sezioni annidate
+    pages: {
+      ...(existing.pages || {}),
+      ...(msgs.pages || {}),
+    },
+    newsletter: {
+      ...(existing.newsletter || {}),
+      ...(msgs.newsletter || {}),
+    },
+  }
+
+  i18n.global.setLocaleMessage(locale, merged)
+}
+
 // Cache semplice per ridurre il flicker
 const LS_KEY = 'me_site_i18n_'
 
@@ -36,8 +61,8 @@ export default boot(async () => {
   if (cached) {
     try {
       const msgs = JSON.parse(cached)
-      i18n.global.setLocaleMessage(locale, msgs)
-    } catch(e) {
+      mergeMessages(locale, msgs) // <-- PRIMO PUNTO CAMBIATO
+    } catch (e) {
       console.log('boot error', e)
     }
   }
@@ -48,7 +73,8 @@ export default boot(async () => {
     if (!res.ok) throw new Error('HTTP ' + res.status)
     const doc = await res.json()
     const msgs = docToMessages(doc)
-    i18n.global.setLocaleMessage(locale, msgs)
+
+    mergeMessages(locale, msgs) // <-- SECONDO PUNTO CAMBIATO
     localStorage.setItem(LS_KEY + locale, JSON.stringify(msgs))
   } catch (e) {
     // fallback: prova /content/it o /content/en se locale è it-IT/en-US
@@ -58,7 +84,8 @@ export default boot(async () => {
       if (res2.ok) {
         const doc = await res2.json()
         const msgs = docToMessages(doc)
-        i18n.global.setLocaleMessage(locale, msgs)
+
+        mergeMessages(locale, msgs) // <-- TERZO PUNTO CAMBIATO
         localStorage.setItem(LS_KEY + locale, JSON.stringify(msgs))
       }
     } catch (e2) {

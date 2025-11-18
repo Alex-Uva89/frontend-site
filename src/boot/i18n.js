@@ -1,3 +1,4 @@
+// src/boot/i18n.js
 import { defineBoot } from '#q-app/wrappers'
 import { createI18n } from 'vue-i18n'
 import { watch } from 'vue'
@@ -6,12 +7,13 @@ import { useLangStore } from 'src/stores/langStore'
 
 // crea e ESPORTA l'istanza a livello modulo
 const saved = localStorage.getItem('lang') || 'it-IT'
+
 export const i18n = createI18n({
   legacy: false,
   locale: saved,                // 'it-IT' | 'en-US'
-  fallbackLocale: 'en-US',
+  fallbackLocale: 'it-IT',      // <-- fallback sull'italiano
   globalInjection: true,
-  messages,                     // i messaggi locali rimangono come fallback
+  messages,                     // i messaggi locali rimangono come base
   warnHtmlMessage: false,
 })
 
@@ -26,7 +28,7 @@ export default defineBoot(({ app }) => {
 
   watch(
     () => lang.current,
-    async (val) => {
+    (val) => {
       i18n.global.locale.value = val
       localStorage.setItem('lang', val)
     },

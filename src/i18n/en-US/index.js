@@ -78,6 +78,12 @@ export default {
     title2: 'newsletter'
   },
   pages: {
+    contact: {
+      title: 'Contacts',
+      subtitle: 'Write to us: we\'ll get back to you as soon as possible.',
+      privacy: 'I consent to the processing of personal data',
+      write: 'or write directly'
+    },
     jobs: {
       title: 'Careers',
       subtitle: 'Join the Mamma Elvira team and grow with us.',

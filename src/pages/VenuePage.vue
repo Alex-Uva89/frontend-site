@@ -103,6 +103,7 @@ import { useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { fetchVenueById } from 'src/stores/venues.js'
 import { useLangStore } from 'src/stores/langStore.js'
+
 import HeroImage from 'components/HeroImage.vue'
 import EmotionBlock from 'components/EmotionBlock.vue'
 import SectionFrame from 'src/components/SectionFrame.vue'

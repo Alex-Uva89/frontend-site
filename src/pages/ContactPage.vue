@@ -90,7 +90,8 @@
                   dense
                 >
                   <span class="tiny">
-                    Acconsento al trattamento dei dati personali
+                    {{ $t('pages.contact.privacy') }}
+
                   </span>
                 </q-checkbox>
               </div>
@@ -111,7 +112,7 @@
                 flat
                 color="grey-7"
                 :href="`mailto:${SEND_TO}`"
-                label="Oppure scrivici direttamente"
+                :label="$t('pages.contact.write')"
                 no-caps
               />
             </div>
@@ -149,7 +150,7 @@
               <q-btn
                 flat dense color="brown-8"
                 :label="v.phone"
-                :href="`tel:${v.phoneRaw || v.phone}`"
+                :href="`tel:${v.phone}`"
                 @click.stop
                 icon="call"
               />
@@ -187,8 +188,18 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useQuasar } from 'quasar'
+import { fetchVenues } from '../stores/venues'
+import { useI18n } from 'vue-i18n'
+import { i18n } from 'src/boot/i18n'
+
+const { locale } = useI18n()
+
+console.log('LOCALE CORRENTE (composable):', locale.value)
+console.log('LOCALE CORRENTE (global):', i18n.global.locale.value)
+console.log('MESSAGGI en-US:', i18n.global.messages.value['en-US']?.pages?.contact)
+console.log('MESSAGGI it-IT:', i18n.global.messages.value['it-IT']?.pages?.contact)
 
 /** Sostituisci con la tua email */
 const SEND_TO = 'info@mammaelvira.it'
@@ -246,42 +257,44 @@ function onReset () {
   form.value = { name: '', email: '', phone: '', subject: '', message: '', privacy: false }
 }
 
-/* === Dati locali (sostituisci con quelli reali) === */
-const venues = ref([
-  {
-    id: 'me-enoteca',
-    name: 'Mamma Elvira Enoteca',
-    address: 'Via Esempio 12, 73100 Lecce (LE)',
-    phone: '+39 0832 000000',
-    phoneRaw: '+390832000000',
-    map: 'https://maps.google.com/?q=Mamma%20Elvira%20Enoteca%20Lecce'
-  },
-  {
-    id: 'me-osteria',
-    name: 'Mamma Elvira Osteria',
-    address: 'Via Seconda 45, 73100 Lecce (LE)',
-    phone: '+39 0832 111111',
-    phoneRaw: '+390832111111',
-    map: 'https://maps.google.com/?q=Mamma%20Elvira%20Osteria%20Lecce'
-  },
-  {
-    id: 'me-winebar',
-    name: 'Mamma Elvira Wine Bar',
-    address: 'Piazza Qualcosa 3, 73100 Lecce (LE)',
-    phone: '+39 0832 222222',
-    phoneRaw: '+390832222222',
-    map: 'https://maps.google.com/?q=Mamma%20Elvira%20Wine%20Bar%20Lecce'
-  }
-])
-
+/* === Dati sanity === */
+const venues = ref([])
+const venuesLoading = ref(true)
+const venuesError = ref(null)
 /* === Social (sostituisci i link reali) === */
 const socials = ref([
-  { name: 'Instagram', href: 'https://instagram.com/mammaelvira' },
-  { name: 'Facebook',  href: 'https://facebook.com/mammaelvira' },
-  { name: 'TikTok',    href: 'https://tiktok.com/@mammaelvira' },
-  { name: 'YouTube',   href: 'https://youtube.com/@mammaelvira' },
-  { name: 'Tripadvisor', href: 'https://www.tripadvisor.it/' }
+  { name: 'Instagram Fera', href: 'https://www.instagram.com/fera_lecce/' },
+  { name: 'Facebook Fera',  href: 'https://www.facebook.com/feralecce/' },
+
+  { name: 'Instagram La Cucina', href: 'https://www.instagram.com/la_cucina_di_mamma_elvira/' },
+  { name: 'Instagram La Cucina', href: 'https://www.facebook.com/LaCucinaDiMammaElvira' },
+
+  { name: 'Instagram Enoteca', href: 'https://www.facebook.com/MammaElvira' },
+  { name: 'Instagram Enoteca', href: 'https://www.instagram.com/mamma_elvira_enoteca/' },
+
+  { name: 'Instagram \'Scante', href: 'https://www.instagram.com/scante_lecce/' },
+  { name: 'Instagram \'Scante', href: 'https://www.facebook.com/scantelecce?locale=it_IT' },
+
+  { name: 'Instagram Casa Mamma Elvira', href: 'https://www.instagram.com/casa_mamma_elvira/' },
+  { name: 'Instagram Casa Mamma Elvira', href: 'https://www.facebook.com/CasaMammaElvira' },
+
+  { name: 'Instagram Delicatessen', href: 'https://www.facebook.com/delicatessenlecce' },
+  { name: 'Instagram Delicatessen', href: 'https://www.instagram.com/delicatessen_lecce/' }
 ])
+
+onMounted(async () => {
+  try {
+    venuesLoading.value = true
+    venuesError.value = null
+    // locale normalizzato dal tuo store (it → it-IT ecc.)
+    venues.value = await fetchVenues(locale.value)
+  } catch (err) {
+    console.error(err)
+    venuesError.value = 'Errore nel caricamento dei locali'
+  } finally {
+    venuesLoading.value = false
+  }
+})
 </script>
 
 <style scoped>
