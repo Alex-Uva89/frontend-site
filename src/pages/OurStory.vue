@@ -1,141 +1,236 @@
 <template>
   <q-page class="our-story q-pa-none">
-    <!-- HERO -->
-    <HeroImage
-      :images="heroImg"
-      :title="$t('ourstory.title')"
-      :subtitle="$t('ourstory.subtitle')"
-      content-bottom="10vh"
-      align="left"
-    />
-
-    <div class="wrap">
-      <!-- STORIA -->
-      <section id="storia" class="story">
-        <header class="story__head">
-          <h2 class="story__title">{{ $t('ourstory.heading', 'Come siamo diventati Mamma Elvira') }}</h2>
-          <p class="story__lead">
-            {{
-              $t(
-                'ourstory.lead',
-                'Una cucina che nasce in famiglia e cresce con la città: pochi ingredienti, tanta memoria, gesti semplici e veri.'
-              )
-            }}
-          </p>
-        </header>
-
-        <div class="story__grid">
-          <article class="story__text">
-            <p>
-              {{
-                $t(
-                  'ourstory.p1',
-                  'All’inizio eravamo un tavolo grande e una voglia ostinata di far parlare i piatti. La pasta tirata a mano, il pane vivo, il vino di chi la terra la conosce per nome.'
-                )
-              }}
-            </p>
-            <p>
-              {{
-                $t(
-                  'ourstory.p2',
-                  'Poi sono arrivati gli amici, i vicini, i viaggiatori. La cucina è rimasta onesta, il servizio più attento, le sale più luminose. La pietra leccese ha tenuto insieme tutto.'
-                )
-              }}
-            </p>
-            <blockquote class="quote">
-              <p>“{{ $t('ourstory.quote', 'Eleganza è togliere, non aggiungere.') }}”</p>
-              <cite>— {{ $t('ourstory.quoteAuthor', 'La Brigata') }}</cite>
-            </blockquote>
-          </article>
-
-
-          <!-- MOSAICO IMMAGINI -->
-          <div class="story__mosaic" aria-hidden="true">
-            <img
-              v-for="(img, index) in randomImages"
-              :key="index"
-              :src="img"
-              alt=""
-              loading="lazy"
-            />
-          </div>
-        </div>
-      </section>
-
-      <!-- TEAM / LAVORA CON NOI -->
-      <section class="team" aria-labelledby="team-title">
-        <header class="team__head">
-          <h2 id="team-title">{{ $t('jobs.join', 'Unisciti al team di Mamma Elvira') }}</h2>
-          <p class="team__lead">
-            {{
-              $t(
-                'jobs.lead',
-                'Cerchiamo persone curiose, gentili e concrete. Se ti piacciono le mani in pasta e i dettagli in sala, ci piacerà conoscerti.'
-              )
-            }}
-          </p>
-          <div class="team__cta">
-            <q-btn no-caps class="btn primary" :label="$t('jobs.openings','Posizioni aperte')" to="/jobs" />
-            <q-btn no-caps outline class="btn ghost" :label="$t('jobs.email','Scrivici')" href="mailto:jobs@mammaelvira.example" />
-          </div>
-        </header>
-
-        <ul class="roles">
-          <li class="role">
-            <h3 class="role__title">{{ $t('jobs.kitchen','Cucina') }}</h3>
-            <p class="role__desc">{{ $t('jobs.kitchenDesc','Pasta fresca, linea, pass: team unito e tempi giusti.') }}</p>
-          </li>
-          <li class="role">
-            <h3 class="role__title">{{ $t('jobs.pizza','Pizzeria') }}</h3>
-            <p class="role__desc">{{ $t('jobs.pizzaDesc','Impasti a lunga maturazione, forno vivo, servizio calibrato.') }}</p>
-          </li>
-          <li class="role">
-            <h3 class="role__title">{{ $t('jobs.floor','Sala') }}</h3>
-            <p class="role__desc">{{ $t('jobs.floorDesc','Accoglienza, ritmo e attenzione: far sentire a casa.') }}</p>
-          </li>
-          <li class="role">
-            <h3 class="role__title">{{ $t('jobs.sommelier','Vino') }}</h3>
-            <p class="role__desc">{{ $t('jobs.sommelierDesc','Enoteca viva, piccoli produttori, storytelling sincero.') }}</p>
-          </li>
-          <li class="role">
-            <h3 class="role__title">{{ $t('jobs.pastry','Pasticceria') }}</h3>
-            <p class="role__desc">{{ $t('jobs.pastryDesc','Dolci essenziali, ingredienti puliti, stagioni nel piatto.') }}</p>
-          </li>
-          <li class="role">
-            <h3 class="role__title">{{ $t('jobs.stage','Stage') }}</h3>
-            <p class="role__desc">{{ $t('jobs.stageDesc','Percorsi formativi in cucina e sala: imparare facendo.') }}</p>
-          </li>
-        </ul>
-      </section>
+    <!-- Stati di caricamento / errore -->
+    <div v-if="loading" class="wrap">
+      <p>Caricamento…</p>
     </div>
+
+    <div v-else-if="error" class="wrap">
+      <p>{{ error }}</p>
+    </div>
+
+    <template v-else>
+      <!-- HERO -->
+      <HeroImage
+        :images="heroImg"
+        :title="ourstory.title || 'La nostra storia'"
+        :subtitle="ourstory.subtitle || 'Un racconto di cucina, città e persone.'"
+        content-bottom="10vh"
+        align="left"
+      />
+
+      <div class="wrap">
+        <!-- STORIA -->
+        <section id="storia" class="story">
+          <header class="story__head">
+            <h2 class="story__title">
+              {{ ourstory.heading || 'Come siamo diventati Mamma Elvira' }}
+            </h2>
+            <p class="story__lead">
+              {{
+                ourstory.lead
+                  || 'Una cucina che nasce in famiglia e cresce con la città: pochi ingredienti, tanta memoria, gesti semplici e veri.'
+              }}
+            </p>
+          </header>
+
+          <div class="story__grid">
+            <article class="story__text">
+              <p>
+                {{
+                  ourstory.p1
+                    || 'All’inizio eravamo un tavolo grande e una voglia ostinata di far parlare i piatti. La pasta tirata a mano, il pane vivo, il vino di chi la terra la conosce per nome.'
+                }}
+              </p>
+              <p>
+                {{
+                  ourstory.p2
+                    || 'Poi sono arrivati gli amici, i vicini, i viaggiatori. La cucina è rimasta onesta, il servizio più attento, le sale più luminose. La pietra leccese ha tenuto insieme tutto.'
+                }}
+              </p>
+              <blockquote class="quote">
+                <p>
+                  “{{
+                    ourstory.quote
+                      || 'Eleganza è togliere, non aggiungere.'
+                  }}”
+                </p>
+                <cite>— {{ ourstory.quoteAuthor || 'La Brigata' }}</cite>
+              </blockquote>
+            </article>
+
+            <!-- MOSAICO IMMAGINI -->
+            <div class="story__mosaic" aria-hidden="true">
+              <img
+                v-for="(img, index) in randomImages"
+                :key="index"
+                :src="img"
+                alt=""
+                loading="lazy"
+              />
+            </div>
+          </div>
+        </section>
+
+        <!-- TEAM / LAVORA CON NOI -->
+        <section class="team" aria-labelledby="team-title">
+          <header class="team__head">
+            <h2 id="team-title">
+              {{ jobs.join || 'Unisciti al team di Mamma Elvira' }}
+            </h2>
+            <p class="team__lead">
+              {{
+                jobs.lead
+                  || 'Cerchiamo persone curiose, gentili e concrete. Se ti piacciono le mani in pasta e i dettagli in sala, ci piacerà conoscerti.'
+              }}
+            </p>
+            <div class="team__cta">
+              <q-btn
+                no-caps
+                class="btn primary"
+                :label="jobs.openings || 'Posizioni aperte'"
+                to="/jobs"
+              />
+              <q-btn
+                no-caps
+                outline
+                class="btn ghost"
+                :label="jobs.email || 'Scrivici'"
+                href="mailto:jobs@mammaelvira.example"
+              />
+            </div>
+          </header>
+
+          <ul class="roles">
+            <li class="role">
+              <h3 class="role__title">
+                {{ jobs.kitchen || 'Cucina' }}
+              </h3>
+              <p class="role__desc">
+                {{
+                  jobs.kitchenDesc
+                    || 'Pasta fresca, linea, pass: team unito e tempi giusti.'
+                }}
+              </p>
+            </li>
+
+            <li class="role">
+              <h3 class="role__title">
+                {{ jobs.pizza || 'Pizzeria' }}
+              </h3>
+              <p class="role__desc">
+                {{
+                  jobs.pizzaDesc
+                    || 'Impasti a lunga maturazione, forno vivo, servizio calibrato.'
+                }}
+              </p>
+            </li>
+
+            <li class="role">
+              <h3 class="role__title">
+                {{ jobs.floor || 'Sala' }}
+              </h3>
+              <p class="role__desc">
+                {{
+                  jobs.floorDesc
+                    || 'Accoglienza, ritmo e attenzione: far sentire a casa.'
+                }}
+              </p>
+            </li>
+
+            <li class="role">
+              <h3 class="role__title">
+                {{ jobs.sommelier || 'Vino' }}
+              </h3>
+              <p class="role__desc">
+                {{
+                  jobs.sommelierDesc
+                    || 'Enoteca viva, piccoli produttori, storytelling sincero.'
+                }}
+              </p>
+            </li>
+
+            <li class="role">
+              <h3 class="role__title">
+                {{ jobs.pastry || 'Pasticceria' }}
+              </h3>
+              <p class="role__desc">
+                {{
+                  jobs.pastryDesc
+                    || 'Dolci essenziali, ingredienti puliti, stagioni nel piatto.'
+                }}
+              </p>
+            </li>
+
+            <li class="role">
+              <h3 class="role__title">
+                {{ jobs.stage || 'Stage' }}
+              </h3>
+              <p class="role__desc">
+                {{
+                  jobs.stageDesc
+                    || 'Percorsi formativi in cucina e sala: imparare facendo.'
+                }}
+              </p>
+            </li>
+          </ul>
+        </section>
+      </div>
+    </template>
   </q-page>
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, computed, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
+import axios from 'axios'
 
-/* Hero image: puoi sostituire con un asset del progetto */
-import HeroImage from 'src/components/HeroImage.vue';
+import HeroImage from 'src/components/HeroImage.vue'
 import heroImgFile from '../assets/mamma_andrea.jpg'
 
 const heroImg = heroImgFile
 
-
+// ==== immagini random come prima ====
 const images = import.meta.glob('../assets/immagini/**/*.{jpg,jpeg,png,webp,avif}', {
   eager: true,
   import: 'default'
 })
 
-// ottieni solo gli URL (non i path)
 const allImages = Object.values(images)
 
-// funzione per ottenere N immagini casuali
 function getRandomImages(arr, n = 4) {
   return [...arr].sort(() => 0.5 - Math.random()).slice(0, n)
 }
 
-// reactive array di immagini random
 const randomImages = ref(getRandomImages(allImages, 4))
+
+// ==== dati da Sanity ====
+const { locale } = useI18n() // es: "it-IT" o "it"
+
+const siteStrings = ref(null)
+const loading = ref(true)
+const error = ref(null)
+
+onMounted(async () => {
+  try {
+    loading.value = true
+    error.value = null
+
+    // ⚠️ se il tuo router è montato su /api/content, cambia qui:
+    const res = await axios.get(`${import.meta.env.VITE_API_BASE}/content/${locale.value}`)
+    // const res = await axios.get(`/content/${locale.value}`)
+
+    siteStrings.value = res.data
+  } catch (err) {
+    console.error('[OurStory] failed to load siteStrings', err)
+    error.value = 'Impossibile caricare i contenuti.'
+  } finally {
+    loading.value = false
+  }
+})
+
+const ourstory = computed(() => siteStrings.value?.ourstory || {})
+const jobs = computed(() => siteStrings.value?.jobs || {})
 </script>
 
 <style scoped>
