@@ -5,7 +5,7 @@
       <q-card flat bordered class="glass-card hero-card">
         <div class="row items-center q-col-gutter-md">
           <div class="col-12 col-md">
-            <div class="q-mt-none q-mb-sm text-h1 text-weight-bold">
+            <div class="q-mt-none q-mb-sm text-h4 text-weight-bold">
               {{ $t('pages.jobs.title') || 'Lavora con noi' }}
             </div>
             <p class="text-body1 text-italic text-deep-orange-10">
@@ -106,7 +106,7 @@
             <div class="job-head">
               <div class="title">
                 <div class="num-pill">#{{ jobDisplayNumber(job) }}</div>
-                <div class="q-my-none text-h3 text-weight-bold">{{ job.title }}</div>
+                <div class="q-my-none text-h6 text-weight-bold">{{ job.title }}</div>
               </div>
               <div class="tags">
                 <q-chip square dense icon="place" :label="job.location"/>
