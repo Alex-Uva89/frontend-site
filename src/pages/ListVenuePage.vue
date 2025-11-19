@@ -170,7 +170,7 @@ function getNextOpening(v) {
         openingTime.setHours(h, m, 0, 0);
 
         if (openingTime > now) {
-          return `apre alle ${slot.o}`;
+          return `open to ${slot.o}`;
         }
       }
 
