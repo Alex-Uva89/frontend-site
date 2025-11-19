@@ -117,7 +117,6 @@ function bgStyle(url) {
 
 // stato apertura (tua logica invariata)
 function isOpenNow (v){
-  console.log(v)
   try{
     const now = new Date()
     const day = (now.getDay()+6)%7 // 0=Mon

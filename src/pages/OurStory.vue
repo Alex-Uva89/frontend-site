@@ -116,7 +116,9 @@ import { ref } from 'vue'
 
 /* Hero image: puoi sostituire con un asset del progetto */
 import HeroImage from 'src/components/HeroImage.vue';
-const heroImg = 'https://picsum.photos/seed/lecce-stone/2400/1400'
+import heroImgFile from '../assets/mamma_andrea.jpg'
+
+const heroImg = heroImgFile
 
 
 const images = import.meta.glob('../assets/immagini/**/*.{jpg,jpeg,png,webp,avif}', {
