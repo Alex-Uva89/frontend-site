@@ -31,7 +31,11 @@
         <div class="vcard__top">
           <h3 class="vcard__title">{{ v.name }}</h3>
           <span class="vcard__status" :class="{ open: isOpenNow(v) }">
-            {{ isOpenNow(v) ? $t('open.now','Open') : $t('closed.now','Close now') }}
+            {{
+              isOpenNow(v)
+                ? $t('open.now','Open')
+                : getNextOpening(v)
+            }}
           </span>
         </div>
 
@@ -143,6 +147,45 @@ const venueHref = (v) => {
 const hasBookingOrPhone = (v) => {
   return !!(v?.bookingUrl || v?.phone)
 }
+
+// helper per mostrare orario apertura
+function getNextOpening(v) {
+  const now = new Date();
+  const today = now.getDay()
+
+  const remap = [1,2,3,4,5,6,0];
+  const todayMapped = remap[today];
+
+  for (let i = 0; i < 7; i++) {
+    const dayIndex = (todayMapped + i) % 7;
+    const dayHours = v.hours[dayIndex];
+
+    // Se il giorno ha fasce orarie
+    if (dayHours && dayHours.length > 0) {
+      const slot = dayHours[0];
+
+      // Se è oggi e l’apertura è dopo adesso → mostra quella
+      if (i === 0) {
+        const [h, m] = slot.o.split(':').map(Number);
+        const openingTime = new Date();
+        openingTime.setHours(h, m, 0, 0);
+
+        if (openingTime > now) {
+          return `apre alle ${slot.o}`;
+        }
+      }
+
+      // Altrimenti → prossimo giorno con orario
+      const days = ["domenica","lunedì","martedì","mercoledì","giovedì","venerdì","sabato"];
+      const realDay = remap.indexOf(dayIndex); // torniamo al sistema 0=dom
+
+      return `apre ${days[realDay]} alle ${slot.o}`;
+    }
+  }
+
+  return "orari non disponibili";
+}
+
 </script>
 
 
