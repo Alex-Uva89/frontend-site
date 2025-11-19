@@ -37,15 +37,15 @@
 
         <!-- Bottom: CTA (non propagano il click) -->
         <div class="vcard__bottom" @click.stop>
-          <q-btn
-            v-if="v.bookingUrl"
+         <q-btn
+            v-if="hasBookingOrPhone(v)"
             no-caps
             unelevated
             class="btn primary"
-            :disable="!v.bookingUrl"
+            :disable="!v.bookingUrl && !v.phone"
             :label="$t('actions.book','Book')"
-            :href="v.bookingUrl || undefined"
-            target="_blank"
+            :href="venueHref(v)"
+            :target="v.bookingUrl ? '_blank' : undefined"
           />
 
           <q-btn
@@ -131,6 +131,18 @@ function isOpenNow (v){
 
 // navigazione
 function goToVenue (id){ router.push({ name: 'locale', params: { id } }) }
+
+// helper per href del bottone
+const venueHref = (v) => {
+  if (v?.bookingUrl) return v.bookingUrl
+  if (v?.phone) return `tel:${v.phone}`
+  return undefined
+}
+
+// helper per sapere se mostrare il bottone
+const hasBookingOrPhone = (v) => {
+  return !!(v?.bookingUrl || v?.phone)
+}
 </script>
 
 

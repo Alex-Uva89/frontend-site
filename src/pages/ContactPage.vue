@@ -139,6 +139,7 @@
             rel="noopener"
             class="rust-item"
           >
+
             <q-item-section avatar>
               <q-avatar color="brown-3" text-color="brown-10" icon="place" />
             </q-item-section>

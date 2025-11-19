@@ -267,7 +267,7 @@ const { t } = useI18n()
 const $q = useQuasar()
 
 /** Email HR (cambia con quella reale) */
-const SEND_TO = 'hr@mammaelvira.it'
+const SEND_TO = 'amministrazione@mammaelvira.it'
 
 /* ===== STATE ===== */
 const jobs = ref([])

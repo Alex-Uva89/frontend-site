@@ -37,7 +37,7 @@
 <script setup>
 import { ref, computed, onMounted, onBeforeUnmount, nextTick } from 'vue'
 
-const youtubeUrl = 'https://www.youtube.com/watch?v=OCkuw52CM7w'
+const youtubeUrl = 'https://www.youtube.com/watch?v=CHJ7DaF0b0w'
 const poster = '/hero.jpg'
 
 const ytEl = ref(null)
