@@ -76,26 +76,25 @@
         <section class="team" aria-labelledby="team-title">
           <header class="team__head">
             <h2 id="team-title">
-              {{ jobs.join || 'Unisciti al team di Mamma Elvira' }}
+              {{ jobs.join }}
             </h2>
             <p class="team__lead">
               {{
                 jobs.lead
-                  || 'Cerchiamo persone curiose, gentili e concrete. Se ti piacciono le mani in pasta e i dettagli in sala, ci piacerà conoscerti.'
               }}
             </p>
             <div class="team__cta">
               <q-btn
                 no-caps
                 class="btn primary"
-                :label="jobs.openings || 'Posizioni aperte'"
+                :label="jobs.openings"
                 to="/jobs"
               />
               <q-btn
                 no-caps
                 outline
                 class="btn ghost"
-                :label="jobs.email || 'Scrivici'"
+                :label="jobs.email"
                 href="mailto:jobs@mammaelvira.example"
               />
             </div>
@@ -187,6 +186,7 @@ import axios from 'axios'
 
 import HeroImage from 'src/components/HeroImage.vue'
 import heroImgFile from '../assets/mamma_andrea.jpg'
+
 
 const heroImg = heroImgFile
 

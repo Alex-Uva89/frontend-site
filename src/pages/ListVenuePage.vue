@@ -154,7 +154,7 @@ const hasBookingOrPhone = (v) => {
 function getNextOpening(v) {
   const now = new Date();
   const today = now.getDay();
-  const remap = [1,2,3,4,5,6,0];
+  const remap = [6,0,1,2,3,4,5];
   const todayMapped = remap[today];
 
   const dayKeys = [
