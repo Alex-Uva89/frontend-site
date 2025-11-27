@@ -17,9 +17,9 @@ export default {
     story: 'La nostra storia',
     producers: 'Produttori',
     jobs: 'Lavora con noi',
-    contact: 'FAQ & Contatti',
+    contact: 'Contatti',
     book: 'Prenota un tavolo',
-    private: 'Eventi privati',
+    private: 'Eventi',
     tagline: '“La qualità del Salento, senza compromessi.”'
   },
   hero: {
@@ -166,7 +166,21 @@ export default {
     stageDesc: 'Percorsi formativi in cucina e sala: imparare facendo.'
   },
 
-
+  days: {
+    "sunday": "domenica",
+    "monday": "lunedì",
+    "tuesday": "martedì",
+    "wednesday": "mercoledì",
+    "thursday": "giovedì",
+    "friday": "venerdì",
+    "saturday": "sabato"
+  },
+  open: {
+    "now": "aperto",
+    "at": "apre alle {time}",
+    "on": "apre {day} alle {time}",
+    "unavailable": "orari non disponibili"
+  },
   /* mapping piatto (evita refactor del template): */
   'newsletter.title1': 'Iscriviti alla',
   'newsletter.and': 'e',

@@ -72,6 +72,9 @@ import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { fetchVenues } from 'src/stores/venues.js'
 import { useLangStore } from 'src/stores/langStore.js'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 const router = useRouter()
 const lang = useLangStore() // lang.current = 'it-IT' | 'en-US'
@@ -150,40 +153,51 @@ const hasBookingOrPhone = (v) => {
 // helper per mostrare orario apertura
 function getNextOpening(v) {
   const now = new Date();
-  const today = now.getDay()
-
+  const today = now.getDay();
   const remap = [1,2,3,4,5,6,0];
   const todayMapped = remap[today];
+
+  const dayKeys = [
+    "days.sunday",
+    "days.monday",
+    "days.tuesday",
+    "days.wednesday",
+    "days.thursday",
+    "days.friday",
+    "days.saturday"
+  ];
 
   for (let i = 0; i < 7; i++) {
     const dayIndex = (todayMapped + i) % 7;
     const dayHours = v.hours[dayIndex];
 
-    // Se il giorno ha fasce orarie
     if (dayHours && dayHours.length > 0) {
       const slot = dayHours[0];
 
-      // Se è oggi e l’apertura è dopo adesso → mostra quella
       if (i === 0) {
         const [h, m] = slot.o.split(':').map(Number);
         const openingTime = new Date();
         openingTime.setHours(h, m, 0, 0);
 
         if (openingTime > now) {
-          return `open to ${slot.o}`;
+          return t("open.at", { time: slot.o });
         }
       }
 
-      // Altrimenti → prossimo giorno con orario
-      const days = ["domenica","lunedì","martedì","mercoledì","giovedì","venerdì","sabato"];
-      const realDay = remap.indexOf(dayIndex); // torniamo al sistema 0=dom
+      const realDay = remap.indexOf(dayIndex);
+      const dayLabel = t(dayKeys[realDay]);
 
-      return `apre ${days[realDay]} alle ${slot.o}`;
+      return t("open.on", {
+        day: dayLabel,
+        time: slot.o
+      });
     }
   }
 
-  return "orari non disponibili";
+  return t("open.unavailable");
 }
+
+
 
 </script>
 

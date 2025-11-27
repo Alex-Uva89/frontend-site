@@ -17,9 +17,9 @@ export default {
     story: 'Our story',
     producers: 'Producers',
     jobs: 'Careers',
-    contact: 'FAQ & Contacts',
+    contact: 'Contacts',
     book: 'Book a table',
-    private: 'Private events',
+    private: 'Events',
     tagline: '“Salento quality, no compromise.”'
   },
   hero: {
@@ -167,7 +167,21 @@ export default {
     stageDesc: 'Learning paths in kitchen and dining room: learn by doing.'
   },
 
-
+  days: {
+    "sunday": "sunday",
+    "monday": "monday",
+    "tuesday": "tuesday",
+    "wednesday": "wednesday",
+    "thursday": "thursday",
+    "friday": "friday",
+    "saturday": "saturday"
+  },
+  open: {
+    "now": "open",
+    "at": "open at {time}",
+    "on": "open {day} on {time}",
+    "unavailable": "hours unavailable"
+  },
 
 
   /* mapping piatto (evita refactor del template): */
