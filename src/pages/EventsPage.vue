@@ -382,6 +382,7 @@ function sendEmailBooking(event) {
 /* =============== LAYOUT BASE =============== */
 .events-page {
   background: var(--sand-200);
+  margin-bottom: 100px;
 }
 
 .wrap {
