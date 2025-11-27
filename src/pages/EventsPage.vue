@@ -12,6 +12,18 @@
 
     <div class="wrap">
 
+      <section class="events header">
+        <header>
+          <p class="events_p">
+            Disponiamo di una Sala Eventi e di una Sala Privata ideali per compleanni e ricorrenze, cene aziendali e meeting.Compila il form in fondo alla pagina per chiedere informazioni.
+
+            Organizziamo periodicamente delle degustazioni di vino e altri prodotti di eccellenza; per non perdertele seguici
+            <RouterLink to="/contact" :aria-label="contactLabel">qui</RouterLink>
+          </p>
+        </header>
+      </section>
+
+
       <!-- ========================= -->
       <!--      EVENTI IN ARRIVO     -->
       <!-- ========================= -->
@@ -238,7 +250,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import HeroImage from 'src/components/HeroImage.vue'
-import heroImgFile from '../assets/mamma_andrea.jpg'
+import heroImgFile from '../assets/event.jpg'
 
 // Store eventi (Pinia)
 import { useEventsStore } from 'src/stores/eventStore'
@@ -389,6 +401,13 @@ function sendEmailBooking(event) {
   margin-bottom: 12px;
 }
 
+/* ================= HEADER ================= */
+
+.events_p{
+  font-size: 1.1rem;
+  color: rgb(34, 34, 34);
+}
+
 /* ================= EVENTI IN ARRIVO ================= */
 .carousel {
   display: flex;
@@ -503,10 +522,7 @@ function sendEmailBooking(event) {
 
 /* Gradient */
 .carousel-gradient {
-  margin-top: -40px;
-  height: 40px;
-  background: linear-gradient(to right, transparent, var(--stone-100));
-  pointer-events: none;
+  margin-top: 40px;
 }
 
 /* Desktop layout */
