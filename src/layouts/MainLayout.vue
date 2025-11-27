@@ -55,8 +55,10 @@ function playTvClick(){
 </script>
 
 <style lang="css" scoped>
-.crt-body{
-  margin-bottom: 100px;
+@media (max-width: 768px) {
+  .crt-body{
+    padding-bottom: 100px;
+  }
 }
 
 </style>
