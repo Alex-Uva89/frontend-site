@@ -53,3 +53,10 @@ function playTvClick(){
   }catch(e){console.log(e)}
 }
 </script>
+
+<style lang="css" scoped>
+.crt-body{
+  margin-bottom: 100px;
+}
+
+</style>
