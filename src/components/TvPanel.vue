@@ -27,8 +27,11 @@
           <span class="text digital">{{ link.label }}</span>
         </button>
       </div>
-
       <div class="container-contacts">
+        <div class="delivery">
+          <a href="https://www.mammadelivery.com" target="_blank" rel="noopener"
+            aria-label="Mamma Delivery">delivery</a>
+        </div>
         <div class="contacts">
           <RouterLink to="/contact" :aria-label="contactLabel">{{ contactLabel }}</RouterLink>
         </div>
@@ -381,14 +384,17 @@ onBeforeUnmount(() => {
 }
 
 .container-contacts {
+  --gap: 14px;
   display: flex;
-  align-items: center;
-  justify-content: end;
+  justify-content: flex-end;
+  gap: var(--gap);
 }
 
-.contacts {
+.contacts,
+.delivery {
   width: 50%;
   padding: 10px 30px;
+  flex: 0 0 calc((100% - var(--gap)) / 2);
   border-radius: 12px;
   --paper-top: #fff7e8;
   --paper-mid: #f8f0e2;
@@ -408,6 +414,12 @@ onBeforeUnmount(() => {
   text-align: center;
 }
 
+.delivery {
+  --paper-top: #4beccf;
+  --paper-mid: #4beccf;
+  --paper-bot: #4beccf;
+}
+
 .contacts::after {
   content: "";
   position: absolute;
@@ -419,7 +431,8 @@ onBeforeUnmount(() => {
   pointer-events: none;
 }
 
-.contacts>a {
+.contacts>a,
+.delivery>a {
   display: block;
   width: 100%;
   height: 100%;
