@@ -16,10 +16,10 @@ const routes = [
       { path: 'story', name: 'story', component: () => import('pages/OurStory.vue') },
 
       { path: 'producers', name: 'producers', component: () => import('pages/ProducersPage.vue') },
-      { path: 'jobs',      name: 'jobs',      component: () => import('pages/JobsPage.vue') },
-      { path: 'contact',   name: 'contact',   component: () => import('pages/ContactPage.vue') },
-      { path: 'events',    name: 'events',    component: () => import('pages/EventsPage.vue') }, // per CTA "Eventi privati"
-
+      { path: 'jobs', name: 'jobs', component: () => import('pages/JobsPage.vue') },
+      { path: 'contact', name: 'contact', component: () => import('pages/ContactPage.vue') },
+      { path: 'events', name: 'events', component: () => import('pages/EventsPage.vue'), }, // per CTA "Eventi privati"
+      { path: 'music', name: 'music', component: () => import('pages/MusicPage.vue') },
       // 404
       { path: ':catchAll(.*)*', name: 'not-found', component: () => import('pages/ErrorNotFound.vue') },
     ],

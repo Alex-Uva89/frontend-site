@@ -7,7 +7,7 @@ const API_BASE = (import.meta?.env?.VITE_API_BASE) || 'http://localhost:8787'
 // cache semplice per locale → siteStrings
 const siteCache = new Map()
 
-async function fetchSiteStrings (locale) {
+async function fetchSiteStrings(locale) {
   if (siteCache.has(locale)) return siteCache.get(locale)
   const res = await fetch(`${API_BASE}/content/${encodeURIComponent(locale)}`)
   if (!res.ok) throw new Error(`HTTP ${res.status} on /content/${locale}`)
@@ -18,10 +18,11 @@ async function fetchSiteStrings (locale) {
 
 function makeLinks(content) {
   return [
-    { label: content?.drawer?.venues   || 'I nostri locali',  to: '/venues' },
-    { label: content?.drawer?.story    || 'La nostra storia', to: '/story'  },
-    { label: content?.nav?.events      || 'Eventi',           to: '/events' },
-    { label: content?.drawer?.jobs     || 'Lavora con noi',   to: '/jobs'   },
+    { label: content?.drawer?.venues || 'I nostri locali', to: '/venues' },
+    { label: content?.drawer?.story || 'La nostra storia', to: '/story' },
+    { label: content?.nav?.events || 'Eventi', to: '/events' },
+    { label: content?.drawer?.jobs || 'Lavora con noi', to: '/jobs' },
+    { label: content?.drawer?.jobs || 'Media', to: '/music' },
     // Esempio esterno (se mai servisse):
     // { label: content?.nav?.instagram || 'Instagram', href: 'https://…' }
   ]
@@ -29,24 +30,24 @@ function makeLinks(content) {
 
 function makeLinksMobile(content) {
   return [
-    { label: content?.drawer?.home     || 'Home',             to: '/'       },
-    { label: content?.drawer?.venues   || 'I nostri locali',  to: '/venues' },
-    { label: content?.drawer?.story    || 'La nostra storia', to: '/story'  },
-    { label: content?.nav?.events      || 'Eventi',           to: '/events' },
-    { label: content?.drawer?.jobs     || 'Lavora con noi',   to: '/jobs'   },
-    { label: content?.drawer?.contact  || 'Contatti',         to: '/contact'},
+    { label: content?.drawer?.home || 'Home', to: '/' },
+    { label: content?.drawer?.venues || 'I nostri locali', to: '/venues' },
+    { label: content?.drawer?.story || 'La nostra storia', to: '/story' },
+    { label: content?.nav?.events || 'Eventi', to: '/events' },
+    { label: content?.drawer?.jobs || 'Lavora con noi', to: '/jobs' },
+    { label: content?.drawer?.contact || 'Contatti', to: '/contact' },
   ]
 }
 
 function makeCtas(content, prevCtas) {
   return {
     booking: {
-      label: content?.drawer?.book   || 'Prenota un tavolo',
-      href:  prevCtas?.booking?.href || 'https://prenota.example'
+      label: content?.drawer?.book || 'Prenota un tavolo',
+      href: prevCtas?.booking?.href || 'https://prenota.example'
     },
     private: {
       label: content?.drawer?.private || 'Eventi privati',
-      to:    prevCtas?.private?.to    || '/events'
+      to: prevCtas?.private?.to || '/events'
     }
   }
 }
@@ -57,22 +58,23 @@ export const useDrawerStore = defineStore('drawer', {
 
     // Fallback IT (verranno sovrascritti dai contenuti di Sanity)
     links: [
-      { label: 'I nostri locali',  to: '/venues' },
-      { label: 'La nostra storia', to: '/story'  },
-      { label: 'Eventi',           to: '/events' },
-      { label: 'Lavora con noi',   to: '/jobs'   },
+      { label: 'I nostri locali', to: '/venues' },
+      { label: 'La nostra storia', to: '/story' },
+      { label: 'Eventi', to: '/events' },
+      { label: 'Lavora con noi', to: '/jobs' },
+      { label: 'Media', to: '/music' },
     ],
     linksMobile: [
-      { label: 'Home',             to: '/'       },
-      { label: 'I nostri locali',  to: '/venues' },
-      { label: 'La nostra storia', to: '/story'  },
-      { label: 'Eventi',           to: '/events' },
-      { label: 'Lavora con noi',   to: '/jobs'   },
-      { label: 'Contatti',         to: '/contact'},
+      { label: 'Home', to: '/' },
+      { label: 'I nostri locali', to: '/venues' },
+      { label: 'La nostra storia', to: '/story' },
+      { label: 'Eventi', to: '/events' },
+      { label: 'Lavora con noi', to: '/jobs' },
+      { label: 'Contatti', to: '/contact' },
     ],
     ctas: {
       booking: { label: 'Prenota un tavolo', href: 'https://prenota.example' },
-      private: { label: 'Eventi privati',    to: '/events' }
+      private: { label: 'Eventi privati', to: '/events' }
     },
 
     _i18nReady: false,
@@ -80,10 +82,10 @@ export const useDrawerStore = defineStore('drawer', {
   }),
 
   actions: {
-    setImage (url) { if (typeof url === 'string' && url) this.image = url },
-    setLinks (arr) { if (Array.isArray(arr)) this.links = arr },
-    setLinksMobile (arr) { if (Array.isArray(arr)) this.linksMobile = arr },
-    setCtas (obj) { if (obj && typeof obj === 'object') this.ctas = { ...this.ctas, ...obj } },
+    setImage(url) { if (typeof url === 'string' && url) this.image = url },
+    setLinks(arr) { if (Array.isArray(arr)) this.links = arr },
+    setLinksMobile(arr) { if (Array.isArray(arr)) this.linksMobile = arr },
+    setCtas(obj) { if (obj && typeof obj === 'object') this.ctas = { ...this.ctas, ...obj } },
 
     /**
      * Carica i testi tradotti dal backend (siteStrings) e aggiorna links/ctas.

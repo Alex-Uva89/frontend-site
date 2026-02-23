@@ -23,7 +23,7 @@
       <div class="programs" ref="programsRef" role="group" aria-label="Program buttons">
         <button v-for="(link, i) in programs" :key="(link.to || link.href || i)" class="prog" type="button"
           @click="go(link)">
-          <span class="num digital">{{ i + 1 }}</span>
+          <!-- <span class="num digital">{{ i + 1 }}</span> -->
           <span class="text digital">{{ link.label }}</span>
         </button>
       </div>
@@ -253,7 +253,7 @@ onBeforeUnmount(() => {
   justify-items: center;
   gap: 8px;
   padding: 20px 14px 20px;
-  border-radius: 12px;
+  /* border-radius: 12px; */
   background: rgb(0, 0, 0);
   border: 1px solid var(--glass-brd);
   box-shadow: 0 10px 24px rgba(0, 0, 0, .35), inset 0 1px 0 rgba(255, 255, 255, .12);
@@ -266,7 +266,7 @@ onBeforeUnmount(() => {
   content: "";
   position: absolute;
   inset: 0;
-  border-radius: 10px;
+  /* border-radius: 10px; */
   background: linear-gradient(145deg, rgba(255, 255, 255, .22), rgba(255, 255, 255, 0) 50%);
   mix-blend-mode: screen;
   pointer-events: none;
@@ -288,7 +288,7 @@ onBeforeUnmount(() => {
 .knobs {
   background-color: #2a1a12;
   padding: 15px 0;
-  border-radius: 10px;
+  /* border-radius: 10px; */
   box-shadow: inset 0 0 10px wheat;
   display: flex;
   justify-content: space-around;
@@ -299,20 +299,23 @@ onBeforeUnmount(() => {
   padding: 15px;
   border-radius: 10px;
   box-shadow: inset 0 0 10px wheat;
+
   --gap: 14px;
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: var(--gap);
+
   align-content: start;
-  container-type: size;
   min-height: 0;
   overflow: auto;
 }
 
 .prog {
-  aspect-ratio: 1 / 1;
-  border-radius: 50%;
+  /* aspect-ratio: 1 / 1; */
+  height: 80px;
+  /* border-radius: 50%; */
   border: 1px solid var(--glass-brd);
+  border-radius: 6px;
   position: relative;
   overflow: hidden;
   display: flex;
@@ -340,15 +343,16 @@ onBeforeUnmount(() => {
 .prog::after {
   content: "";
   position: absolute;
-  top: 8%;
-  left: 12%;
-  width: 62%;
-  height: 46%;
-  border-radius: 100% 100% 60% 60%;
-  background: radial-gradient(ellipse at 30% 20%, rgba(255, 255, 255, .38), rgba(255, 255, 255, 0) 60%);
+  top: 10%;
+  left: 8%;
+  width: 84%;
+  height: 35%;
+  border-radius: 6px;
+  /* bordi leggermente arrotondati */
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.4), rgba(255, 255, 255, 0));
   pointer-events: none;
-  opacity: .55;
-  filter: blur(.3px);
+  opacity: 0.6;
+  filter: blur(1px);
 }
 
 .prog:hover {
@@ -474,7 +478,7 @@ onBeforeUnmount(() => {
   margin-top: 2px;
 }
 
-.text::before {
+/* .text::before {
   content: "";
   display: block;
   width: 64%;
@@ -484,7 +488,7 @@ onBeforeUnmount(() => {
   box-shadow:
     0 0 8px rgba(120, 255, 180, .45), 0 1px 0 rgba(0, 0, 0, .35) inset;
   border-radius: 999px;
-}
+} */
 
 .text {
   max-width: 82%;
