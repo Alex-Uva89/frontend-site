@@ -22,7 +22,7 @@ function makeLinks(content) {
     { label: content?.drawer?.story || 'La nostra storia', to: '/story' },
     { label: content?.nav?.events || 'Eventi', to: '/events' },
     { label: content?.drawer?.jobs || 'Lavora con noi', to: '/jobs' },
-    { label: content?.drawer?.jobs || 'Media', to: '/music' },
+    { label: 'Media', to: '/music' },
     // Esempio esterno (se mai servisse):
     // { label: content?.nav?.instagram || 'Instagram', href: 'https://…' }
   ]
