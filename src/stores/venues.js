@@ -1,10 +1,8 @@
-// src/store/venues.js
-// Store read-only: prende i venues dal tuo backend Express (che legge da Sanity)
 
 let API_BASE = 'http://localhost:8787'
 try {
   if (import.meta?.env?.VITE_API_BASE) API_BASE = import.meta.env.VITE_API_BASE
-} catch(e) {
+} catch (e) {
   console.log(e)
 } // import.meta non sempre esiste (SSR/test)
 if (typeof process !== 'undefined' && process.env?.API_BASE) {
