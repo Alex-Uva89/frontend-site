@@ -419,9 +419,9 @@ onBeforeUnmount(() => {
 }
 
 .delivery {
-  --paper-top: #4beccf;
-  --paper-mid: #4beccf;
-  --paper-bot: #4beccf;
+  --paper-top: #cfaf46;
+  --paper-mid: #cfaf46;
+  --paper-bot: #cfaf46;
 }
 
 .contacts::after {
