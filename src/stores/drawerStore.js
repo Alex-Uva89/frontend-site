@@ -34,6 +34,7 @@ function makeLinksMobile(content) {
     { label: content?.drawer?.venues || 'I nostri locali', to: '/venues' },
     { label: content?.drawer?.story || 'La nostra storia', to: '/story' },
     { label: content?.nav?.events || 'Eventi', to: '/events' },
+    { label: 'Media', to: '/music' },
     { label: content?.drawer?.jobs || 'Lavora con noi', to: '/jobs' },
     { label: content?.drawer?.contact || 'Contatti', to: '/contact' },
   ]
@@ -69,6 +70,7 @@ export const useDrawerStore = defineStore('drawer', {
       { label: 'I nostri locali', to: '/venues' },
       { label: 'La nostra storia', to: '/story' },
       { label: 'Eventi', to: '/events' },
+      { label: 'Media', to: '/music' },
       { label: 'Lavora con noi', to: '/jobs' },
       { label: 'Contatti', to: '/contact' },
     ],
