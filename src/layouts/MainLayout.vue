@@ -37,8 +37,8 @@ watch(
 
 /* CLICK audio */
 let audioCtx
-function playTvClick(){
-  try{
+function playTvClick() {
+  try {
     audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)()
     const now = audioCtx.currentTime
     const o = audioCtx.createOscillator()
@@ -50,15 +50,14 @@ function playTvClick(){
     g.gain.exponentialRampToValueAtTime(0.35, now + 0.006)
     g.gain.exponentialRampToValueAtTime(0.00001, now + 0.09)
     o.start(now); o.stop(now + 0.1)
-  }catch(e){console.log(e)}
+  } catch (e) { console.log(e) }
 }
 </script>
 
 <style lang="css" scoped>
 @media (max-width: 768px) {
-  .crt-body{
+  .crt-body {
     padding-bottom: 100px;
   }
 }
-
 </style>
