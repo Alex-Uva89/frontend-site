@@ -18,7 +18,7 @@ export const useEventsStore = defineStore('events', () => {
 
     try {
       const res = await axios.get(`${API_BASE}/events`)
-      events.value = res.data
+      events.value = res.data.items
     } catch (err) {
       console.error('[EventsStore] fetchAllEvents error', err)
       error.value = 'Impossibile caricare gli eventi.'
@@ -36,7 +36,7 @@ export const useEventsStore = defineStore('events', () => {
 
     try {
       const res = await axios.get(`${API_BASE}/events/future`)
-      events.value = res.data
+      events.value = res.data.items
     } catch (err) {
       console.error('[EventsStore] fetchFutureEvents error', err)
       error.value = 'Impossibile caricare gli eventi futuri.'
@@ -54,7 +54,7 @@ export const useEventsStore = defineStore('events', () => {
 
     try {
       const res = await axios.get(`${API_BASE}/events/past`)
-      events.value = res.data
+      events.value = res.data.items
     } catch (err) {
       console.error('[EventsStore] fetchPastEvents error', err)
       error.value = 'Impossibile caricare gli eventi passati.'
